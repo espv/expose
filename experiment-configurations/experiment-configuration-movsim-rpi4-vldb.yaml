@@ -1,0 +1,909 @@
+﻿# This file describes stream processing experiments.
+
+# Each stream processing system must have a program that:
+# - parses this yaml file,
+# - interprets the necessary tasks, and
+# - inserts tracepoints to trace metrics such as execution time and throughput (optional).
+
+# The only system specific detail that must be placed in this file is SQL queries and stream schemas for the systems
+# that use a particular syntax for schemas.
+
+name: Experiment configuration
+
+experiments:
+  - name: experiment 1 --- varying the number of subscribers (one subscriber, but increased number of tuples)
+    id: 11
+    flow:
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 3}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      # 3-10 are subscribers
+      - {task: runEnvironment, node: 3}
+      - {task: runEnvironment, node: 4}
+      - {task: runEnvironment, node: 5}
+      - {task: runEnvironment, node: 6}
+      - {task: runEnvironment, node: 7}
+      - {task: runEnvironment, node: 8}
+      - {task: runEnvironment, node: 9}
+      - {task: runEnvironment, node: 10}
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: runEnvironment, node: 2},
+         {task: runEnvironment, node: 3},
+         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+         {task: stopEnvironment, node: 2},
+         {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: loopTasks, node: coordinator,
+          arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 4], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 5], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 6], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 7], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 8], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 9], node: 2}
+
+      - {task: traceTuple, arguments: [201, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 10], node: 2}
+
+  - name: experiment 2 --- varying the number of forwarding queries to process (but not forwarded; one publisher and one subscriber)
+    id: 12
+    flow:
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+          {task: runEnvironment, node: 2},
+          {task: runEnvironment, node: 3},
+          {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+          {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+          {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+          {task: stopEnvironment, node: 2},
+          {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [10, [{task: runEnvironment, node: 2},
+                          {task: runEnvironment, node: 3},
+                          {task: loopTasks, node: coordinator,
+                           arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                                             {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
+                                             {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                           ]]},
+                          {task: stopEnvironment, node: 2},
+                          {task: stopEnvironment, node: 3},
+                          {task: addQueries, arguments: [5, 10], node: 2},
+         ]]}
+
+  - name: experiment 3 --- varying the number of average queries to process (but not forwarded; one publisher and one subscriber)
+    id: 13
+    flow:
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      #- {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      # Schema 11 is the average stream
+      - {task: addSubscriberOfStream, arguments: [11, 3], node: 2}
+      #- {task: addQueries, arguments: [12, 1], node: 2}
+      # Query 8 is the average query
+      - {task: addQueries, arguments: [8, 1], node: 2}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+          {task: runEnvironment, node: 2},
+          {task: runEnvironment, node: 3},
+          {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+          {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+          {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+          {task: stopEnvironment, node: 2},
+          {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [10, [{task: runEnvironment, node: 2},
+                          {task: runEnvironment, node: 3},
+                          {task: loopTasks, node: coordinator,
+                           arguments: [1, [{task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
+                                             {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
+                                             {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                           ]]},
+                          {task: stopEnvironment, node: 2},
+                          {task: stopEnvironment, node: 3},
+                          {task: addQueries, arguments: [8, 10], node: 2},
+         ]]}
+
+  - name: experiment 3 (T-Rex) --- varying the number of average queries to process (but not forwarded; one publisher and one subscriber)
+    id: 19
+    flow:
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: runEnvironment, node: 2},
+         {task: runEnvironment, node: 3},
+         {task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
+         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+         {task: stopEnvironment, node: 2},
+         {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [10, [{task: runEnvironment, node: 2},
+                          {task: runEnvironment, node: 3},
+                          {task: loopTasks, node: coordinator,
+                           arguments: [1, [{task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
+                                            {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                             trace-return-value: {tracepoint-id: 200, nodes: [2]}},
+                                            {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                           ]]},
+                          {task: stopEnvironment, node: 2},
+                          {task: stopEnvironment, node: 3},
+                          {task: addQueries, arguments: [8, 1], node: 2},
+         ]]}
+
+  - name: experiment 4 --- varying the number of sequence queries to process (but not forwarded; one publisher and one subscriber)
+    id: 14
+    flow:
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: runEnvironment, node: 2},
+         {task: runEnvironment, node: 3},
+         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+         {task: stopEnvironment, node: 2},
+         {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [10, [{task: runEnvironment, node: 2},
+                          {task: runEnvironment, node: 3},
+                          {task: loopTasks, node: coordinator,
+                           arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                                            {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                             trace-return-value: {tracepoint-id: 200, nodes: [2]}},
+                                            {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                           ]]},
+                          {task: stopEnvironment, node: 2},
+                          {task: stopEnvironment, node: 3},
+                          {task: addQueries, arguments: [9, 10], node: 2}
+         ]]}
+
+  - name: experiment 5 --- varying the number of publishers
+    id: 15
+    flow:
+      - {task: processDataset, arguments: [7], node: 1, realism: false}
+      - {task: processDataset, arguments: [7], node: 4, realism: false}
+      - {task: processDataset, arguments: [7], node: 5, realism: false}
+      - {task: processDataset, arguments: [7], node: 6, realism: false}
+      - {task: processDataset, arguments: [7], node: 7, realism: false}
+      - {task: processDataset, arguments: [7], node: 8, realism: false}
+      - {task: processDataset, arguments: [7], node: 9, realism: false}
+      - {task: processDataset, arguments: [7], node: 10, realism: false}
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 4}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 5}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 6}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 7}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 8}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 9}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 10}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: runEnvironment, node: 2},
+         {task: runEnvironment, node: 3},
+         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+         {task: stopEnvironment, node: 2},
+         {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [202, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 10, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+  - name: experiment 6 --- varying the number of publishers and subscribers
+    id: 16
+    flow:
+      - {task: processDataset, arguments: [7], node: 1, realism: false}
+      - {task: processDataset, arguments: [7], node: 4, realism: false}
+      - {task: processDataset, arguments: [7], node: 5, realism: false}
+      - {task: processDataset, arguments: [7], node: 6, realism: false}
+      - {task: processDataset, arguments: [7], node: 7, realism: false}
+      - {task: processDataset, arguments: [7], node: 8, realism: false}
+      - {task: processDataset, arguments: [7], node: 9, realism: false}
+      - {task: processDataset, arguments: [7], node: 10, realism: false}
+      # Schema 9 is trafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 4}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 5}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 6}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 7}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 8}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 9}
+      - {task: addSubscriberOfStream, arguments: [9, 2], node: 10}
+      # Schema 10 is outTrafficRouteStream
+      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addQueries, arguments: [12, 1], node: 3}
+      # 3-10 are publishers and subscribers
+      - {task: runEnvironment, node: 3}
+      - {task: runEnvironment, node: 4}
+      - {task: runEnvironment, node: 5}
+      - {task: runEnvironment, node: 6}
+      - {task: runEnvironment, node: 7}
+      - {task: runEnvironment, node: 8}
+      - {task: runEnvironment, node: 9}
+      - {task: runEnvironment, node: 10}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: runEnvironment, node: 2},
+         {task: runEnvironment, node: 3},
+         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
+         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
+         {task: stopEnvironment, node: 2},
+         {task: stopEnvironment, node: 3}
+         ]]}
+      - {task: traceTuple, arguments: [0, []], node: 2}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 4], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 5], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 6], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 7], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 8], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 9], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+      - {task: traceTuple, arguments: [203, []], node: 2}
+      - {task: runEnvironment, node: 2}
+      - {task: runEnvironment, node: 3}
+      - {task: addSubscriberOfStream, arguments: [10, 10], node: 2}
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true},
+                         {task: processDataset, arguments: [7], node: 10, realism: false, parallel: true}]]}
+      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
+      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+      - {task: stopEnvironment, node: 2}
+      - {task: stopEnvironment, node: 3}
+
+spequeries:
+  # This query chooses the interesting source data from vehicles. We might simply choose all of them.
+  # Can't I group by road and direction instead of choosing particular roads and directions? Then we
+  # can analyze everything.
+  - name: Valid Location Event
+    id: 5
+    output-stream-id: 17
+    type: fetch-query
+    sql-query:
+      t-rex: '
+Assign 16 => Traffic, 17 => ValidLocationEvent
+Define  ValidLocationEvent(ts: float, lane: int, id: int, road: int, speed: float, dist: float, segmentId: int)
+From   Traffic()
+Where ts := Traffic.t, lane := Traffic.lane, id := Traffic.id, road := Traffic.roadId, speed := Traffic.v,
+      dist := Traffic.x, segmentId := Traffic.originId
+Consuming Traffic; '
+      siddhi: "from trafficRouteStream
+               select id as id,
+                      t as ts,
+                      roadId as road,
+                      v as speed,
+                      x as dist,
+                      lane as lane,
+                      originId as segmentId
+               insert into ValidLocationEvent; "
+      esper: "insert into ValidLocationEvent
+              select t.id as id,
+                     t.t as ts,
+                     t.roadId as road,
+                     t.v as speed,
+                     t.x as dist,
+                     t.lane as lane,
+                     t.originId as segmentId
+              from trafficRouteStream t
+              group by t.roadId; "
+      flink: "select id as id,
+                     eventTime as eventTime,
+                     roadId as road,
+                     v as speed,
+                     x as dist,
+                     lane as lane,
+                     originId as segmentId
+              from trafficRouteStream "
+
+  - name: Aggregate the speed
+    id: 8
+    output-stream-id: 24
+    type: fetch-query
+    print: true
+    sql-query:
+      t-rex: "
+Assign 16 => Traffic, 24 => AverageSpeedStream
+Define  AverageSpeedStream(avgSpeed: float, label: string, roadId: int)
+From   Traffic() and
+first  Traffic()
+within 500000000 from Traffic
+Where avgSpeed := AVG(Traffic.v()) within 500000000 from Traffic, label := Traffic.label, roadId := Traffic.roadId;
+Consuming Traffic;
+      "
+      siddhi: "from trafficRouteStream#window.length(100)
+               select avg(v) as avgSpeed, label, roadId
+               group by label, roadId
+               insert into averageSpeedStream; "
+      esper: "insert into averageSpeedStream
+              select avg(v) as avgSpeed, label, roadId
+              from trafficRouteStream#length(100); "
+      flink: "select avg(v) OVER (
+                             ORDER BY eventTime
+                             ROWS BETWEEN 99 PRECEDING AND CURRENT ROW),
+                     label,
+                     roadId
+              from trafficRouteStream
+              "
+
+  # This query cannot forward outTrafficRouteStream; it has to use something like ValidLocationEvent; it was just a different name and same attributes
+  - name: Sequence query
+    id: 9
+    output-stream-id: 17
+    type: fetch-query
+    print: true
+    sql-query:
+      t-rex: '
+Assign 16 => Traffic, 17 => Traffic2, 18 => Traffic3, 23 => ValidLocationEvent
+Define  ValidLocationEvent(id: int, ts: float, road: int, speed: float, dist: float, lane: int, segmentId: int)
+From   Traffic() and
+last   Traffic2(Traffic2.ts>Traffic.ts)
+within 50000000 from Traffic and
+last    Traffic3(Traffic3.ts>Traffic2.ts)
+within 50000000 from Traffic2
+Where id := Traffic.id, ts := Traffic.t, road := Traffic.roadId, speed := Traffic.v, dist := Traffic.x, lane := Traffic.lane, segmentId := Traffic.originId
+Consuming Traffic, Traffic2, Traffic3; '
+      siddhi: 'from every (t1 = trafficRouteStream -> t2 = trafficRouteStream -> t3 = trafficRouteStream) within 5 seconds
+               select t1.id as id,
+                      t1.t as ts,
+                      t1.roadId as road,
+                      t1.v as speed,
+                      t1.x as dist,
+                      t1.lane as lane,
+                      t1.originId as segmentId
+               insert into ValidLocationEvent; '
+      flink: 'SELECT id as id,
+                     eventTime as eventTime,
+                     roadId as road,
+                     v as speed,
+                     x as dist,
+                     lane as lane,
+                     originId as segmentId
+               FROM trafficRouteStream
+               MATCH_RECOGNIZE (
+                 ORDER BY eventTime
+                 MEASURES A.eventTime AS eventTime, A.lane AS lane, A.x AS x, A.v AS v,
+                          A.id AS id, A.roadId AS roadId, A.originId AS originId
+                 AFTER MATCH SKIP PAST LAST ROW
+                 PATTERN (A{1} B{1} C{1})
+                 DEFINE
+                      A AS TRUE,
+                      B AS TRUE,
+                      C AS TRUE
+               ) ' # Query works with only one event (A)
+      esper: 'insert into ValidLocationEvent
+              select id as id,
+                     t as ts,
+                     roadId as road,
+                     v as speed,
+                     x as dist,
+                     lane as lane,
+                     originId as segmentId
+              from trafficRouteStream
+              match_recognize (
+                MEASURES A.t AS t, A.lane AS lane, A.x AS x, A.v AS v,
+                         A.id AS id, A.roadId AS roadId, A.originId AS originId
+                pattern (A B C)
+              ); '
+
+  - name: traffic
+    id: 12
+    output-stream-id: 23
+    input-stream-ids: [16]
+    type: fetch-query
+    print: true
+    sql-query:
+      t-rex: '
+Assign 16 => Traffic, 23 => OutTraffic
+Define  OutTraffic(t: float, lane: int, x: float, v: float, a: float, gap: float, dv: float, label: string, id: int,
+                   roadId: int, originId: int, absTime: string, xWithOffset: float)
+From   Traffic()
+Where t := Traffic.t, lane := Traffic.lane, x := Traffic.x, v := Traffic.v, a := Traffic.a, gap := Traffic.gap,
+      dv := Traffic.dv, label := Traffic.label, id := Traffic.id, roadId := Traffic.roadId, originId := Traffic.originId,
+      absTime := Traffic.absTime, xWithOffset := Traffic.xWithOffset
+Consuming Traffic; '
+      siddhi: 'from trafficRouteStream select * insert into outTrafficRouteStream; '
+      flink: 'SELECT *
+              FROM trafficRouteStream '
+      esper: 'insert into outTrafficRouteStream
+              select *
+              from trafficRouteStream; '
+
+stream-definitions:
+  - id: 9
+    stream-id: 16
+    name: trafficRouteStream
+    rowtime-column: {column: eventTime.rowtime, nanoseconds-per-tick: 1000000000}
+    timestamps: [{column: absTime, format: '%Y-%m-%dT%H:%M:%SZ'}]
+    tuple-format: [{name: eventTime.rowtime, type: long-timestamp}, {name: lane, type: int}, {name: x, type: double}, {name: v, type: double},
+                   {name: a, type: double}, {name: gap, type: double}, {name: dv, type: double},
+                   {name: label, type: string}, {name: id, type: int}, {name: roadId, type: int},
+                   {name: originId, type: int}, {name: absTime, type: string}, {name: xWithOffset, type: double}]
+    siddhi: 'define stream trafficRouteStream (t long, lane int, x double, v double, a double, gap double, dv double, label string, id int, roadId int, originId int, absTime string, xWithOffset double);'
+    esper: 'create schema trafficRouteStream (t long, lane int, x double, v double, a double, gap double, dv double, label string, id int, roadId int, originId int, absTime string, xWithOffset double);'
+
+  - id: 10
+    stream-id: 23
+    name: outTrafficRouteStream
+    rowtime-column: {column: eventTime.rowtime, nanoseconds-per-tick: 1000000000}
+    timestamps: [{column: absTime, format: '%Y-%m-%dT%H:%M:%SZ'}]
+    tuple-format: [{name: eventTime.rowtime, type: long-timestamp}, {name: lane, type: int}, {name: x, type: double}, {name: v, type: double},
+                   {name: a, type: double}, {name: gap, type: double}, {name: dv, type: double},
+                   {name: label, type: string}, {name: id, type: int}, {name: roadId, type: int},
+                   {name: originId, type: int}, {name: absTime, type: string}, {name: xWithOffset, type: double}]
+    siddhi: 'define stream outTrafficRouteStream (t long, lane int, x double, v double, a double, gap double, dv double, label string, id int, roadId int, originId int, absTime string, xWithOffset double);'
+    esper: 'create schema outTrafficRouteStream (t long, lane int, x double, v double, a double, gap double, dv double, label string, id int, roadId int, originId int, absTime string, xWithOffset double);'
+
+  - id: 11
+    stream-id: 24
+    name: averageSpeedStream
+    tuple-format: [{name: avgSpeed, type: double}, {name: label, type: string}, {name: roadId, type: int}]
+    siddhi: 'define stream averageSpeedStream (avgSpeed double, label string, roadId int);'
+    esper: 'create schema averageSpeedStream (avgSpeed double, label string, roadId int);'
+
+  - id: 12
+    stream-id: 17
+    name: ValidLocationEvent
+    rowtime-column: {column: eventTime.rowtime, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: id, type: int}, {name: eventTime.rowtime, type: long-timestamp}, {name: road, type: int}, {name: speed, type: double},
+                   {name: dist, type: double}, {name: lane, type: int}, {name: segmentId, type: int}]
+    siddhi: 'define stream ValidLocationEvent (id int, ts long, road int, speed double, dist double, lane int, segmentId int);'
+    esper: 'create schema ValidLocationEvent (id int, ts long, road int, speed double, dist double, lane int, segmentId int);'
+
+datasets:
+  - name: Traffic routing data 2 114000 tuples (YAML)
+    type: yaml
+    id: 5
+    stream-id: 16
+    file: ~/Data/MovSim/city_example.traj.route_main.yaml
+
+  - name: Traffic routing data 2 3820 tuples (YAML)
+    type: yaml
+    id: 6
+    stream-id: 16
+    file: ~/Data/MovSim/city_example.traj.route_main-shortened.yaml
+
+  - name: Traffic routing data 2 40000 tuples (YAML)
+    type: yaml
+    id: 7
+    stream-id: 16
+    file: ~/Data/MovSim/city_example.traj.route_main-40k.yaml
+
+tracepoints:
+  - id: 0
+    name: Start experiment
+    active: true
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: false
+
+  - id: 1
+    name: Receive Event
+    active: true
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 6
+    name: Created Complex Event
+    active: false
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description: A complex event was created
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 100
+    name: Finished Processing Event
+    active: true
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 221
+    name: Add Query
+    active: true
+    arguments:
+      - name: CepQuery
+        type: int
+    x_variable: numberQueries
+    description: Traced when deploying a query. This is a simulation and scaling event.
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 200
+    name: Time Since Processed Tuple
+    active: true
+    description: Time since one of the next nodes last received tuple. We can use this as an offset to determine
+                 the throughput when a stream was processed. We use the task NotifyAfterNoReceivedTuple to determine
+                 when all tuples have been transmitted, which takes the amount of milliseconds to wait until we decide
+                 that all the tuples have been transmitted. The problem is that the bigger the streams are, the
+                 more the OS seems to throttle it, and therefore, we must tolerate rather large waiting times. As such,
+                 the throughput calculation will have a much more variable and inaccurate throughput unless we use this
+                 offset. The offset will not be completely accurate, but it will improve the calculation immensely.
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: false
+
+  - id: 201
+    name: Increase number of subscribers
+    active: true
+    description: Traced when the number of subscribers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 202
+    name: Increase number of publishers
+    active: true
+    description: Traced when the number of publishers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 203
+    name: Increase number of publishers and subscribers
+    active: true
+    description: Traced when the number of publishers and subscribers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false

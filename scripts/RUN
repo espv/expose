@@ -1,2 +1,2 @@
 # Usage: ./vldb <Root log folder> <Intel Xeon YAML config> <RPI YAML config file> <Intel Xeon isolated CPU core> <RPI isolated CPU core>
-nohup ./vldb Experiments ~/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml ~/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml 19 3 &
+nohup ./vldb Experiments ../experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml ../experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml 19 3 &
