@@ -1,0 +1,4 @@
+#!/bin/bash
+experiment_id=$1
+yaml_config=$2
+java -jar ~/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiment-Framework/target/StreamProcessingExperimentFramework-1.0.0-jar-with-dependencies.jar --yaml-config $yaml_config --trace-folder ../traces --is-coordinator --coordinator-port 50000 --experiment-id $experiment_id

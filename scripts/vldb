@@ -1,0 +1,84 @@
+#!/bin/bash
+# This script runs all experiments on all four SPE systems on both the RPI 4 and Intel Xeon server
+# Experiment 3 with T-Rex on the Intel Xeon is the only experiment that is treated differently,
+# and that's because T-Rex scales terribly with the average query. That experiment is therefore
+# slightly different in that it increases the number of queries by 3 per iteration instead of 10.
+# Otherwise, T-Rex never finishes.
+
+# The script also shows a big picture view of all the experiments and how they differ on the two platforms.
+# The RPI 4 can't handle as heavy load as the Intel Xeon server, and therefore it runs different
+# experiments, which only go to around 50 queries, instead of 200 on the Intel Xeon.
+
+stream_processing_systems=(Esper Siddhi Flink TRex)
+ansible_target=intel_xeon
+rootdir=$1
+yaml_config_intel=$2
+yaml_config_rpi=$3
+isolated_cpu_core_intel_xeon=$4
+isolated_cpu_core_rpi4=$5
+
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	# Experiment 1 varies the number of subscribers
+	./runCompleteExperimentRemotely 1 10 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+	sleep 10
+	# Experiment 2 varies the number of normal forwarding queries
+	./runCompleteExperimentRemotely 2 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+	sleep 10
+	# Experiment 3 varies the number of average queries
+	if [[ "$stream_processing_system" = "TRex" ]];
+	then
+		# T-Rex scales terribly with the average query, and can thus not be as intensive as the other systems
+		 ./runCompleteExperimentRemotely 9 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+	else
+		./runCompleteExperimentRemotely 3 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+	fi
+	sleep 10
+	# Experiment 4 varies the number of sequence queries
+	./runCompleteExperimentRemotely 4 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+	sleep 10
+	# Experiment 5 varies the number of publishers
+	./runCompleteExperimentRemotely 5 10 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
+done
+
+ansible_target=raspberrypi_4
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	# Experiment 1 varies the number of subscribers
+	./runCompleteExperimentRemotely 11 10 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	sleep 10
+	# Experiment 2 varies the number of normal forwarding queries
+	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	sleep 10
+	# Experiment 3 varies the number of average queries
+	if [[ "$stream_processing_system" = "TRex" ]];
+	then
+		# T-Rex scales terribly with the average query, and can thus not be as intensive as the other systems
+		./runCompleteExperimentRemotely 19 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	else
+		./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	fi
+	sleep 10
+	# Experiment 4 varies the number of sequence queries
+	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	sleep 10
+	# Experiment 5 varies the number of publishers
+	./runCompleteExperimentRemotely 15 10 1 $stream_processing_system $ansible_target $rootdir $yaml_config_rpi $isolated_cpu_core_rpi4
+	sleep 10
+done
+
+uuid=$(cat /proc/sys/kernel/random/uuid)
+uuid=${uuid: -4}
+dt=$(date +%s)
+log_name=log_${dt}_${uuid}
+log_folder=$rootdir/archive/root_${log_name}
+mkdir $log_folder
+mv $rootdir/log $log_folder/log_AMD
+ansible intel_xeon -a "mv $rootdir/log ${rootdir}/archive/${log_name}"
+ansible intel_xeon -a "tar -cf ${rootdir}/archive/${log_name}.tar.gz ${rootdir}/archive/${log_name}"
+ansible raspberrypi_4 -a "mv $rootdir/log $rootdir/archive/${log_name}"
+ansible raspberrypi_4 -a "tar -cf ${rootdir}/archive/${log_name}.tar.gz ${rootdir}/archive/${log_name}"
+cmd="src=${rootdir}/archive/${log_name}.tar.gz dest=${log_folder}/log_intel_xeon.tar.gz flat=yes"
+ansible intel_xeon -m fetch -a "$cmd"
+cmd="src=${rootdir}/archive/${log_name}.tar.gz dest=${log_folder}/log_raspberrypi_4.tar.gz flat=yes"
+ansible raspberrypi_4 -m fetch -a "$cmd"

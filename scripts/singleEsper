@@ -1,0 +1,18 @@
+#!/bin/bash
+number_threads=$1
+client_ip=$(curl https://ipinfo.io/ip)
+client_port=$2
+coordinator_ip=$3
+coordinator_port=$4
+node_id=$5
+trace_path=$6/esper/port-$client_port
+# If unused_cpu_core is not empty, this is the SUT running, and it should have limited threads running; probably two of them.
+unused_cpu_core=$7
+mkdir -p $trace_path
+if [[ -z $unused_cpu_core ]]
+then
+	java -jar ~/Research/PhD/Private-WIP/SPEs/esper-wip/experiments/target/esper-experiments-8.4.0-jar-with-dependencies.jar --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --trace-output-folder $trace_path
+else
+	taskset -c $unused_cpu_core java -Dthread.pool.size=$number_threads -XX:ActiveProcessorCount=$number_threads -jar ~/Research/PhD/Private-WIP/SPEs/esper-wip/experiments/target/esper-experiments-8.4.0-jar-with-dependencies.jar  --client-ip $client_ip --client-port 5$client_port --cordinator-ip $coordinator_ip --coordinator-port $coordinator_port --trace-output-folder $trace_path
+fi
+

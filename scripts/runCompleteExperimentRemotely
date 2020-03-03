@@ -1,0 +1,107 @@
+#!/bin/bash
+experiment_id=$1
+number_nodes=$2
+host_number_threads=$(grep -c ^processor /proc/cpuinfo)
+remote_number_threads=$3
+stream_processing_system=$4
+node_to_run=$5
+rootlogdir=$6
+yaml_config=$7
+isolated_cpu_core=$8
+uuid=$(cat /proc/sys/kernel/random/uuid)
+uuid=${uuid: -4}
+dt=`date +%s`
+dt=${dt: -10}
+scriptdir="~/Research/PhD/Private-WIP/stream-processing-experiments/scripts"
+logdir=$rootlogdir/log/experiment-${experiment_id}/${stream_processing_system}/${dt}-${uuid}
+trace_path=$logdir/traces
+my_ip=$(hostname -I | cut -d' ' -f1)
+pids=()
+coordinator_ip=$(curl https://ipinfo.io/ip)
+coordinator_port=50000
+mkdir -p $logdir/StreamProcessors
+ansible $node_to_run -a "mkdir -p $logdir/StreamProcessors"
+mkdir -p $logdir/Mediators
+ansible $node_to_run -a "mkdir -p $logdir/Mediators"
+echo "mkdir -p $trace_path"
+mkdir -p $trace_path
+ansible $node_to_run -a "mkdir -p $trace_path"
+
+# USAGE: ./<script> <experiment_id> <number_nodes> <remote_number_threads> <stream_processing_system>
+# Example: ./<script> 2 3 1 Flink
+# Example: ./<script> 2 10 1 Siddhi
+
+echo "Starting coordinator"
+echo "Running './runCoordinator $experiment_id $yaml_config 1>$logdir/Coordinator.log 2>&1'"
+./runCoordinator $experiment_id $yaml_config 1>$logdir/Coordinator.log 2>&1 &
+coordinator_pid=$!
+
+sleep 5
+
+# This must be random
+port_base=$RANDOM
+
+function add_spe() {
+	i=$1
+	finished=
+	while [ ! $finished ]
+	do
+		node_id=0000$i
+		abbreviated_node_id=${node_id: -4}
+		port=$((port_base+i))
+		port=0000$port
+		port=${port: -4}
+		fuser -k 4$port/tcp
+		fuser -k 5$port/tcp
+		./wait_while_port_taken 5$port
+		./wait_while_port_taken 4$port
+		echo "Running ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip --cordinator-port $coordinator_port --node-id $node_id $trace_path 1>$logdir/StreamProcessors/${abbreviated_node_id}.log 2>&1"
+		EXPERIMENT_ID=$experiment_id ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip $coordinator_port $node_id $trace_path 1>$logdir/StreamProcessors/${abbreviated_node_id}.log 2>&1 &
+		PID=$!
+		sleep 1
+		if [ -n "$(ps -p $PID -o pid=)" ]; 
+		then
+			finished=1
+		fi
+	done
+}
+
+for i in $(seq "$number_nodes");
+do
+	if [ $i -eq 2 ]; then
+		continue
+	fi
+	add_spe $i
+	pids+=($PID)
+done
+
+remote_port=$((port_base+2))
+remote_port=0000$remote_port
+remote_port=${remote_port: -4}
+abbreviated_remote_node_id=0002
+
+cmd="fuser -k 4$remote_port/tcp"
+ansible $node_to_run -a "$cmd"
+cmd="fuser -k 5$remote_port/tcp"
+ansible $node_to_run -a "$cmd"
+cmd="$scriptdir/wait_while_port_taken 4$remote_port"
+ansible $node_to_run -a "$cmd"
+cmd="$scriptdir/wait_while_port_taken 5$remote_port"
+ansible $node_to_run -a "$cmd"
+cmd="$scriptdir/single$stream_processing_system $remote_number_threads $remote_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_core"
+echo "running 'ansible $node_to_run -a $cmd"
+ansible $node_to_run -m shell -a "$cmd 1>$logdir/StreamProcessors/${abbreviated_remote_node_id}.log 2>&1"&
+pids+=($!)
+echo "Remote port $remote_port"
+
+echo "Waiting for coordinator to finish"
+wait $coordinator_pid
+echo "Finished experiment $experiment_id"
+
+for i in "${pids[@]}"
+do
+	pkill -TERM -P $i&
+done
+
+pkill ansible
+ansible $node_to_run -m shell -a "$scriptdir/clean_processes"

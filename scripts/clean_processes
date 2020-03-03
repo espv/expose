@@ -1,0 +1,17 @@
+#!/bin/bash
+stream_processing_systems=(Esper Siddhi Flink TRex)
+for stream_processing_system in "${stream_processing_systems[@]}";
+do
+	echo "kill $(ps -auxww | grep "single$stream_processing_system" | awk '{print $2}')"
+	kill $(ps -auxww | grep "single$stream_processing_system" | awk '{print $2}')
+	echo "kill $(ps -auxww | grep $(echo "$stream_processing_system" | awk '{print tolower($0)}') | awk '{print $2}')"
+	kill $(ps -auxww | grep $(echo "$stream_processing_system" | awk '{print tolower($0)}') | awk '{print $2}')
+	echo "kill  $(ps -auxww | grep StreamProcessingExperimentFramework | awk '{print $2}')"
+	kill $(ps -auxww | grep StreamProcessingExperimentFramework | awk '{print $2}')
+	kill $(ps -auxww | grep runManyExperiments | awk '{print $2}')
+	kill $(ps -auxww | grep ansible | awk '{print $2}')
+	echo "kill $(ps -auxww | grep "$stream_processing_system" -i | awk '{print $2}')"
+	kill $(ps -auxww | grep "$stream_processing_system" -i | awk '{print $2}')
+	pkill $stream_processing_system
+	pkill vldb
+done
