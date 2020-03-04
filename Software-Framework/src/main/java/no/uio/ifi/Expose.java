@@ -232,11 +232,13 @@ public class Expose {
 			tf.addTracepoint(tracepoint_id);
 			activeTracepointIds.add(tracepoint_id);
 		}
+		System.out.println("Node " + node_id + ": AddTracepointIds " + activeTracepointIds);
 		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTracepointIds(activeTracepointIds);
 
 		List<Map<String, Object> >
 				streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
 		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddStreamSchemas(streamDefinitions);
+		System.out.println("Node " + node_id + ": AddStreamSchemas " + streamDefinitions);
 	}
 
 	void WaitForSPEs(List<Map<String, Object>> cmds, Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients) {
