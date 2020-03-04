@@ -41,6 +41,7 @@ do
 	./runCompleteExperimentRemotely 5 10 1 $stream_processing_system $ansible_target $rootdir $yaml_config_intel $isolated_cpu_core_intel_xeon
 done
 
+stream_processing_systems=(Esper Siddhi Flink TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
