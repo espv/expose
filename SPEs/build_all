@@ -1,5 +1,9 @@
 #!/bin/bash
-./siddhi-plus-wrapper/build_siddhi
-./esper-plus-wrapper/build_esper
-./flink-plus-wrapper/build_flink
-./trex-plus-wrapper/build_trex
+cd siddhi-plus-wrapper
+./build_siddhi
+cd ../esper-plus-wrapper
+./build_esper
+cd ../flink-plus-wrapper
+./build_flink
+cd ../trex-plus-wrapper
+./build_trex
