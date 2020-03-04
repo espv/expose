@@ -5,7 +5,7 @@ client_port=$2
 coordinator_ip=$3
 coordinator_port=$4
 node_id=$5
-trace_path=$6/esper/port-$client_port
+trace_path=$6/flink/port-$client_port
 unused_cpu_core=$7
 
 mkdir -p $trace_path
