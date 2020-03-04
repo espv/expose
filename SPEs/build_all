@@ -1,0 +1,5 @@
+#!/bin/bash
+./siddhi-plus-wrapper/build_script
+./esper-plus-wrapper/build_script
+./flink-plus-wrapper/build_script
+./trex-plus-wrapper/build_script
