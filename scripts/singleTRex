@@ -10,7 +10,7 @@ trace_path=$6/trex/port-$client_port
 unused_cpu_core=$7
 experiment_id=$EXPERIMENT_ID
 mkdir -p $trace_path
-cd ../SPEs-plus-wrappers/trex-plus-wrappers
+cd ../SPEs-plus-wrappers/trex-plus-wrapper
 
 if [[ -z $unused_cpu_core ]]
 then
