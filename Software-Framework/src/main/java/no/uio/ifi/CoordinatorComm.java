@@ -14,6 +14,7 @@ public class CoordinatorComm extends Comm implements Runnable {
 	private Expose expose;
 	private boolean isRunning = true;
 	Map<Integer, CoordinatorClient> nodeIdsToClients = new HashMap<>();
+	Map<Integer, Boolean> nodeIdReady = new HashMap<>();
 	private Map<Integer, Map<String, Object> > nodeIdsToClientInformation = new HashMap<>();
 	Map<Integer, CoordinatorExperimentAPI > nodeIdsToExperimentAPIs = new HashMap<>();
 
@@ -117,6 +118,9 @@ public class CoordinatorComm extends Comm implements Runnable {
 			cmd.put("arguments", args);
 			SendCoordinatorTask(cmd);
 			this.expose.Configure(nodeId);
+
+			// This node is now ready to participate in the experiment
+			nodeIdReady.put(nodeId, true);
 		}
 		System.out.println("CoordinatorServer is exiting");
 	}
