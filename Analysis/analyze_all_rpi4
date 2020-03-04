@@ -1,0 +1,24 @@
+#!/bin/bash
+rootdir=$1
+
+# RPI 4
+yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml
+experiment_directory=$rootdir/experiment-11
+x_factor="Number subscribers"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-1"
+experiment_directory=$rootdir/experiment-12
+x_factor="Number Queries"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-2"
+experiment_directory=$rootdir/experiment-13
+x_factor="Number Queries"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-3"
+experiment_directory=$rootdir/experiment-14
+x_factor="Number Queries"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-4"
+experiment_directory=$rootdir/experiment-15
+x_factor="Number publishers"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-5"
+experiment_directory=$rootdir/experiment-16
+x_factor="Number publishers and subscribers"
+./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-6"
+
