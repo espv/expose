@@ -21,8 +21,6 @@ coordinator_ip=$(curl https://ipinfo.io/ip)
 coordinator_port=50000
 mkdir -p $logdir/StreamProcessors
 ansible $node_to_run -a "mkdir -p $logdir/StreamProcessors"
-mkdir -p $logdir/Mediators
-ansible $node_to_run -a "mkdir -p $logdir/Mediators"
 echo "mkdir -p $trace_path"
 mkdir -p $trace_path
 ansible $node_to_run -a "mkdir -p $trace_path"
