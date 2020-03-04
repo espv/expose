@@ -253,17 +253,12 @@ public class Expose {
 				continue;
 			}
 			int node_id = (int) event.get("node");
-			CoordinatorComm.CoordinatorClient c = nodeIdsToClients.get(node_id);
-			if (c == null) {
-				System.out.println("Waiting for SPE " + node_id + " to register");
-				while (c == null) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						System.exit(5);
-					}
-					c = nodeIdsToClients.get(node_id);
+			while (!this.mc.nodeIdReady.getOrDefault(node_id, false)) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					System.exit(5);
 				}
 			}
 		}
