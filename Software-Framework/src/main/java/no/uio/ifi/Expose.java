@@ -27,15 +27,7 @@ public class Expose {
 		this.experimentAPI = experimentAPI;
 	}
 
-	@SuppressWarnings("unchecked")
-	String handleEvent(Map<String, Object> event) {
-		String cmd = (String)event.get("task");
-		List<Object> args = (List<Object>) event.get("arguments");
-		int node_id = 0;
-		if (!event.get("node").equals("coordinator")) {
-			node_id = (int) event.get("node");
-		}
-		// If this is the coordinator and the task isn't to execute on the coordinator
+	String doHandleEvent(String cmd, List<Object> args, int node_id) {
 		String ret = null;
 		switch (cmd) {
 			case "setEventBatchSize": {
@@ -78,7 +70,7 @@ public class Expose {
 				int event_id = (int) args.get(0);
 				Map<String, Object> spe_event_to_create = null;
 				List<Map<String, Object>>
-					speevents = (ArrayList<Map<String, Object>>) yaml_configuration.get("speevents");
+						speevents = (ArrayList<Map<String, Object>>) yaml_configuration.get("speevents");
 				for (Map<String, Object> speevent : speevents) {
 					if ((int) speevent.get("id") == event_id) {
 						spe_event_to_create = speevent;
@@ -92,7 +84,7 @@ public class Expose {
 			case "addDataset": {
 				int dataset_id = (int) args.get(0);
 				List<Map<String, Object>>
-					datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
+						datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
 				for (Map<String, Object> ds : datasets) {
 					if ((int) ds.get("id") == dataset_id) {
 						ret = this.mc.nodeIdsToExperimentAPIs.get(node_id).AddDataset(ds);
@@ -105,7 +97,7 @@ public class Expose {
 				int query_id = (int) args.get(0);
 				Map<String, Object> spe_rule_to_create = null;
 				List<Map<String, Object>>
-					spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
+						spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
 				for (Map<String, Object> spequery : spequeries) {
 					if ((int) spequery.get("id") == query_id) {
 						spe_rule_to_create = spequery;
@@ -130,7 +122,7 @@ public class Expose {
 				break;
 			} case "addSubscriberOfStream": {
 				List<Map<String, Object> >
-					streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
+						streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
 				for (Map<String, Object> stream_definition: streamDefinitions) {
 					if ((int) stream_definition.get("id") == (int) args.get(0)) {
 						ret = this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSubscriberOfStream((int) stream_definition.get("stream-id"), (int) args.get(1));
@@ -144,7 +136,7 @@ public class Expose {
 			case "processDataset": {
 				int dataset_id = (int) args.get(0);
 				List<Map<String, Object>>
-					datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
+						datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
 				for (Map<String, Object> ds : datasets) {
 					ds.put("file", ((String)ds.get("file")).replaceFirst("^~", System.getProperty("user.home")));
 					if ((int) ds.get("id") == dataset_id) {
@@ -206,6 +198,24 @@ public class Expose {
 			default: {
 				throw new RuntimeException("Unknown task " + cmd + " parsed");
 			}
+		}
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	String handleEvent(Map<String, Object> event) {
+		String cmd = (String)event.get("task");
+		List<Object> args = (List<Object>) event.get("arguments");
+		int node_id = 0;
+		if (!event.get("node").equals("coordinator")) {
+			node_id = (int) event.get("node");
+		}
+		System.out.println("Node " + node_id + ": " + event);
+		String ret = null;
+		if ((boolean) event.getOrDefault("parallel", false)) {
+			new Thread(doHandleEvent(cmd, args, node_id)).start();
+		} else {
+			ret = doHandleEvent(cmd, args, node_id);
 		}
 		return ret;
 	}
