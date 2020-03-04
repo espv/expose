@@ -1,12 +1,12 @@
 [submodule "SPEs/siddhi-plus-wrapper"]
-	path = SPEs/siddhi-plus-wrapper
+	path = SPEs-plus-wrappers/siddhi-plus-wrapper
 	url = https://github.com/espv/siddhi-plus-wrapper
 [submodule "SPEs/esper-plus-wrapper"]
-	path = SPEs/esper-plus-wrapper
+	path = SPEs-plus-wrappers/esper-plus-wrapper
 	url = https://github.com/espv/esper-plus-wrapper
 [submodule "SPEs/trex-plus-wrapper"]
-	path = SPEs/trex-plus-wrapper
+	path = SPEs-plus-wrappers/trex-plus-wrapper
 	url = https://github.com/espv/trex-plus-wrapper
 [submodule "SPEs/flink-plus-wrapper"]
-	path = SPEs/flink-plus-wrapper
+	path = SPEs-plus-wrappers/flink-plus-wrapper
 	url = https://github.com/espv/flink-plus-wrapper
