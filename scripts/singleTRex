@@ -6,11 +6,11 @@ client_port=$2
 coordinator_ip=$3
 coordinator_port=$4
 node_id=$5
-trace_path=$6/esper/port-$client_port
+trace_path=$6/trex/port-$client_port
 unused_cpu_core=$7
 experiment_id=$EXPERIMENT_ID
 mkdir -p $trace_path
-cd ~/Research/PhD/Private-WIP/SPEs/trex-wip
+cd ../SPEs-plus-wrappers/trex-plus-wrappers
 
 if [[ -z $unused_cpu_core ]]
 then
