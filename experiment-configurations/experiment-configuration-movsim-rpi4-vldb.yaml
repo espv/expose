@@ -5,7 +5,7 @@
 # - interprets the necessary tasks, and
 # - inserts tracepoints to trace metrics such as execution time and throughput (optional).
 
-# The only system specific detail that must be placed in this file is SQL queries and stream schemas for the systems
+# The only system specific detail that must be placed in this file is SQL queries
 # that use a particular syntax for schemas.
 
 name: Experiment configuration
