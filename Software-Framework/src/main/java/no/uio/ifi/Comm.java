@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 public class Comm {
-    Yaml yaml = new Yaml();
+    final Yaml yaml = new Yaml();
 
     static Map<String, Object> receiveMap(BufferedReader reader, Yaml yaml) throws IOException {
         String yaml_event = StringEscapeUtils.unescapeJava(reader.readLine());
@@ -17,8 +17,11 @@ public class Comm {
     }
 
     public void SendMap(Map<String, Object> map, PrintWriter writer) {
-        System.out.println("SendMap, map: " + map);
-        String yaml_event = StringEscapeUtils.escapeJava(yaml.dump(map)) + "\n";
+        String raw_yaml;
+        synchronized (yaml) {
+            raw_yaml = yaml.dump(map);
+        }
+        String yaml_event = StringEscapeUtils.escapeJava(raw_yaml) + "\n";
         writer.print(yaml_event);
         writer.flush();
     }
