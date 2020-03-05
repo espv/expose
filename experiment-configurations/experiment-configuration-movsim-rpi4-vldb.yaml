@@ -169,6 +169,7 @@ experiments:
       - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
       - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
