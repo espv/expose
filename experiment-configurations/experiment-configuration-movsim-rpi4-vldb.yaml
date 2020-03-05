@@ -789,19 +789,19 @@ datasets:
     type: yaml
     id: 5
     stream-id: 16
-    file: ~/Data/MovSim/city_example.traj.route_main.yaml
+    file: Datasets/MovSim/city_example.traj.route_main.yaml
 
   - name: Traffic routing data 2 3820 tuples (YAML)
     type: yaml
     id: 6
     stream-id: 16
-    file: ~/Data/MovSim/city_example.traj.route_main-shortened.yaml
+    file: Datasets/MovSim/city_example.traj.route_main-shortened.yaml
 
   - name: Traffic routing data 2 40000 tuples (YAML)
     type: yaml
     id: 7
     stream-id: 16
-    file: ~/Data/MovSim/city_example.traj.route_main-40k.yaml
+    file: Datasets/MovSim/city_example.traj.route_main-40k.yaml
 
 tracepoints:
   - id: 0

@@ -15,6 +15,8 @@ Make sure to place the public ssh key of the coordinator in the acknowledged_hos
 
 Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
 
+Install the software framework in Software-Framework by running `mvn install && ./add-to-local-maven-repo.sh`
+
 By using the isolcpus kernel parameter, isolate one of the CPU cores in the Intel Xeon server and the RPI. We isolated the 19th CPU core of the Intel Xeon server and the 3rd CPU core of the RPI 4. Hyperthreading is also off in the Intel Xeon server.
 
 Apache Flink specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -cp <isolated core> <zookeeper PID> && taskset -cp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
