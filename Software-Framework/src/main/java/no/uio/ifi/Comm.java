@@ -17,6 +17,7 @@ public class Comm {
     }
 
     public void SendMap(Map<String, Object> map, PrintWriter writer) {
+        System.out.println("SendMap, map: " + map);
         String yaml_event = StringEscapeUtils.escapeJava(yaml.dump(map)) + "\n";
         writer.print(yaml_event);
         writer.flush();
