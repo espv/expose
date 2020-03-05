@@ -78,9 +78,9 @@ log_folder=$local_expose_path/archive/root_${log_name}
 mkdir $log_folder
 mv $local_expose_path/log $log_folder/log_AMD
 ansible intel_xeon -a "mv $intel_expose_path/scripts/Experiments/log ${intel_expose_path}/scripts/Experiments/archive/${log_name}"
-ansible intel_xeon -a "tar -cf ${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz ${intel_expose_path}/scripts/Experiments/archive/${log_name}"
+ansible intel_xeon -a "tar -C  ${intel_expose_path}/scripts/Experiments/archive -cf ${log_name}.tar.gz ${log_name}"
 ansible raspberrypi_4 -a "mv $rpi_expose_path/scripts/Experiments/log $rpi_expose_path/scripts/Experiments/archive/${log_name}"
-ansible raspberrypi_4 -a "tar -cf ${rpi_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz ${rpi_expose_path}/scripts/Experiments/archive/${log_name}"
+ansible raspberrypi_4 -a "tar -C ${rpi_expose_path}/scripts/Experiments/archive/ -cf ${log_name}.tar.gz ${log_name}"
 cmd="src=${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_intel_xeon.tar.gz flat=yes"
 ansible intel_xeon -m fetch -a "$cmd"
 cmd="src=${rpi_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_raspberrypi_4.tar.gz flat=yes"
