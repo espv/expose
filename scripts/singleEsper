@@ -6,7 +6,7 @@ client_port=$2
 coordinator_ip=$3
 coordinator_port=$4
 node_id=$5
-trace_path=$6/esper/port-$client_port
+trace_path=$6/node-$node_id
 # If unused_cpu_core is not empty, this is the SUT running, and it should have limited threads running; probably two of them.
 unused_cpu_core=$7
 mkdir -p $trace_path
