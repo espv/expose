@@ -5,41 +5,41 @@ rootdir=$1
 yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml
 experiment_directory=$rootdir/experiment-11
 x_factor="Number sinks"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-1"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-1"
 experiment_directory=$rootdir/experiment-12
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-2"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-2"
 experiment_directory=$rootdir/experiment-13
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-3"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-3"
 experiment_directory=$rootdir/experiment-14
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-4"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-4"
 experiment_directory=$rootdir/experiment-15
 x_factor="Number sources"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-5"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-5"
 experiment_directory=$rootdir/experiment-16
 x_factor="Number sources and sinks"
-./analyze $yaml $experiment_directory "$x_factor" "rpi4-experiment-6"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-6"
 
 
 # Intel Xeon
 yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml
 experiment_directory=$rootdir/experiment-1
 x_factor="Number sinks"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-1"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-1"
 experiment_directory=$rootdir/experiment-2
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-2"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-2"
 experiment_directory=$rootdir/experiment-3
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-3"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-3"
 experiment_directory=$rootdir/experiment-4
 x_factor="Number queries"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-4"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-4"
 experiment_directory=$rootdir/experiment-5
 x_factor="Number sources"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-5"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-5"
 experiment_directory=$rootdir/experiment-6
 x_factor="Number sources and sinks"
-./analyze $yaml $experiment_directory "$x_factor" "intel-xeon-experiment-6"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-6"
