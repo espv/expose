@@ -51,7 +51,7 @@ function add_spe() {
 	finished=
 	while [ ! $finished ]
 	do
-		node_id=0000$i | sed 's/^0*//'
+		node_id=$(echo 0000$i | sed 's/^0*//')
 		client_port=$((port_base+i))
 		client_port=0000$client_port
 		client_port=${client_port: -4}
