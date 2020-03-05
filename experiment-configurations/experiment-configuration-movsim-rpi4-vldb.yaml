@@ -15,584 +15,584 @@ experiments:
     id: 11
     flow:
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 3}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 3}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
+      - {task: startRuntimeEnv, node: 2}
       # 3-10 are subscribers
-      - {task: runEnvironment, node: 3}
-      - {task: runEnvironment, node: 4}
-      - {task: runEnvironment, node: 5}
-      - {task: runEnvironment, node: 6}
-      - {task: runEnvironment, node: 7}
-      - {task: runEnvironment, node: 8}
-      - {task: runEnvironment, node: 9}
-      - {task: runEnvironment, node: 10}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: startRuntimeEnv, node: 4}
+      - {task: startRuntimeEnv, node: 5}
+      - {task: startRuntimeEnv, node: 6}
+      - {task: startRuntimeEnv, node: 7}
+      - {task: startRuntimeEnv, node: 8}
+      - {task: startRuntimeEnv, node: 9}
+      - {task: startRuntimeEnv, node: 10}
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-         {task: runEnvironment, node: 2},
-         {task: runEnvironment, node: 3},
-         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-         {task: stopEnvironment, node: 2},
-         {task: stopEnvironment, node: 3}
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
          ]]}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
-          arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+          arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
           trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 4], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 4], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 5], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 5], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 6], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 6], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 7], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 7], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 8], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 8], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 9], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 9], node: 2}
 
       - {task: traceTuple, arguments: [201, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-                                  arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                                  arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
                                                          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 10], node: 2}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 10], node: 2}
 
   - name: experiment 2 --- varying the number of forwarding queries to process (but not forwarded; one publisher and one subscriber)
     id: 12
     flow:
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-          {task: runEnvironment, node: 2},
-          {task: runEnvironment, node: 3},
-          {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-          {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-          {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-          {task: stopEnvironment, node: 2},
-          {task: stopEnvironment, node: 3}
+          {task: startRuntimeEnv, node: 2},
+          {task: startRuntimeEnv, node: 3},
+          {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+          {task: retEndOfStream, node: 2, arguments: [10000]},
+          {task: retEndOfStream, node: 3, arguments: [10000]},
+          {task: stopRuntimeEnv, node: 2},
+          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [10, [{task: runEnvironment, node: 2},
-                          {task: runEnvironment, node: 3},
+         arguments: [10, [{task: startRuntimeEnv, node: 2},
+                          {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
-                           arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                                             {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                           arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                                             {task: retEndOfStream, node: 2, arguments: [10000],
                                               trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                             {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                                             {task: retEndOfStream, node: 3, arguments: [10000]}
                            ]]},
-                          {task: stopEnvironment, node: 2},
-                          {task: stopEnvironment, node: 3},
-                          {task: addQueries, arguments: [5, 10], node: 2},
+                          {task: stopRuntimeEnv, node: 2},
+                          {task: stopRuntimeEnv, node: 3},
+                          {task: deployQueries, arguments: [5, 10], node: 2},
          ]]}
 
   - name: experiment 3 --- varying the number of average queries to process (but not forwarded; one publisher and one subscriber)
     id: 13
     flow:
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      #- {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
+      #- {task: addNextHop, arguments: [10, 3], node: 2}
       # Schema 11 is the average stream
-      - {task: addSubscriberOfStream, arguments: [11, 3], node: 2}
-      #- {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addNextHop, arguments: [11, 3], node: 2}
+      #- {task: deployQueries, arguments: [12, 1], node: 2}
       # Query 8 is the average query
-      - {task: addQueries, arguments: [8, 1], node: 2}
+      - {task: deployQueries, arguments: [8, 1], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-          {task: runEnvironment, node: 2},
-          {task: runEnvironment, node: 3},
-          {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-          {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-          {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-          {task: stopEnvironment, node: 2},
-          {task: stopEnvironment, node: 3}
+          {task: startRuntimeEnv, node: 2},
+          {task: startRuntimeEnv, node: 3},
+          {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+          {task: retEndOfStream, node: 2, arguments: [10000]},
+          {task: retEndOfStream, node: 3, arguments: [10000]},
+          {task: stopRuntimeEnv, node: 2},
+          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [10, [{task: runEnvironment, node: 2},
-                          {task: runEnvironment, node: 3},
+         arguments: [10, [{task: startRuntimeEnv, node: 2},
+                          {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
-                           arguments: [1, [{task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
-                                             {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                           arguments: [1, [{task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
+                                             {task: retEndOfStream, node: 2, arguments: [10000],
                                               trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                             {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                                             {task: retEndOfStream, node: 3, arguments: [10000]}
                            ]]},
-                          {task: stopEnvironment, node: 2},
-                          {task: stopEnvironment, node: 3},
-                          {task: addQueries, arguments: [8, 10], node: 2},
+                          {task: stopRuntimeEnv, node: 2},
+                          {task: stopRuntimeEnv, node: 3},
+                          {task: deployQueries, arguments: [8, 10], node: 2},
          ]]}
 
   - name: experiment 3 (T-Rex) --- varying the number of average queries to process (but not forwarded; one publisher and one subscriber)
     id: 19
     flow:
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-         {task: runEnvironment, node: 2},
-         {task: runEnvironment, node: 3},
-         {task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
-         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-         {task: stopEnvironment, node: 2},
-         {task: stopEnvironment, node: 3}
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [10, [{task: runEnvironment, node: 2},
-                          {task: runEnvironment, node: 3},
+         arguments: [10, [{task: startRuntimeEnv, node: 2},
+                          {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
-                           arguments: [1, [{task: processDataset, arguments: [6], node: 1, realism: false, parallel: true},
-                                            {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                           arguments: [1, [{task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
+                                            {task: retEndOfStream, node: 2, arguments: [10000],
                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                            {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                                            {task: retEndOfStream, node: 3, arguments: [10000]}
                            ]]},
-                          {task: stopEnvironment, node: 2},
-                          {task: stopEnvironment, node: 3},
-                          {task: addQueries, arguments: [8, 1], node: 2},
+                          {task: stopRuntimeEnv, node: 2},
+                          {task: stopRuntimeEnv, node: 3},
+                          {task: deployQueries, arguments: [8, 1], node: 2},
          ]]}
 
   - name: experiment 4 --- varying the number of sequence queries to process (but not forwarded; one publisher and one subscriber)
     id: 14
     flow:
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-         {task: runEnvironment, node: 2},
-         {task: runEnvironment, node: 3},
-         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-         {task: stopEnvironment, node: 2},
-         {task: stopEnvironment, node: 3}
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [10, [{task: runEnvironment, node: 2},
-                          {task: runEnvironment, node: 3},
+         arguments: [10, [{task: startRuntimeEnv, node: 2},
+                          {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
-                           arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                                            {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+                           arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                                            {task: retEndOfStream, node: 2, arguments: [10000],
                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                            {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
+                                            {task: retEndOfStream, node: 3, arguments: [10000]}
                            ]]},
-                          {task: stopEnvironment, node: 2},
-                          {task: stopEnvironment, node: 3},
-                          {task: addQueries, arguments: [9, 10], node: 2}
+                          {task: stopRuntimeEnv, node: 2},
+                          {task: stopRuntimeEnv, node: 3},
+                          {task: deployQueries, arguments: [9, 10], node: 2}
          ]]}
 
   - name: experiment 5 --- varying the number of publishers
     id: 15
     flow:
-      - {task: processDataset, arguments: [7], node: 1, realism: false}
-      - {task: processDataset, arguments: [7], node: 4, realism: false}
-      - {task: processDataset, arguments: [7], node: 5, realism: false}
-      - {task: processDataset, arguments: [7], node: 6, realism: false}
-      - {task: processDataset, arguments: [7], node: 7, realism: false}
-      - {task: processDataset, arguments: [7], node: 8, realism: false}
-      - {task: processDataset, arguments: [7], node: 9, realism: false}
-      - {task: processDataset, arguments: [7], node: 10, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 1, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 4, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 5, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 6, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 7, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 8, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 9, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 10, realism: false}
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 4}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 5}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 6}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 7}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 8}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 9}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 10}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 4}
+      - {task: addNextHop, arguments: [9, 2], node: 5}
+      - {task: addNextHop, arguments: [9, 2], node: 6}
+      - {task: addNextHop, arguments: [9, 2], node: 7}
+      - {task: addNextHop, arguments: [9, 2], node: 8}
+      - {task: addNextHop, arguments: [9, 2], node: 9}
+      - {task: addNextHop, arguments: [9, 2], node: 10}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-         {task: runEnvironment, node: 2},
-         {task: runEnvironment, node: 3},
-         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-         {task: stopEnvironment, node: 2},
-         {task: stopEnvironment, node: 3}
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
 
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 10, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 10, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
   - name: experiment 6 --- varying the number of publishers and subscribers
     id: 16
     flow:
-      - {task: processDataset, arguments: [7], node: 1, realism: false}
-      - {task: processDataset, arguments: [7], node: 4, realism: false}
-      - {task: processDataset, arguments: [7], node: 5, realism: false}
-      - {task: processDataset, arguments: [7], node: 6, realism: false}
-      - {task: processDataset, arguments: [7], node: 7, realism: false}
-      - {task: processDataset, arguments: [7], node: 8, realism: false}
-      - {task: processDataset, arguments: [7], node: 9, realism: false}
-      - {task: processDataset, arguments: [7], node: 10, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 1, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 4, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 5, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 6, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 7, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 8, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 9, realism: false}
+      - {task: sendDsAsStream, arguments: [7], node: 10, realism: false}
       # Schema 9 is trafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 1}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 4}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 5}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 6}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 7}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 8}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 9}
-      - {task: addSubscriberOfStream, arguments: [9, 2], node: 10}
+      - {task: addNextHop, arguments: [9, 2], node: 1}
+      - {task: addNextHop, arguments: [9, 2], node: 4}
+      - {task: addNextHop, arguments: [9, 2], node: 5}
+      - {task: addNextHop, arguments: [9, 2], node: 6}
+      - {task: addNextHop, arguments: [9, 2], node: 7}
+      - {task: addNextHop, arguments: [9, 2], node: 8}
+      - {task: addNextHop, arguments: [9, 2], node: 9}
+      - {task: addNextHop, arguments: [9, 2], node: 10}
       # Schema 10 is outTrafficRouteStream
-      - {task: addSubscriberOfStream, arguments: [10, 3], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 2}
-      - {task: addQueries, arguments: [12, 1], node: 3}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 2}
+      - {task: deployQueries, arguments: [12, 1], node: 3}
       # 3-10 are publishers and subscribers
-      - {task: runEnvironment, node: 3}
-      - {task: runEnvironment, node: 4}
-      - {task: runEnvironment, node: 5}
-      - {task: runEnvironment, node: 6}
-      - {task: runEnvironment, node: 7}
-      - {task: runEnvironment, node: 8}
-      - {task: runEnvironment, node: 9}
-      - {task: runEnvironment, node: 10}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: startRuntimeEnv, node: 4}
+      - {task: startRuntimeEnv, node: 5}
+      - {task: startRuntimeEnv, node: 6}
+      - {task: startRuntimeEnv, node: 7}
+      - {task: startRuntimeEnv, node: 8}
+      - {task: startRuntimeEnv, node: 9}
+      - {task: startRuntimeEnv, node: 10}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
          arguments: [5, [
-         {task: runEnvironment, node: 2},
-         {task: runEnvironment, node: 3},
-         {task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000]},
-         {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]},
-         {task: stopEnvironment, node: 2},
-         {task: stopEnvironment, node: 3}
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 4], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 4], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 5], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 5], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 6], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 6], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 7], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 7], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 8], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 8], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 9], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 9], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
       - {task: traceTuple, arguments: [203, []], node: 2}
-      - {task: runEnvironment, node: 2}
-      - {task: runEnvironment, node: 3}
-      - {task: addSubscriberOfStream, arguments: [10, 10], node: 2}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: addNextHop, arguments: [10, 10], node: 2}
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: processDataset, arguments: [7], node: 1, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 4, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 5, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 6, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 7, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 8, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 9, realism: false, parallel: true},
-                         {task: processDataset, arguments: [7], node: 10, realism: false, parallel: true}]]}
-      - {task: notifyAfterNoReceivedTuple, node: 2, arguments: [10000],
+         arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true},
+                         {task: sendDsAsStream, arguments: [7], node: 10, realism: false, parallel: true}]]}
+      - {task: retEndOfStream, node: 2, arguments: [10000],
          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
-      - {task: notifyAfterNoReceivedTuple, node: 3, arguments: [10000]}
-      - {task: stopEnvironment, node: 2}
-      - {task: stopEnvironment, node: 3}
+      - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
 
 spequeries:
   # This query chooses the interesting source data from vehicles. We might simply choose all of them.

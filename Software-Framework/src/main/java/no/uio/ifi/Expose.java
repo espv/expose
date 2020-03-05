@@ -64,12 +64,12 @@ public class Expose {
 					}
 					break;
 				}
-				case "runEnvironment": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).RunEnvironment();
+				case "startRuntimeEnv": {
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
 					break;
 				}
-				case "stopEnvironment": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopEnvironment();
+				case "stopRuntimeEnv": {
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
 					break;
 				}
 				case "setIntervalBetweenEvents": {
@@ -104,7 +104,7 @@ public class Expose {
 					}
 					break;
 				}
-				case "addQueries": {
+				case "deployQueries": {
 					int query_id = (int) args.get(0);
 					Map<String, Object> spe_rule_to_create = null;
 					List<Map<String, Object>>
@@ -118,7 +118,7 @@ public class Expose {
 
 					int quantity = (int) args.get(1);
 					for (int i = 0; i < quantity; ++i) {
-						ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddQueries(spe_rule_to_create);
+						ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
 					}
 					break;
 				}
@@ -131,12 +131,12 @@ public class Expose {
 						}
 					}
 					break;
-				} case "addSubscriberOfStream": {
+				} case "addNextHop": {
 					List<Map<String, Object> >
 							streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
 					for (Map<String, Object> stream_definition: streamDefinitions) {
 						if ((int) stream_definition.get("id") == (int) args.get(0)) {
-							ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddSubscriberOfStream((int) stream_definition.get("stream-id"), (int) args.get(1));
+							ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
 						}
 					}
 					break;
@@ -144,14 +144,14 @@ public class Expose {
 					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ProcessTuples((int) args.get(0));
 					break;
 				}
-				case "processDataset": {
+				case "sendDsAsStream": {
 					int dataset_id = (int) args.get(0);
 					List<Map<String, Object>>
 							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
 					for (Map<String, Object> ds : datasets) {
 						ds.put("file", ds.get("file"));
 						if ((int) ds.get("id") == dataset_id) {
-							ret = mc.nodeIdsToExperimentAPIs.get(node_id).ProcessDataset(ds);
+							ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
 							break;
 						}
 					}
@@ -180,21 +180,21 @@ public class Expose {
 					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearTuples();
 					break;
 				}
-				case "setNodeIdToAddress": {
+				case "setNidToAddress": {
 					Map<Integer, Map<String, Object> > nodeIdToIpAndPort = (Map<Integer, Map<String, Object> >) args.get(0);
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNodeIdToAddress(nodeIdToIpAndPort);
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
 					break;
 				}
-				case "cleanupExperiment": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).CleanupExperiment();
+				case "endExperiment": {
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
 					break;
 				}
-				case "addTracepointIds": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTracepointIds(args);
+				case "addTpIds": {
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
 					break;
 				}
-				case "notifyAfterNoReceivedTuple": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).NotifyAfterNoReceivedTuple((int) args.get(0));
+				case "retEndOfStream": {
+					ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
 					System.out.println("Last received tuple: " + ret + " ms ago");
 					break;
 				}
@@ -246,13 +246,13 @@ public class Expose {
 			tf.addTracepoint(tracepoint_id);
 			activeTracepointIds.add(tracepoint_id);
 		}
-		System.out.println("Node " + node_id + ": AddTracepointIds " + activeTracepointIds);
-		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTracepointIds(activeTracepointIds);
+		System.out.println("Node " + node_id + ": AddTpIds " + activeTracepointIds);
+		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(activeTracepointIds);
 
 		List<Map<String, Object> >
 				streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
-		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddStreamSchemas(streamDefinitions);
-		System.out.println("Node " + node_id + ": AddStreamSchemas " + streamDefinitions);
+		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSchemas(streamDefinitions);
+		System.out.println("Node " + node_id + ": AddSchemas " + streamDefinitions);
 	}
 
 	void WaitForSPEs(List<Map<String, Object>> cmds, Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients) {
@@ -317,7 +317,7 @@ public class Expose {
 			}
 		}
 
-		this.mc.CleanupExperimentTask();
+		this.mc.EndExperimentTask();
 	}
 
 
@@ -410,7 +410,7 @@ public class Expose {
 			@Override
 			public void run() {
 				System.out.println("Give custom tasks in the form of a JSON object");
-				System.out.println("Example: {task: addQueries, arguments: [10, 1], node: 1");
+				System.out.println("Example: {task: deployQueries, arguments: [10, 1], node: 1");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 				while (keepRunning) {
 					Yaml yaml = new Yaml();
@@ -436,11 +436,11 @@ public class Expose {
 					boolean alwaysRun = (boolean) map.getOrDefault("always-run", false);
 					boolean requireAck = (boolean) map.getOrDefault("ack", true);
 					// always-run is a special flag that will always run, regardless of what else is running
-					// An example use case is to call stopEnvironment in flink to stop the flink job
+					// An example use case is to call stopRuntimeEnv in flink to stop the flink job
 					if (clearToExecute || alwaysRun) {
 						System.out.println("Executing user-task " + map);
 						if (!requireAck) {
-							// This might be the task runEnvironment in flink which starts a flink job
+							// This might be the task startRuntimeEnv in flink which starts a flink job
 							new Thread(() -> handleEvent(map)).start();
 						} else {
 							handleEvent(map);

@@ -80,9 +80,9 @@ public class CoordinatorComm extends Comm implements Runnable {
 		}
 	}
 
-	public void CleanupExperimentTask() {
+	public void EndExperimentTask() {
 		Map<String, Object> cmd = new HashMap<>();
-		cmd.put("task", "CleanupExperiment");
+		cmd.put("task", "EndExperiment");
 		cmd.put("ack", false);
 		SendCoordinatorTask(cmd);
 	}
@@ -112,7 +112,7 @@ public class CoordinatorComm extends Comm implements Runnable {
 			nodeIdsToClients.put(nodeId, client);
 			nodeIdsToExperimentAPIs.put(nodeId, new CoordinatorExperimentAPI(this, nodeId));
 			Map<String, Object> cmd = new HashMap<>();
-			cmd.put("task", "SetNodeIdToAddress");
+			cmd.put("task", "SetNidToAddress");
 			List<Map<Integer, Map<String, Object>>> args = new ArrayList<>();
 			args.add(this.nodeIdsToClientInformation);
 			cmd.put("arguments", args);

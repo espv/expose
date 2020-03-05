@@ -158,26 +158,26 @@ public class SpeComm extends Comm {
 				Map<String, Object> ds = (Map<String, Object>) args.get(0);
 				experimentAPI.AddDataset(ds);
 				break;
-			} case "ProcessDataset": {
+			} case "SendDsAsStream": {
 				Map<String, Object> ds = (Map<String, Object>) args.get(0);
-				experimentAPI.ProcessDataset(ds);
+				experimentAPI.SendDsAsStream(ds);
 				break;
-			} case "AddStreamSchemas": {
+			} case "AddSchemas": {
 				List<Map<String, Object>> stream_schemas = (List<Map<String, Object>>) (List<?>) args;
-				experimentAPI.AddStreamSchemas(stream_schemas);
+				experimentAPI.AddSchemas(stream_schemas);
 				break;
-			} case "AddQueries": {
+			} case "DeployQueries": {
 				Map<String, Object> query = (Map<String, Object>) args.get(0);
-				experimentAPI.AddQueries(query);
+				experimentAPI.DeployQueries(query);
 				break;
-			} case "AddSubscriberOfStream": {
+			} case "AddNextHop": {
 				int schemaId = (int) args.get(0);
 				int node_id = (int) args.get(1);
-				experimentAPI.AddSubscriberOfStream(schemaId, node_id);
+				experimentAPI.AddNextHop(schemaId, node_id);
 				break;
-			} case "SetNodeIdToAddress": {
+			} case "SetNidToAddress": {
 				Map<Integer, Map<String, Object> > newNodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
-				experimentAPI.SetNodeIdToAddress(newNodeIdToIpAndPort);
+				experimentAPI.SetNidToAddress(newNodeIdToIpAndPort);
 				break;
 			} case "ProcessTuples": {
 				int number_tuples = (int) args.get(0);
@@ -189,21 +189,21 @@ public class SpeComm extends Comm {
 			} case "ClearTuples": {
 				experimentAPI.ClearTuples();
 				break;
-			} case "RunEnvironment": {
-				experimentAPI.RunEnvironment();
+			} case "StartRuntimeEnv": {
+				experimentAPI.StartRuntimeEnv();
 				break;
-			} case "StopEnvironment": {
-				experimentAPI.StopEnvironment();
+			} case "StopRuntimeEnv": {
+				experimentAPI.StopRuntimeEnv();
 				break;
-			} case "CleanupExperiment": {
-				experimentAPI.CleanupExperiment();
+			} case "EndExperiment": {
+				experimentAPI.EndExperiment();
 				ShutDown();
 				break;
-			} case "AddTracepointIds": {
-				experimentAPI.AddTracepointIds(args);
+			} case "AddTpIds": {
+				experimentAPI.AddTpIds(args);
 				break;
-			} case "NotifyAfterNoReceivedTuple": {
-				String msSinceLastReceivedTuple = experimentAPI.NotifyAfterNoReceivedTuple((int) args.get(0));
+			} case "RetEndOfStream": {
+				String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
 				return msSinceLastReceivedTuple + "\n";
 			} case "TraceTuple": {
 				experimentAPI.TraceTuple((int) args.get(0), (List<String>) args.get(1));

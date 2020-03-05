@@ -9,18 +9,18 @@ public interface ExperimentAPI {
 	String SetIntervalBetweenTuples(int interval);
 	String AddTuples(Map<String, Object> tuple, int quantity);
 	String AddDataset(Map<String, Object> ds);
-	String ProcessDataset(Map<String, Object> ds);
-	String AddStreamSchemas(List<Map<String, Object>> stream_schema);
-	String AddQueries(Map<String, Object> query);
-	String AddSubscriberOfStream(int streamId, int nodeId);
-	String SetNodeIdToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort);
+	String SendDsAsStream(Map<String, Object> ds);
+	String AddSchemas(List<Map<String, Object>> stream_schema);
+	String DeployQueries(Map<String, Object> query);
+	String AddNextHop(int streamId, int nodeId);
+	String SetNidToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort);
 	String ProcessTuples(int number_tuples);
 	String ClearQueries();
 	String ClearTuples();
-	String RunEnvironment();
-	String StopEnvironment();
-	String CleanupExperiment();
-	String AddTracepointIds(List<Object> tracepointIds);
-	String NotifyAfterNoReceivedTuple(int milliseconds);
+	String StartRuntimeEnv();
+	String StopRuntimeEnv();
+	String EndExperiment();
+	String AddTpIds(List<Object> tracepointIds);
+	String RetEndOfStream(int milliseconds);
 	String TraceTuple(int tracepointId, List<String> arguments);
 }

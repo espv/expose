@@ -68,9 +68,9 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String ProcessDataset(Map<String, Object> ds) {
+	public String SendDsAsStream(Map<String, Object> ds) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "ProcessDataset");
+		map.put("task", "SendDsAsStream");
 		List<Object> args = new ArrayList<>();
 		args.add(ds);
 		map.put("arguments", args);
@@ -79,18 +79,18 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String AddStreamSchemas(List<Map<String, Object>> stream_schemas) {
+	public String AddSchemas(List<Map<String, Object>> stream_schemas) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddStreamSchemas");
+		map.put("task", "AddSchemas");
 		map.put("arguments", stream_schemas);
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
 
 	@Override
-	public String AddQueries(Map<String, Object> query) {
+	public String DeployQueries(Map<String, Object> query) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddQueries");
+		map.put("task", "DeployQueries");
 		List<Object> args = new ArrayList<>();
 		args.add(query);
 		map.put("arguments", args);
@@ -99,9 +99,9 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String AddSubscriberOfStream(int streamId, int nodeId) {
+	public String AddNextHop(int streamId, int nodeId) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddSubscriberOfStream");
+		map.put("task", "AddNextHop");
 		List<Object> args = new ArrayList<>();
 		args.add(streamId);
 		args.add(nodeId);
@@ -111,9 +111,9 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String SetNodeIdToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort) {
+	public String SetNidToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "SetNodeIdToAddress");
+		map.put("task", "SetNidToAddress");
 		List<Object> args = new ArrayList<>();
 		args.add(newNodeIdToIpAndPort);
 		map.put("arguments", args);
@@ -149,42 +149,42 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String RunEnvironment() {
+	public String StartRuntimeEnv() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "RunEnvironment");
+		map.put("task", "StartRuntimeEnv");
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
 
 	@Override
-	public String StopEnvironment() {
+	public String StopRuntimeEnv() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "StopEnvironment");
+		map.put("task", "StopRuntimeEnv");
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
 
 	@Override
-	public String CleanupExperiment() {
+	public String EndExperiment() {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "CleanupExperiment");
+		map.put("task", "EndExperiment");
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
 
 	@Override
-	public String AddTracepointIds(List<Object> tracepointIds) {
+	public String AddTpIds(List<Object> tracepointIds) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddTracepointIds");
+		map.put("task", "AddTpIds");
 		map.put("arguments", tracepointIds);
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
 
 	@Override
-	public String NotifyAfterNoReceivedTuple(int nanoseconds) {
+	public String RetEndOfStream(int nanoseconds) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("task", "NotifyAfterNoReceivedTuple");
+		map.put("task", "RetEndOfStream");
 		List<Object> args = new ArrayList<>();
 		args.add(nanoseconds);
 		map.put("arguments", args);
