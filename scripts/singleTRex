@@ -17,11 +17,11 @@ if [[ -z $unused_cpu_core ]]
 then
 	if [[ $experiment_id = 4 || $experiment_id = 14 ]];
 	then
-		LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --trace-output-folder $trace_path --number-threads $number_threads --node-id $node_id --vldb-tweak-for-experiment4
+		EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --trace-output-folder $trace_path --number-threads $number_threads --node-id $node_id --vldb-tweak-for-experiment4
 	else
-		LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
+		EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
 	fi
 else
-	LD_LIBRARY_PATH=/usr/local/lib taskset -c $unused_cpu_core ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
+	EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib taskset -c $unused_cpu_core ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
 fi
 
