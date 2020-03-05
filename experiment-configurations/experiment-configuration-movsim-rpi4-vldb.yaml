@@ -168,12 +168,7 @@ experiments:
       # Schema 9 is trafficRouteStream
       - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
-      #- {task: addNextHop, arguments: [10, 3], node: 2}
-      # Schema 11 is the average stream
-      - {task: addNextHop, arguments: [11, 3], node: 2}
-      #- {task: deployQueries, arguments: [12, 1], node: 2}
-      # Query 8 is the average query
-      - {task: deployQueries, arguments: [8, 1], node: 2}
+      - {task: addNextHop, arguments: [10, 3], node: 2}
 
       # Warmup to reach steady state for Java-programs
       - {task: loopTasks, node: coordinator,
