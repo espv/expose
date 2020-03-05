@@ -38,7 +38,7 @@ ansible $node_to_run -a "mkdir -p $remote_trace_path"
 
 echo "Starting coordinator"
 echo "Running './runCoordinator $experiment_id $yaml_config 1>$local_logdir/Coordinator.log 2>&1'"
-./runCoordinator $experiment_id $yaml_config 1>local_$logdir/Coordinator.log 2>&1 &
+./runCoordinator $experiment_id $yaml_config 1>$local_logdir/Coordinator.log 2>&1 &
 coordinator_pid=$!
 
 sleep 5
