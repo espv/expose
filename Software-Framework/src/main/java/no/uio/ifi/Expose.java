@@ -149,7 +149,7 @@ public class Expose {
 					List<Map<String, Object>>
 							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
 					for (Map<String, Object> ds : datasets) {
-						ds.put("file", ((String)ds.get("file")).replaceFirst("^~", System.getProperty("user.home")));
+						ds.put("file", ds.get("file"));
 						if ((int) ds.get("id") == dataset_id) {
 							ret = mc.nodeIdsToExperimentAPIs.get(node_id).ProcessDataset(ds);
 							break;
