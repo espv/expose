@@ -1,4 +1,5 @@
 #!/bin/bash
+EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
 number_threads=$1
 client_ip=$(curl https://ipinfo.io/ip)
 client_port=$2
@@ -10,7 +11,7 @@ trace_path=$6/esper/port-$client_port
 unused_cpu_core=$7
 mkdir -p $trace_path
 
-cd ~/expose/
+cd $EXPOSE_PATH
 if [[ -z $unused_cpu_core ]]
 then
 	java -jar ./SPEs-plus-wrappers/esper-plus-wrapper/experiments/target/esper-experiments-8.4.0-jar-with-dependencies.jar --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
