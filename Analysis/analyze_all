@@ -23,6 +23,10 @@ x_factor="Number sources and sinks"
 ./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-6"
 
 
+experiment_directory=$rootdir/experiment-12
+x_factor="Number queries"
+./analyze "$yaml" "$experiment_directory" "$x_factor" "rpi4-siddhi"
+
 # Intel Xeon
 yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml
 experiment_directory=$rootdir/experiment-1
@@ -43,3 +47,29 @@ x_factor="Number sources"
 experiment_directory=$rootdir/experiment-6
 x_factor="Number sources and sinks"
 ./analyze "$yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-6"
+
+
+# Intra-SPE comparison of Experiments 2, 3 and 4
+stream_processing_systems=(Esper Siddhi Flink TRex)
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	mkdir $rootdir/$stream_processing_system-2-3-4
+	mkdir $rootdir/$stream_processing_system-12-13-14
+	find $rootdir/experiment-2/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
+	find $rootdir/experiment-3/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
+	find $rootdir/experiment-4/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
+	find $rootdir/experiment-12/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi-xeon
+	find $rootdir/experiment-13/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi-xeon
+	find $rootdir/experiment-14/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi-xeon
+
+	cp `cat $rootdir/.$stream_processing_system_intel-xeon $rootdir/$stream_processing_system-intel-xeon`
+	cp `cat $rootdir/.$stream_processing_system_rpi  $rootdir/$stream_processing_system-rpi
+done
+
+x_factor="Number queries"
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	./analyze "$yaml" "$rootdir/$stream_processing_system-intel-xeon" "$x_factor" "$stream_processing_system-2-3-4"
+	./analyze "$yaml" "$rootdir/$stream_processing_system-rpi" "$x_factor" "$stream_processing_system-12-13-14"
+done
+

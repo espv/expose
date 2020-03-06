@@ -8,5 +8,5 @@ find $experiment_directory -name "*.trace" > .experiment_trace_file_names
 sed ':a;N;$!ba;s/\n/ /g' .experiment_trace_file_names
 trace_files=$(cat .experiment_trace_file_names)
 
-python3 ~/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Analysis/evaluate.py $yaml "$x_factor" "$output_fn" $trace_files
+python3 evaluate.py $yaml "$x_factor" "$output_fn" $trace_files
 
