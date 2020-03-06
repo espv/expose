@@ -88,16 +88,13 @@ class CompareTraces(object):
                             received_start_experiment = True
                         continue
 
-                    if tracepoint["name"] == "Time Since Processed Tuple":
+                    if tracepoint["name"] == "Finished one set":
+                        print("200")
                         if number_tuples_processed > throughput_threshold:
-                            # Trace is ms, and we convert to nanoseconds
-                            timeSinceLastTuple = int(e[2])*1000000
-                            #time_diff = timestamp - first_throughput_timestamp + timeSinceLastTuple
                             time_diff = last_throughput_timestamp - first_throughput_timestamp
                             throughput = number_tuples_processed / (time_diff/1000000000)
                             current_throughputs.append(throughput)
                             print("Number tuples processed:", number_tuples_processed)
-                            print("Time difference:", time_diff, ", first_throughput_timestamp:", first_throughput_timestamp, ", timeSinceLastTuple:", timeSinceLastTuple, ", timestamp:", timestamp)
                             print("Throughput:", throughput, "tuples per second")
                             #graph_points.append((x, first_throughput_timestamp, throughput))
                             #mean = self.mean_execution_time(received_times, finished_times)

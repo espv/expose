@@ -3,43 +3,41 @@ rootdir=$1
 intel_yaml=$2
 rpi_yaml=$3
 
-mkdir $rootdir/Result-Figures
-
 # RPI 4
 experiment_directory=$rootdir/experiment-11
 x_factor="Number sinks"
-./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/rpi4-experiment-1"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-1"
 experiment_directory=$rootdir/experiment-12
 x_factor="Number queries"
-./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/rpi4-experiment-2"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-2"
 experiment_directory=$rootdir/experiment-13
 x_factor="Number queries"
-./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/rpi4-experiment-3"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-3"
 experiment_directory=$rootdir/experiment-14
 x_factor="Number queries"
-./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/rpi4-experiment-4"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-4"
 experiment_directory=$rootdir/experiment-15
 x_factor="Number sources"
-./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/rpi4-experiment-5"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-5"
 
 
 # Intel Xeon
 yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml
 experiment_directory=$rootdir/experiment-1
 x_factor="Number sinks"
-./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/intel-xeon-experiment-1"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-1"
 experiment_directory=$rootdir/experiment-2
 x_factor="Number queries"
-./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/intel-xeon-experiment-2"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-2"
 experiment_directory=$rootdir/experiment-3
 x_factor="Number queries"
-./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/intel-xeon-experiment-3"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-3"
 experiment_directory=$rootdir/experiment-4
 x_factor="Number queries"
-./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/intel-xeon-experiment-4"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-4"
 experiment_directory=$rootdir/experiment-5
 x_factor="Number sources"
-./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "$rootdir/Result-Figures/intel-xeon-experiment-5"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-5"
 
 
 # Intra-SPE comparison of Experiments 2, 3 and 4
@@ -72,7 +70,10 @@ done
 x_factor="Number queries"
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	./analyze "$intel_yaml" "$rootdir/$stream_processing_system-intel-xeon" "$x_factor" "$rootdir/Result-Figures/$stream_processing_system-2-3-4"
-	./analyze "$rpi_yaml" "$rootdir/$stream_processing_system-rpi" "$x_factor" "$rootdir/Result-Figures/$stream_processing_system-12-13-14"
+	./analyze "$intel_yaml" "$rootdir/$stream_processing_system-intel-xeon" "$x_factor" "$stream_processing_system-2-3-4"
+	./analyze "$rpi_yaml" "$rootdir/$stream_processing_system-rpi" "$x_factor" "$stream_processing_system-12-13-14"
 done
+
+mkdir -p $rootdir/Result-Figures
+mv *.png $rootdir/Result-Figures
 
