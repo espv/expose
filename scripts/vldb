@@ -9,7 +9,7 @@
 # The RPI 4 can't handle as heavy load as the Intel Xeon server, and therefore it runs different
 # experiments, which only go to around 50 queries, instead of 200 on the Intel Xeon.
 
-stream_processing_systems=(Esper Siddhi Flink TRex)
+stream_processing_systems=()
 ansible_target=intel_xeon
 local_expose_path=$1
 intel_expose_path=$2
@@ -43,7 +43,7 @@ do
 	./runCompleteExperimentRemotely 5 10 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 done
 
-stream_processing_systems=(Esper Siddhi Flink TRex)
+stream_processing_systems=()
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
@@ -87,8 +87,12 @@ cmd="src=${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz des
 ansible intel_xeon -m fetch -a "$cmd"
 cmd="src=${rpi_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_raspberrypi_4.tar.gz flat=yes"
 ansible raspberrypi_4 -m fetch -a "$cmd"
-tar -C $log_folder -xf log_intel_xeon.tar.gz
-tar -C $log_folder -xf log_raspberrypi_4.tar.gz
+mkdir $log_folder/log_intel_xeon
+mkdir $log_folder/log_raspberrypi_4
+tar -C $log_folder/log_intel_xeon -xf $log_folder/log_intel_xeon.tar.gz
+tar -C $log_folder/log_raspberrypi_4 -xf $log_folder/log_raspberrypi_4.tar.gz
 rm $log_folder/log_intel_xeon.tar.gz
 rm $log_folder/log_raspberrypi_4.tar.gz
 # Run analyze_all on the log folders
+./$local_expose_path/Analysis/analyze_all $log_folder/log_intel_xeon
+./$local_expose_path/Analysis/analyze_all $log_folder/log_raspberrypi_4
