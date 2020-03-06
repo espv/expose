@@ -26,3 +26,5 @@ In the scripts folder, the RUN script contains the lines to run, in order to exe
 nohup ./vldb ~/expose/scripts/Experiments ../experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml ../experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml 19 3 &
 
 nohup just ensures that all the output gets written to nohup.out and that it runs even though the user exits the terminal.
+
+In order for the analysis scripts to run properly, several python libraries must be installed using pip. A recommended way of installing them is through a virtual environment, using virtualenv and virtualenvwrapper. Then run `pip install seaborn && pip install matplotlib && pip install numpy && pip install numpy_indexed && pip install pyyaml`.
