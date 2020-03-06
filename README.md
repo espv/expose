@@ -10,6 +10,12 @@ Install Ansible on the coordinator machine, and add the following lines to /etc/
 [raspberrypi_4]
 <IP address of RPI>
 
+Add the following line to /etc/ansible/ancible.cfg:
+[ssh_connection]
+ssh_args = -o ConnectTimeout=30 -o ConnectionAttempts=30
+
+If `[ssh_connection]` and/or `ssh_args =` already exist, just add what's missing.
+
 Make sure to place the public ssh key of the coordinator in the acknowledged_hosts file of both the Intel Xeon server and the RPI
 
 
