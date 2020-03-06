@@ -87,13 +87,11 @@ cmd="src=${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz des
 ansible intel_xeon -m fetch -a "$cmd"
 cmd="src=${rpi_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_raspberrypi_4.tar.gz flat=yes"
 ansible raspberrypi_4 -m fetch -a "$cmd"
-mkdir $log_folder/log_intel_xeon
-mkdir $log_folder/log_raspberrypi_4
-tar -C $log_folder/log_intel_xeon -xf $log_folder/log_intel_xeon.tar.gz
-tar -C $log_folder/log_raspberrypi_4 -xf $log_folder/log_raspberrypi_4.tar.gz
+tar -C $log_folder -xf $log_folder/log_intel_xeon.tar.gz
+tar -C $log_folder -xf $log_folder/log_raspberrypi_4.tar.gz
 rm $log_folder/log_intel_xeon.tar.gz
 rm $log_folder/log_raspberrypi_4.tar.gz
 # Run analyze_all on the log folders
 cd $local_expose_path/Analysis
-./analyze_all $log_folder/log_intel_xeon
-./analyze_all $log_folder/log_raspberrypi_4
+./analyze_all $log_folder
+./analyze_all $log_folder
