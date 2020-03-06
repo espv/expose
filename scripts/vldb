@@ -17,7 +17,7 @@ rpi_expose_path=$3
 yaml_config_intel=$4
 yaml_config_rpi=$5
 isolated_cpu_core_intel_xeon=$6
-isolated_cpu_core_rpi4=$7
+isolated_cpu_core_rpi=$7
 
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
@@ -48,25 +48,25 @@ ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
 	# Experiment 11 varies the number of subscribers
-	./runCompleteExperimentRemotely 11 10 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+	./runCompleteExperimentRemotely 11 10 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	sleep 10
 	# Experiment 2 varies the number of normal forwarding queries
-	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	sleep 10
 	# Experiment 3 varies the number of average queries
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
 		# T-Rex scales terribly with the average query, and can thus not be as intensive as the other systems
-		./runCompleteExperimentRemotely 19 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+		./runCompleteExperimentRemotely 19 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	else
-		./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+		./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	fi
 	sleep 10
 	# Experiment 4 varies the number of sequence queries
-	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	sleep 10
 	# Experiment 5 varies the number of publishers
-	./runCompleteExperimentRemotely 15 10 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
+	./runCompleteExperimentRemotely 15 10 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	sleep 10
 done
 
@@ -93,5 +93,4 @@ rm $log_folder/log_intel_xeon.tar.gz
 rm $log_folder/log_raspberrypi_4.tar.gz
 # Run analyze_all on the log folders
 cd $local_expose_path/Analysis
-./analyze_all $log_folder
-./analyze_all $log_folder
+./analyze_all $log_folder $yaml_config_intel $yaml_config_rpi
