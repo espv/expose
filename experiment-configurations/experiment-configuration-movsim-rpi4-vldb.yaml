@@ -38,8 +38,9 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 2, arguments: [10000]},
          {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -48,9 +49,9 @@ experiments:
       - {task: traceTuple, arguments: [0, []], node: 2}
       - {task: loopTasks, node: coordinator,
           arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-          trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 4], node: 2}
@@ -60,9 +61,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 5], node: 2}
@@ -72,9 +73,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 6], node: 2}
@@ -84,9 +85,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 7], node: 2}
@@ -96,9 +97,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 8], node: 2}
@@ -108,9 +109,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 9], node: 2}
@@ -120,9 +121,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
                                   arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-                                                         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
       - {task: addNextHop, arguments: [10, 10], node: 2}
@@ -142,8 +143,9 @@ experiments:
           {task: startRuntimeEnv, node: 2},
           {task: startRuntimeEnv, node: 3},
           {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-          {task: retEndOfStream, node: 2, arguments: [10000]},
           {task: retEndOfStream, node: 3, arguments: [10000]},
+          {task: retEndOfStream, node: 2, arguments: [10000]},
+          {task: traceTuple, node: 2, arguments: [200, []]},
           {task: stopRuntimeEnv, node: 2},
           {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -153,9 +155,9 @@ experiments:
                           {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
                            arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-                                             {task: retEndOfStream, node: 2, arguments: [10000],
-                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                             {task: retEndOfStream, node: 3, arguments: [10000]}
+                                           {task: retEndOfStream, node: 3, arguments: [10000]},
+                                           {task: retEndOfStream, node: 2, arguments: [10000]},
+                                           {task: traceTuple, node: 2, arguments: [200, []]}
                            ]]},
                           {task: stopRuntimeEnv, node: 2},
                           {task: stopRuntimeEnv, node: 3},
@@ -177,8 +179,9 @@ experiments:
           {task: startRuntimeEnv, node: 2},
           {task: startRuntimeEnv, node: 3},
           {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-          {task: retEndOfStream, node: 2, arguments: [10000]},
           {task: retEndOfStream, node: 3, arguments: [10000]},
+          {task: retEndOfStream, node: 2, arguments: [10000]},
+          {task: traceTuple, node: 2, arguments: [200, []]},
           {task: stopRuntimeEnv, node: 2},
           {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -188,9 +191,9 @@ experiments:
                           {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
                            arguments: [1, [{task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
-                                             {task: retEndOfStream, node: 2, arguments: [10000],
-                                              trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                             {task: retEndOfStream, node: 3, arguments: [10000]}
+                                           {task: retEndOfStream, node: 3, arguments: [10000]},
+                                           {task: retEndOfStream, node: 2, arguments: [10000]},
+                                           {task: traceTuple, node: 2, arguments: [200, []]}
                            ]]},
                           {task: stopRuntimeEnv, node: 2},
                           {task: stopRuntimeEnv, node: 3},
@@ -212,8 +215,9 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 2, arguments: [10000]},
          {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -223,9 +227,9 @@ experiments:
                           {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
                            arguments: [1, [{task: sendDsAsStream, arguments: [6], node: 1, realism: false, parallel: true},
-                                            {task: retEndOfStream, node: 2, arguments: [10000],
-                                             trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                            {task: retEndOfStream, node: 3, arguments: [10000]}
+                                           {task: retEndOfStream, node: 3, arguments: [10000]},
+                                           {task: retEndOfStream, node: 2, arguments: [10000]},
+                                           {task: traceTuple, node: 2, arguments: [200, []]}
                            ]]},
                           {task: stopRuntimeEnv, node: 2},
                           {task: stopRuntimeEnv, node: 3},
@@ -247,8 +251,9 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 2, arguments: [10000]},
          {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -258,9 +263,9 @@ experiments:
                           {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
                            arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-                                            {task: retEndOfStream, node: 2, arguments: [10000],
-                                             trace-return-value: {tracepoint-id: 200, nodes: [2]}},
-                                            {task: retEndOfStream, node: 3, arguments: [10000]}
+                                           {task: retEndOfStream, node: 3, arguments: [10000]},
+                                           {task: retEndOfStream, node: 2, arguments: [10000]},
+                                           {task: traceTuple, node: 2, arguments: [200, []]}
                            ]]},
                           {task: stopRuntimeEnv, node: 2},
                           {task: stopRuntimeEnv, node: 3},
@@ -298,8 +303,9 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 2, arguments: [10000]},
          {task: retEndOfStream, node: 3, arguments: [10000]},
+         {task: retEndOfStream, node: 2, arguments: [10000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
@@ -309,9 +315,9 @@ experiments:
       - {task: startRuntimeEnv, node: 3}
       - {task: loopTasks, node: coordinator,
          arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -321,9 +327,9 @@ experiments:
       - {task: loopTasks, node: coordinator,
          arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -334,9 +340,9 @@ experiments:
          arguments: [1, [{task: sendDsAsStream, arguments: [7], node: 1, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -348,9 +354,9 @@ experiments:
                          {task: sendDsAsStream, arguments: [7], node: 4, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -363,9 +369,9 @@ experiments:
                          {task: sendDsAsStream, arguments: [7], node: 5, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -379,9 +385,9 @@ experiments:
                          {task: sendDsAsStream, arguments: [7], node: 6, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -396,9 +402,9 @@ experiments:
                          {task: sendDsAsStream, arguments: [7], node: 7, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
@@ -414,9 +420,9 @@ experiments:
                          {task: sendDsAsStream, arguments: [7], node: 8, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 9, realism: false, parallel: true},
                          {task: sendDsAsStream, arguments: [7], node: 10, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 2, arguments: [10000],
-         trace-return-value: {tracepoint-id: 200, nodes: [2]}}
       - {task: retEndOfStream, node: 3, arguments: [10000]}
+      - {task: retEndOfStream, node: 2, arguments: [10000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
