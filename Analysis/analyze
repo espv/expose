@@ -4,9 +4,8 @@ yaml=$1
 experiment_directory=$2
 x_factor=$3
 output_fn=$4
-find $experiment_directory -name "*.trace" > .experiment_trace_file_names
-sed ':a;N;$!ba;s/\n/ /g' .experiment_trace_file_names
-trace_files=$(cat .experiment_trace_file_names)
+trace_files=$(find . -name "*.trace" | sed ':a;N;$!ba;s/\n/ /g')
 
 python3 evaluate.py $yaml "$x_factor" "$output_fn" $trace_files
+rm .experiment_trace_file_names
 
