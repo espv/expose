@@ -859,15 +859,9 @@ tracepoints:
       isMilestoneEvent: false
 
   - id: 200
-    name: Time Since Processed Tuple
+    name: Finished one set
     active: true
-    description: Time since one of the next nodes last received tuple. We can use this as an offset to determine
-                 the throughput when a stream was processed. We use the task NotifyAfterNoReceivedTuple to determine
-                 when all tuples have been transmitted, which takes the amount of milliseconds to wait until we decide
-                 that all the tuples have been transmitted. The problem is that the bigger the streams are, the
-                 more the OS seems to throttle it, and therefore, we must tolerate rather large waiting times. As such,
-                 the throughput calculation will have a much more variable and inaccurate throughput unless we use this
-                 offset. The offset will not be completely accurate, but it will improve the calculation immensely.
+    description: Traced when one set of streams have ended
     category:
       isScalingEvent: false
       isMilestoneEvent: false
