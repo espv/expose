@@ -47,9 +47,6 @@ stream_processing_systems=(Esper Siddhi Flink TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	# Experiment 1 varies the number of subscribers
-	./runCompleteExperimentRemotely 11 10 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
-	sleep 10
 	# Experiment 2 varies the number of normal forwarding queries
 	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi4
 	sleep 1_expose_pathp
@@ -94,5 +91,6 @@ tar -C $log_folder/log_raspberrypi_4 -xf $log_folder/log_raspberrypi_4.tar.gz
 rm $log_folder/log_intel_xeon.tar.gz
 rm $log_folder/log_raspberrypi_4.tar.gz
 # Run analyze_all on the log folders
-./$local_expose_path/Analysis/analyze_all $log_folder/log_intel_xeon
-./$local_expose_path/Analysis/analyze_all $log_folder/log_raspberrypi_4
+cd $local_expose_path/Analysis
+./analyze_all $log_folder/log_intel_xeon
+./analyze_all $log_folder/log_raspberrypi_4
