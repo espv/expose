@@ -46,15 +46,25 @@ for stream_processing_system in "${stream_processing_systems[@]}"
 do
 	mkdir -p $rootdir/$stream_processing_system-intel-xeon
 	mkdir -p $rootdir/$stream_processing_system-rpi
-	find $rootdir/experiment-2/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
-	find $rootdir/experiment-3/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
-	find $rootdir/experiment-4/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-intel-xeon
-	find $rootdir/experiment-12/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi
-	find $rootdir/experiment-13/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi
-	find $rootdir/experiment-14/$stream_processing_system -name "*.trace" >> $rootdir/.$stream_processing_system-rpi
+	# We copy the Experiment 2, 3 and 4 trace files for the SPEs in folders grouped by the SPE
+	# We assume that each experiment only has one trace file for each SPE
+	# The resulting folder SPE-hardware will include three trace files then, called
+	# FilterExperimentFramework.trace, AggregationExperimentFramework and SequenceExperimentFramework.trace
+	find $rootdir/experiment-2/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/FilterExperimentFramework.trace
+	find $rootdir/experiment-3/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/AggregationExperimentFramework.trace
+	find $rootdir/experiment-4/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/SequenceExperimentFramework.trace
+	find $rootdir/experiment-12/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/FilterExperimentFramework.trace
+	find $rootdir/experiment-13/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/AggregationExperimentFramework.trace
+	find $rootdir/experiment-14/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/SequenceExperimentFramework.trace
 
-	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon
-	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi
+	rm $rootdir/.$stream_processing_system-intel-xeon
+	rm $rootdir/.$stream_processing_system-rpi
 done
 
 x_factor="Number queries"
