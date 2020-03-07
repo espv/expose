@@ -99,6 +99,7 @@ public class CoordinatorComm extends Comm implements Runnable {
 					break;
 				}
 				e.printStackTrace();
+				continue;
 			}
 			assert client != null;
 			int nodeId = client.getNodeId();
