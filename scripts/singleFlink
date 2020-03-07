@@ -16,7 +16,7 @@ classpath=$EXPOSE_PATH/SPEs-plus-wrappers/flink-plus-wrapper/flink-experiments/t
 
 if [[ -z $unused_cpu_core ]]
 then
-	EXPOSE_PATH=$EXPOSE_PATH java -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 -Dakka.client.timeout:600s -Dakka.ask.timeout:600s --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
+	EXPOSE_PATH=$EXPOSE_PATH java -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
 else
 	EXPOSE_PATH=$EXPOSE_PATH taskset -c $unused_cpu_core java -Dthread.pool.size=$number_threads -XX:ActiveProcessorCount=$number_threads -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
 fi
