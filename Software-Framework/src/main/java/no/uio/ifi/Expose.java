@@ -295,6 +295,7 @@ public class Expose {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+					System.exit(20);
 				}
 
 				// All agents have registered, and now they can set up connections
@@ -308,6 +309,7 @@ public class Expose {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
+							System.exit(21);
 						}
 					}
 					handleEvent(event);
@@ -332,6 +334,7 @@ public class Expose {
 			fis = new FileInputStream(yaml_file.replaceFirst("^~", System.getProperty("user.home")));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			System.exit(22);
 		}
 		Map<String, Object> map = yaml.load(fis);
 
@@ -465,6 +468,7 @@ public class Expose {
 					eid = reader.readLine();
 				} catch (IOException e) {
 					e.printStackTrace();
+					System.exit(24);
 				}
 			}
 			System.out.println("Starting experiment " + eid);
