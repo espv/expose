@@ -388,41 +388,6 @@ experiments:
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
-      - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: sendDsAsStream, arguments: [5], node: 1, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 4, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 5, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 6, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 7, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 8, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 9, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 3, arguments: [10000]}
-      - {task: retEndOfStream, node: 2, arguments: [10000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
-
-      - {task: traceTuple, arguments: [202, []], node: 2}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: loopTasks, node: coordinator,
-         arguments: [1, [{task: sendDsAsStream, arguments: [5], node: 1, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 4, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 5, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 6, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 7, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 8, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 9, realism: false, parallel: true},
-                         {task: sendDsAsStream, arguments: [5], node: 10, realism: false, parallel: true}]]}
-      - {task: retEndOfStream, node: 3, arguments: [10000]}
-      - {task: retEndOfStream, node: 2, arguments: [10000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
-
 spequeries:
   # This query chooses the interesting source data from vehicles. We might simply choose all of them.
   # Can't I group by road and direction instead of choosing particular roads and directions? Then we
