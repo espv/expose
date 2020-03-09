@@ -62,7 +62,7 @@ function add_spe() {
 		echo "Running ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip $coordinator_port $node_id $local_trace_path 1>$local_logdir/StreamProcessors/node-${node_id}.log 2>&1"
 		EXPERIMENT_ID=$experiment_id ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip $coordinator_port $node_id $local_trace_path 1>$local_logdir/StreamProcessors/node-${node_id}.log 2>&1 &
 		PID=$!
-		sleep 1
+		sleep 2
 		if [ -n "$(ps -p $PID -o pid=)" ]; 
 		then
 			finished=1
