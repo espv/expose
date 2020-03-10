@@ -1,0 +1,4 @@
+#!/bin/bash
+$EXPOSE_PATH/SPE-dependencies/kafka/bin/zookeeper-server-start $EXPOSE_PATH/SPE-dependencies/kafka/config/zookeeper.properties &
+sleep 10
+$EXPOSE_PATH/SPE-dependencies/kafka/bin/kafka-server-start $EXPOSE_PATH/SPE-dependencies/kafka/config/server.properties &

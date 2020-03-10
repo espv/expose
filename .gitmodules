@@ -10,3 +10,6 @@
 [submodule "SPEs/flink-plus-wrapper"]
 	path = SPEs-plus-wrappers/flink-plus-wrapper
 	url = https://github.com/espv/flink-plus-wrapper
+[submodule "SPE-dependencies/kafka"]
+	path = SPE-dependencies/kafka
+	url = https://github.com/confluentinc/kafka.git
