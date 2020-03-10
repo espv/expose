@@ -98,4 +98,4 @@ rmdir $log_folder/$log_name/experiment-19
 # Run analyze_all on the log folders
 ./analyze_all $log_folder/$log_name $yaml_config_intel $yaml_config_rpi
 
-echo "Finished all the experiments and results are written to $log_folder/$log_name/Results-Figures
+echo "Finished all the experiments and results are written to $log_folder/$log_name/Results-Figures"
