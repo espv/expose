@@ -2,7 +2,6 @@
 username=$1
 host=$2
 directory=$3
-scp -r Experiments/archive/* $username@$host:$directory/archive/
+scp -r Experiments/archive/* $username@$host:$directory/archive/ && rm -r Experiments/archive/*
 echo "Files have been moved to $directory/archive on host $host successfully"
-rm -r Experiments/archive/*
 echo "Local archive has been deleted successfully"
