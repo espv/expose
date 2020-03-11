@@ -1,9 +1,9 @@
 import evaluation
 import argparse
 
-parser = argparse.ArgumentParser(description='Compare two trace files.')
+parser = argparse.ArgumentParser(description='Compare multiple trace files.')
 parser.add_argument('yaml_config', type=str,
-                            help='Location of json config file')
+                            help='Location of YAML config file')
 parser.add_argument('x_variable', type=str,
                             help='The variable that represents the x-axis on the figure')
 parser.add_argument('output_fn', type=str,
