@@ -256,6 +256,7 @@ experiments:
          {task: retEndOfStream, node: 3, arguments: [10000]},
          {task: retEndOfStream, node: 2, arguments: [10000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
