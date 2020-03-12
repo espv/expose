@@ -150,6 +150,7 @@ experiments:
           {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: deployQueries, arguments: [5, 10], node: 2}
       - {task: loopTasks, node: coordinator,
          arguments: [10, [{task: startRuntimeEnv, node: 2},
                           {task: startRuntimeEnv, node: 3},
@@ -186,6 +187,7 @@ experiments:
           {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: deployQueries, arguments: [8, 10], node: 2}
       - {task: loopTasks, node: coordinator,
          arguments: [10, [{task: startRuntimeEnv, node: 2},
                           {task: startRuntimeEnv, node: 3},
@@ -222,6 +224,7 @@ experiments:
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: deployQueries, arguments: [8, 1], node: 2}
       - {task: loopTasks, node: coordinator,
          arguments: [10, [{task: startRuntimeEnv, node: 2},
                           {task: startRuntimeEnv, node: 3},
@@ -258,6 +261,7 @@ experiments:
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, arguments: [0, []], node: 2}
+      - {task: deployQueries, arguments: [9, 10], node: 2}
       - {task: loopTasks, node: coordinator,
          arguments: [10, [{task: startRuntimeEnv, node: 2},
                           {task: startRuntimeEnv, node: 3},

@@ -83,34 +83,21 @@ class CompareTraces(object):
                             tracepoint = t
                             break
 
-                    if received_start_experiment is False:
-                        if tracepoint.get("name") == "Start experiment":
-                            received_start_experiment = True
-                        continue
-
                     if tracepoint["name"] == "Finished one set":
-                        print("200")
                         if number_tuples_processed > throughput_threshold:
                             time_diff = last_throughput_timestamp - first_throughput_timestamp
                             throughput = number_tuples_processed / (time_diff/1000000000)
                             current_throughputs.append(throughput)
                             print("Number tuples processed:", number_tuples_processed)
                             print("Throughput:", throughput, "tuples per second")
-                            #graph_points.append((x, first_throughput_timestamp, throughput))
-                            #mean = self.mean_execution_time(received_times, finished_times)
-                            #stddev = self.std_execution_time(mean, received_times, finished_times)
-                            #execution_time_graph_points.append((x, first_throughput_timestamp, mean))
-                            #std_time_graph_points.append((x, first_throughput_timestamp, stddev))
                             number_tuples_processed = 0
                     if scaling_events.get(tracepointId):
                         # The event is a scaling event and the x-axis will be affected
                         scaling_tp = tracepoint.get("name")
                         if len(current_throughputs) > 0:
-                            # Trace is ms, and we convert to nanoseconds
                             throughput = sum(current_throughputs) / len(current_throughputs)
                             print("Throughput:", throughput, "tuples per second")
                             graph_points.append((x, first_throughput_timestamp, throughput))
-                            # Execution time can be calculated without worrying about the breaks
                             mean = self.mean_execution_time(received_times, finished_times)
                             stddev = self.std_execution_time(mean, received_times, finished_times)
                             received_times = []
@@ -119,6 +106,7 @@ class CompareTraces(object):
                             std_time_graph_points.append((x, first_throughput_timestamp, stddev))
                             number_tuples_processed = 0
                             current_throughputs = []
+
                         if scaling_tp == "Add Query":
                             if x_variable == "Number queries":
                                 x += 1
@@ -143,41 +131,48 @@ class CompareTraces(object):
                         print(tracepointId, "is a scaling event, x is now", x)
 
                     else:
-                        # Added 1/3-2020
-                        if x == 0:
-                            continue
-
                         if x_variable == "timestamp":
                             x = int(e[1])
                             print("Time is", x)
+
+
+                    if received_start_experiment is False:
+                        if tracepoint.get("name") == "Start experiment":
+                            received_start_experiment = True
+                        continue
+
+                    # Always starting at x>0
+                    if x == 0:
+                        continue
+
                     if milestone_events.get(tracepointId):
                         if tracepoint["name"] == "Receive Event":
                             received_times.append(timestamp)
-                            #print("Event", e[2], "received at", e[1])
                             pass
                         elif tracepoint["name"] == "Passed Constraints":
-                            #print("Event", e[2], "passed constraints at", e[1])
                             pass
                         elif tracepoint["name"] == "Created Complex Event":
-                            #print("Event with tracepoint ID", e[2], "caused the creation of a complex event at", e[1])
                             pass
                         elif tracepoint["name"] == "Finished Processing Event":
                             finished_times.append(timestamp)
-                            #print("Finished processing event", e[2], "at", e[1])
                             if number_tuples_processed == 0:
                                 first_throughput_timestamp = timestamp
                             last_throughput_timestamp = timestamp
                             number_tuples_processed += 1
 
-                #if number_tuples_processed > throughput_threshold:
-                #    time_diff = timestamp - first_throughput_timestamp
-                #    throughput = number_tuples_processed / (time_diff/1000000000)
-                #    print("Throughput2:", throughput, "tuples per second")
-                #    graph_points.append((x, first_throughput_timestamp, throughput))
-                #    mean = self.mean_execution_time(received_times, finished_times)
-                #    execution_time_graph_points.append((x, first_throughput_timestamp, mean))
-                #    stddev = self.std_execution_time(mean, received_times, finished_times)
-                #    std_time_graph_points.append((x, first_throughput_timestamp, stddev))
+                    if len(current_throughputs) > 0:
+                        throughput = sum(current_throughputs) / len(current_throughputs)
+                        print("Throughput:", throughput, "tuples per second")
+                        graph_points.append((x, first_throughput_timestamp, throughput))
+                        mean = self.mean_execution_time(received_times, finished_times)
+                        stddev = self.std_execution_time(mean, received_times, finished_times)
+                        received_times = []
+                        finished_times = []
+                        execution_time_graph_points.append((x, first_throughput_timestamp, mean))
+                        std_time_graph_points.append((x, first_throughput_timestamp, stddev))
+                        number_tuples_processed = 0
+                        current_throughputs = []
+
                 all_graph_points.append(graph_points)
                 all_execution_time_graph_points.append(execution_time_graph_points)
                 all_std_graph_points.append(std_time_graph_points)
@@ -195,38 +190,26 @@ class CompareTraces(object):
         plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
         fig, ax = plt.subplots()
         fig.set_size_inches(4.5, 3.5, forward=True)
-        #ax.set_yscale('log')
         ax.set_ylabel(r"Tuples per second")
         ax.set_xlabel(x_variable)
-        #loc = plticker.MultipleLocator(base=10.0)  # this locator puts ticks at regular intervals
-        #ax.xaxis.set_major_locator(loc)
         plt.title("Throughput")
         for (trace_file, graph_points) in zip(trace_files, all_graph_points):
             ax.plot([a[0] for a in graph_points], [a[2] for a in graph_points], label=trace_file.split("/")[-1].split("ExperimentFramework")[0])
 
         ax.legend()
-#        plt.figure(figsize=(450/my_dpi, 550/my_dpi), dpi=my_dpi)
         fig.savefig(output_fn+'_throughput.png', dpi=my_dpi, bbox_inches='tight')
 
         fig, ax = plt.subplots()
         fig.set_size_inches(4.5, 3.5, forward=True)
 
-        #ax.set_yscale('log')
         ax.set_ylabel(u"Time (µs)")
         ax.set_xlabel(x_variable)
-        #loc = plticker.MultipleLocator(base=10.0)  # this locator puts ticks at regular intervals
-        #ax.xaxis.set_major_locator(loc)
         plt.title("Average execution time")
         for (trace_file, (std_graph_points, execution_time_graph_points)) in zip(trace_files, zip(all_std_graph_points, all_execution_time_graph_points)):
             xaxis = [a[0] for a in execution_time_graph_points]
             yaxis = [a[2]/1000 for a in execution_time_graph_points]
-            #stddev = [a[2] for a in std_graph_points]
-            #errorbar = ax.errorbar(xaxis, yaxis, yerr=stddev, label=trace_file.split("/")[-1].split("ExperimentFramework")[0])
             ax.plot(xaxis, yaxis, label=trace_file.split("/")[-1].split("ExperimentFramework")[0])
 
         ax.legend()
-#        plt.figure(figsize=(450/my_dpi, 550/my_dpi), dpi=my_dpi)
         fig.savefig(output_fn+'_avg-execution-time.png', bbox_inches='tight')
-
-
 
