@@ -81,7 +81,7 @@ class CompareTraces(object):
                     if tracepoint["name"] == "Finished one set":
                         if number_tuples_processed > throughput_threshold:
                             time_diff = last_throughput_timestamp - first_throughput_timestamp
-                            throughput = number_tuples_processed / (time_diff/1000000000)
+                            throughput = number_tuples_processed / (time_diff/1000000000.0)
                             current_throughputs.append(throughput)
                             print("Number tuples processed:", number_tuples_processed)
                             print("Throughput:", throughput, "tuples per second")
