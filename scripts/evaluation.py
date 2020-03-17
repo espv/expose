@@ -1,14 +1,8 @@
-import errno
 import yaml
-import os
 import re
-import math
 
 import numpy as np
-import numpy_indexed as npi
-import seaborn as sns
 from matplotlib import pyplot as plt
-import matplotlib.ticker as plticker
 
 import logging
 logging.getLogger().setLevel(logging.CRITICAL)
@@ -17,6 +11,7 @@ logging.getLogger().setLevel(logging.CRITICAL)
 np.set_printoptions(edgeitems=30, linewidth=100000,
                     formatter=dict(float=lambda x: "%.3g" % x))
 
+
 class CompareTraces(object):
 
     def mean_execution_time(self, recvd_times, fin_times):
@@ -24,7 +19,7 @@ class CompareTraces(object):
         mean = np.mean(execution_times)
         return mean
 
-    def std_execution_time(self, mean, recvd_times, fin_times):
+    def std_execution_time(self, recvd_times, fin_times):
         execution_times = np.array([f - r for f, r in zip(fin_times, recvd_times)])
         std = np.std(execution_times)
         return std
@@ -99,7 +94,7 @@ class CompareTraces(object):
                             print("Throughput:", throughput, "tuples per second")
                             graph_points.append((x, first_throughput_timestamp, throughput))
                             mean = self.mean_execution_time(received_times, finished_times)
-                            stddev = self.std_execution_time(mean, received_times, finished_times)
+                            stddev = self.std_execution_time(received_times, finished_times)
                             received_times = []
                             finished_times = []
                             execution_time_graph_points.append((x, first_throughput_timestamp, mean))
@@ -165,7 +160,7 @@ class CompareTraces(object):
                         print("Throughput:", throughput, "tuples per second")
                         graph_points.append((x, first_throughput_timestamp, throughput))
                         mean = self.mean_execution_time(received_times, finished_times)
-                        stddev = self.std_execution_time(mean, received_times, finished_times)
+                        stddev = self.std_execution_time(received_times, finished_times)
                         received_times = []
                         finished_times = []
                         execution_time_graph_points.append((x, first_throughput_timestamp, mean))

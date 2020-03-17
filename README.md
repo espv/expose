@@ -11,11 +11,9 @@ Install on Ubuntu with `apt-get install maven ant python-pip openjdk-8-jdk`
 
 Python pip packages required for analysis:
 - matplotlib
-- seaborn
 - numpy
-- numpy_indexed
 - pyyaml
-Use a virtual environment, and run `pip install matplotlib seaborn numpy numpy_indexed pyyaml`
+Use a virtual environment, and run `pip install matplotlib numpy pyyaml`
 
 
 To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator. The second as the "intel_xeon" server, and the third is the "RPI".
