@@ -15,6 +15,7 @@ public class Expose {
 	private ExperimentAPI experimentAPI;
 
 	private String trace_output_folder;
+	private int cmd_number = 1;
 
 	Expose(String yaml_file, String trace_output_folder, boolean isCoordinator) {
 		this.yaml_configuration = Loadyaml(yaml_file);
@@ -219,13 +220,14 @@ public class Expose {
 
 	@SuppressWarnings("unchecked")
 	void handleEvent(Map<String, Object> event) {
+		++cmd_number;
 		String cmd = (String)event.get("task");
 		List<Object> args = (List<Object>) event.get("arguments");
 		int node_id = 0;
 		if (!event.get("node").equals("coordinator")) {
 			node_id = (int) event.get("node");
 		}
-		System.out.println("Node " + node_id + ": " + event);
+		System.out.println("Line " + cmd_number + ": Node " + node_id + " executes " + event);
 		TaskHandler taskHandler = new TaskHandler(cmd, args, node_id);
 		if ((boolean) event.getOrDefault("parallel", false)) {
 			new Thread(taskHandler).start();
