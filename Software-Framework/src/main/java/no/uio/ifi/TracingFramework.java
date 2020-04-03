@@ -27,6 +27,7 @@ public class TracingFramework implements Serializable {
 			}
 			File file = new File(this.trace_filename);
 			if (!file.exists()) {
+				file.getParentFile().mkdirs();
 				file.createNewFile();
 			}
 			FileWriter fw = new FileWriter(file, true);
