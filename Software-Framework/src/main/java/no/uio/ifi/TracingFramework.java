@@ -22,9 +22,11 @@ public class TracingFramework implements Serializable {
 	public void writeTraceToFile(String trace_output_folder, String prefix_fn) {
 		PrintWriter writer;
 		try {
-			File file = new File(this.trace_filename);
 			if (this.trace_filename == null) {
 				this.trace_filename = trace_output_folder.replaceFirst("^~", System.getProperty("user.home")) + "/" + prefix_fn + "-" + System.nanoTime() + "-" + UUID.randomUUID() + ".trace";
+			}
+			File file = new File(this.trace_filename);
+			if (!file.exists()) {
 				file.createNewFile();
 			}
 			FileWriter fw = new FileWriter(file, true);
