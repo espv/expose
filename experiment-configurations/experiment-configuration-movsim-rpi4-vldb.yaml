@@ -134,6 +134,7 @@ experiments:
       # Schema 9 is trafficRouteStream
       - {task: addNextHop, arguments: [9, 2], node: 1}
       # Schema 10 is outTrafficRouteStream
+      - {task: addNextHop, arguments: [9, 3], node: 2}
       - {task: addNextHop, arguments: [10, 3], node: 2}
       - {task: deployQueries, arguments: [12, 1], node: 2}
 
@@ -438,6 +439,15 @@ Consuming Traffic; '
                      lane as lane,
                      originId as segmentId
               from trafficRouteStream "
+      standard: "insert into ValidLocationEvent
+                 select id as id,
+                        eventTime as eventTime,
+                        roadId as road,
+                        v as speed,
+                        x as dist,
+                        lane as lane,
+                        originId as segmentId
+                 from trafficRouteStream "
 
   - name: Aggregate the speed
     id: 8
@@ -468,6 +478,14 @@ Consuming Traffic;
                      roadId
               from trafficRouteStream
               "
+      standard: "INSERT INTO averageSpeedStream
+                 select avg(v) OVER (
+                                ORDER BY eventTime
+                                ROWS BETWEEN 99 PRECEDING AND CURRENT ROW),
+                        label,
+                        roadId
+                from trafficRouteStream
+                  "
 
   # This query cannot forward outTrafficRouteStream; it has to use something like ValidLocationEvent; it was just a different name and same attributes
   - name: Sequence query
@@ -513,7 +531,7 @@ Consuming Traffic, Traffic2, Traffic3; '
                       A AS TRUE,
                       B AS TRUE,
                       C AS TRUE
-               ) ' # Query works with only one event (A)
+               ) '
       esper: 'insert into ValidLocationEvent
               select id as id,
                      t as ts,
@@ -528,6 +546,27 @@ Consuming Traffic, Traffic2, Traffic3; '
                          A.id AS id, A.roadId AS roadId, A.originId AS originId
                 pattern (A B C)
               ); '
+      standard: 'INSERT INTO ValidLocationEvent
+                 SELECT id as id,
+                        eventTime as eventTime,
+                        roadId as road,
+                        v as speed,
+                        x as dist,
+                        lane as lane,
+                        originId as segmentId
+                 FROM trafficRouteStream
+                 MATCH_RECOGNIZE (
+                   ORDER BY eventTime
+                   MEASURES A.eventTime AS eventTime, A.lane AS lane, A.x AS x, A.v AS v,
+                            A.id AS id, A.roadId AS roadId, A.originId AS originId
+                   AFTER MATCH SKIP PAST LAST ROW
+                   PATTERN (A{1} B{1} C{1})
+                   DEFINE
+                        A AS TRUE,
+                        B AS TRUE,
+                        C AS TRUE
+                 ) '
+
 
   - name: traffic
     id: 12
@@ -551,6 +590,9 @@ Consuming Traffic; '
       esper: 'insert into outTrafficRouteStream
               select *
               from trafficRouteStream; '
+      standard: 'INSERT INTO outTrafficRouteStream
+                 SELECT *
+                 FROM trafficRouteStream '
 
 stream-definitions:
   - id: 9

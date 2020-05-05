@@ -436,6 +436,16 @@ Consuming Traffic; '
                      lane as lane,
                      originId as segmentId
               from trafficRouteStream "
+      sql: "insert into ValidLocationEvent
+            select t.id as id,
+                   t.t as ts,
+                   t.roadId as road,
+                   t.v as speed,
+                   t.x as dist,
+                   t.lane as lane,
+                   t.originId as segmentId
+            from trafficRouteStream t
+            group by t.roadId; "
 
   - name: Aggregate the speed
     id: 8
@@ -466,6 +476,9 @@ Consuming Traffic;
                      roadId
               from trafficRouteStream
               "
+      sql: "insert into averageSpeedStream
+            select avg(v) as avgSpeed, label, roadId
+            from trafficRouteStream#length(100); "
 
   # This query cannot forward outTrafficRouteStream; it has to use something like ValidLocationEvent; it was just a different name and same attributes
   - name: Sequence query
@@ -526,6 +539,20 @@ Consuming Traffic, Traffic2, Traffic3; '
                          A.id AS id, A.roadId AS roadId, A.originId AS originId
                 pattern (A B C)
               ); '
+      sql: "insert into ValidLocationEvent
+            select id as id,
+                   t as ts,
+                   roadId as road,
+                   v as speed,
+                   x as dist,
+                   lane as lane,
+                   originId as segmentId
+            from trafficRouteStream
+            match_recognize (
+              MEASURES A.t AS t, A.lane AS lane, A.x AS x, A.v AS v,
+                       A.id AS id, A.roadId AS roadId, A.originId AS originId
+              pattern (A B C)
+            ); "
 
   - name: traffic
     id: 12
@@ -549,6 +576,9 @@ Consuming Traffic; '
       esper: 'insert into outTrafficRouteStream
               select *
               from trafficRouteStream; '
+      sql: "insert into outTrafficRouteStream
+            select *
+            from trafficRouteStream, outTrafficRouteStream WHERE t = 1000; "
 
 stream-definitions:
   - id: 9
