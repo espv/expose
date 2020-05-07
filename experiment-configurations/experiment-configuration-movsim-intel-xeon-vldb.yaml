@@ -444,7 +444,8 @@ Consuming Traffic; '
                    t.x as dist,
                    t.lane as lane,
                    t.originId as segmentId
-            from trafficRouteStream t
+            from trafficRouteStream t over w
+            window w as (rows between 100 preceding and current row)
             group by t.roadId; "
 
   - name: Aggregate the speed
@@ -478,7 +479,8 @@ Consuming Traffic;
               "
       sql: "insert into averageSpeedStream
             select avg(v) as avgSpeed, label, roadId
-            from trafficRouteStream#length(100); "
+            from trafficRouteStream over w
+            window w as (rows between 100 preceding and current row); "
 
   # This query cannot forward outTrafficRouteStream; it has to use something like ValidLocationEvent; it was just a different name and same attributes
   - name: Sequence query
@@ -547,12 +549,13 @@ Consuming Traffic, Traffic2, Traffic3; '
                    x as dist,
                    lane as lane,
                    originId as segmentId
-            from trafficRouteStream
+            from trafficRouteStream over w
             match_recognize (
               MEASURES A.t AS t, A.lane AS lane, A.x AS x, A.v AS v,
                        A.id AS id, A.roadId AS roadId, A.originId AS originId
               pattern (A B C)
-            ); "
+            )
+            window w as (rows between 100 preceding and current row); "
 
   - name: traffic
     id: 12
@@ -578,7 +581,9 @@ Consuming Traffic; '
               from trafficRouteStream; '
       sql: "insert into outTrafficRouteStream
             select *
-            from trafficRouteStream, outTrafficRouteStream WHERE t = 1000; "
+            from trafficRouteStream trs over w, outTrafficRouteStream otrs over w, outTrafficRouteStream2 otrs2 over w
+            window w as (rows between 5 preceding and current row)
+            where trs.originId = otrs.originId AND otrs.originId = otrs2.originId; "
 
 stream-definitions:
   - id: 9
@@ -612,6 +617,17 @@ stream-definitions:
     rowtime-column: {column: ts, nanoseconds-per-tick: 1000000000}
     tuple-format: [{name: id, type: int}, {name: ts, type: long-timestamp}, {name: road, type: int}, {name: speed, type: double},
                    {name: dist, type: double}, {name: lane, type: int}, {name: segmentId, type: int}]
+
+
+  - id: 13
+    stream-id: 24
+    name: outTrafficRouteStream2
+    rowtime-column: {column: t, nanoseconds-per-tick: 1000000000}
+    timestamps: [{column: absTime, format: '%Y-%m-%dT%H:%M:%SZ'}]
+    tuple-format: [{name: t, type: long-timestamp}, {name: lane, type: int}, {name: x, type: double}, {name: v, type: double},
+                   {name: a, type: double}, {name: gap, type: double}, {name: dv, type: double},
+                   {name: label, type: string}, {name: id, type: int}, {name: roadId, type: int},
+                   {name: originId, type: int}, {name: absTime, type: string}, {name: xWithOffset, type: double}]
 
 datasets:
   - name: Traffic routing data 2 (YAML)
