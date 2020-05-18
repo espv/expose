@@ -1,6 +1,7 @@
 package no.uio.ifi;
 
 import org.apache.commons.cli.*;
+import org.apache.commons.text.StringEscapeUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -8,24 +9,13 @@ import java.util.*;
 
 public class Expose {
 	private Map<String, Object> yaml_configuration;
-	private TracingFramework tf;
-	private boolean isCoordinator;
 	private boolean available = true;
 	private CoordinatorComm mc;
-	private ExperimentAPI experimentAPI;
 
-	private String trace_output_folder;
 	private int cmd_number = 1;
 
-	Expose(String yaml_file, String trace_output_folder, boolean isCoordinator) {
+	Expose(String yaml_file) {
 		this.yaml_configuration = Loadyaml(yaml_file);
-		this.trace_output_folder = trace_output_folder;
-		this.isCoordinator = isCoordinator;
-		this.tf = new TracingFramework();
-	}
-
-	void setExperimentAPI(ExperimentAPI experimentAPI) {
-		this.experimentAPI = experimentAPI;
 	}
 
 	class TaskHandler implements Runnable {
@@ -117,6 +107,24 @@ public class Expose {
 						}
 					}
 
+					/*Map<String, String> sql_query = (Map<String, String>) spe_rule_to_create.get("sql-query");
+					for (String key : sql_query.keySet()) {
+						sql_query.put(key, StringEscapeUtils.escapeJava(sql_query.get(key)));
+					}*/
+
+                    List<Integer> dependency_queries = (List<Integer>) spe_rule_to_create.getOrDefault("dependency-queries", new ArrayList());
+					for (int dependency_query : dependency_queries) {
+					    Map<String, Object> new_event = new HashMap<>();
+					    new_event.put("task", "deployQueries");
+					    List<Integer> arguments = new ArrayList<>();
+					    arguments.add(dependency_query);
+					    arguments.add(1);
+					    new_event.put("arguments", arguments);
+					    new_event.put("node", node_id);
+
+					    handleEvent(new_event);
+                    }
+
 					int quantity = (int) args.get(1);
 					for (int i = 0; i < quantity; ++i) {
 						ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
@@ -140,6 +148,11 @@ public class Expose {
 							ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
 						}
 					}
+					break;
+				} case "writeStreamToCsv": {
+					int stream_id = (int) args.get(0);
+					String csvFolder = (String) args.get(1);
+					mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
 					break;
 				} case "processEvents": {
 					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ProcessTuples((int) args.get(0));
@@ -172,12 +185,10 @@ public class Expose {
 					break;
 				}
 				case "clearQueries": {
-					tf.traceEvent(222);
 					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
 					break;
 				}
 				case "clearEvents": {
-					tf.traceEvent(223);
 					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearTuples();
 					break;
 				}
@@ -245,7 +256,6 @@ public class Expose {
 				continue;
 			}
 			int tracepoint_id = (int)tracepoint.get("id");
-			tf.addTracepoint(tracepoint_id);
 			activeTracepointIds.add(tracepoint_id);
 		}
 		System.out.println("Node " + node_id + ": AddTpIds " + activeTracepointIds);
@@ -288,7 +298,6 @@ public class Expose {
 		for (Map<String, Object> experiment: experiments) {
 			if (experiment.get("id").equals(eid)) {
 				List<Map<String, Object> > cmds = (ArrayList<Map<String, Object> >) experiment.get("flow");
-				tf.traceEvent(0, new Object[]{eid});
 				Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients = mc.GetNodeIdsToClients();
 				// Pre-processing to ensure that all the necessary mediators are registered
 				WaitForSPEs(cmds, nodeIdsToClients);
@@ -324,11 +333,6 @@ public class Expose {
 		this.mc.EndExperimentTask();
 	}
 
-
-	void WriteBufferToFile(String prefix_fn) {
-		tf.writeTraceToFile(trace_output_folder, prefix_fn);
-	}
-
 	Map<String, Object> Loadyaml(String yaml_file) {
 		FileInputStream fis = null;
 		Yaml yaml = new Yaml();
@@ -361,14 +365,6 @@ public class Expose {
 		input.setRequired(true);
 		options.addOption(input);
 
-		Option output = new Option("t", "trace-folder", true, "trace output folder");
-		output.setRequired(true);
-		options.addOption(output);
-
-		Option coordinator = new Option("m", "is-coordinator", false, "Is coordinator");
-		coordinator.setRequired(true);
-		options.addOption(coordinator);
-
 		Option coordinatorPort = new Option("p", "coordinator-port", true, "Port of coordinator");
 		coordinatorPort.setRequired(true);
 		options.addOption(coordinatorPort);
@@ -391,12 +387,7 @@ public class Expose {
 		}
 
 		String configFilePath = cmd.getOptionValue("yaml-config");
-		String traceFileFolder = cmd.getOptionValue("trace-folder");
-		boolean isCoordinator = cmd.hasOption("is-coordinator");
-
-
-		Expose jspef = new Expose(
-			configFilePath, traceFileFolder, isCoordinator);
+		Expose jspef = new Expose(configFilePath);
 
 		Thread t = new Thread(new Runnable() {
 			boolean keepRunning = true;

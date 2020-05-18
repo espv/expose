@@ -111,6 +111,18 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
+	public String WriteStreamToCsv(int stream_id, String csvFolder) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("task", "WriteStreamToCsv");
+		List<Object> args = new ArrayList<>();
+		args.add(stream_id);
+		args.add(csvFolder);
+		map.put("arguments", args);
+		Task cmd = new Task(map);
+		return coordinatorComm.SendToSpe(cmd, node_id);
+	}
+
+	@Override
 	public String SetNidToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("task", "SetNidToAddress");

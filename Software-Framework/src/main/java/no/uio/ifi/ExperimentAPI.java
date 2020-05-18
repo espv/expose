@@ -22,5 +22,6 @@ public interface ExperimentAPI {
 	String EndExperiment();
 	String AddTpIds(List<Object> tracepointIds);
 	String RetEndOfStream(int milliseconds);
+	String WriteStreamToCsv(int stream_id, String csvFilename);
 	String TraceTuple(int tracepointId, List<String> arguments);
 }

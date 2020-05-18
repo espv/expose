@@ -175,6 +175,11 @@ public class SpeComm extends Comm {
 				int node_id = (int) args.get(1);
 				experimentAPI.AddNextHop(schemaId, node_id);
 				break;
+			} case "WriteStreamToCsv": {
+				int stream_id = (int) args.get(0);
+				String csvFilename = (String) args.get(1);
+				experimentAPI.WriteStreamToCsv(stream_id, csvFilename);
+				break;
 			} case "SetNidToAddress": {
 				Map<Integer, Map<String, Object> > newNodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
 				experimentAPI.SetNidToAddress(newNodeIdToIpAndPort);
