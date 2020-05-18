@@ -142,7 +142,7 @@ experiments:
          arguments: [5, [
           {task: startRuntimeEnv, node: 2},
           {task: startRuntimeEnv, node: 3},
-          {task: sendDsAsStream, arguments: [5], node: 1, realism: false, parallel: true},
+          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
           {task: retEndOfStream, node: 3, arguments: [10000]},
           {task: retEndOfStream, node: 2, arguments: [10000]},
           {task: traceTuple, node: 2, arguments: [200, []]},
@@ -155,7 +155,7 @@ experiments:
          arguments: [15, [{task: startRuntimeEnv, node: 2},
                           {task: startRuntimeEnv, node: 3},
                           {task: loopTasks, node: coordinator,
-                           arguments: [1, [{task: sendDsAsStream, arguments: [5], node: 1, realism: false, parallel: true},
+                           arguments: [1, [{task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
                                            {task: retEndOfStream, node: 3, arguments: [10000]},
                                            {task: retEndOfStream, node: 2, arguments: [10000]},
                                            {task: traceTuple, node: 2, arguments: [200, []]}
@@ -393,6 +393,66 @@ experiments:
       - {task: stopRuntimeEnv, node: 2}
       - {task: stopRuntimeEnv, node: 3}
 
+  - name: experiment 6 --- NexMark
+    id: 6
+    flow:
+      - {task: writeStreamToCsv, arguments: [41, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/41"], node: 3}
+      - {task: writeStreamToCsv, arguments: [42, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/42"], node: 3}
+      - {task: writeStreamToCsv, arguments: [43, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/43"], node: 3}
+      - {task: writeStreamToCsv, arguments: [44, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/44"], node: 3}
+      - {task: writeStreamToCsv, arguments: [45, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/45"], node: 3}
+      - {task: writeStreamToCsv, arguments: [46, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/46"], node: 3}
+      - {task: writeStreamToCsv, arguments: [47, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/47"], node: 3}
+      # Schema 9 is trafficRouteStream
+      - {task: addNextHop, arguments: [13, 2], node: 1}
+      - {task: addNextHop, arguments: [14, 2], node: 1}
+      - {task: addNextHop, arguments: [15, 2], node: 1}
+      - {task: addNextHop, arguments: [16, 2], node: 1}
+      # Schema 10 is outTrafficRouteStream
+      #- {task: addNextHop, arguments: [13, 3], node: 2}
+      #- {task: addNextHop, arguments: [14, 3], node: 2}
+      #- {task: addNextHop, arguments: [15, 3], node: 2}
+      - {task: addNextHop, arguments: [47, 3], node: 2}
+      - {task: addNextHop, arguments: [45, 3], node: 2}
+      - {task: addNextHop, arguments: [46, 3], node: 2}
+      - {task: addNextHop, arguments: [44, 3], node: 2}
+      - {task: addNextHop, arguments: [43, 3], node: 2}
+      - {task: addNextHop, arguments: [42, 3], node: 2}
+      - {task: addNextHop, arguments: [41, 3], node: 2}
+      #- {task: addNextHop, arguments: [56, 3], node: 2}
+      #- {task: addNextHop, arguments: [55, 3], node: 2}
+      #- {task: deployQueries, arguments: [14, 1], node: 2}
+      #- {task: deployQueries, arguments: [15, 1], node: 2}
+      #- {task: deployQueries, arguments: [16, 1], node: 2}
+      #- {task: deployQueries, arguments: [17, 1], node: 2}
+      - {task: deployQueries, arguments: [18, 1], node: 2}
+      #- {task: deployQueries, arguments: [19, 1], node: 2}
+      #- {task: deployQueries, arguments: [20, 1], node: 2}
+
+      # Warmup to reach steady state for Java-programs
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      #- {task: traceTuple, arguments: [0, []], node: 2}
+      #- {task: deployQueries, arguments: [9, 10], node: 2}
+      #- {task: startRuntimeEnv, node: 2}
+      #- {task: startRuntimeEnv, node: 3}
+      #- {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      #- {task: retEndOfStream, node: 3, arguments: [10000]}
+      #- {task: retEndOfStream, node: 2, arguments: [10000]}
+      #- {task: traceTuple, node: 2, arguments: [200, []]}
+      #- {task: stopRuntimeEnv, node: 2}
+      #- {task: stopRuntimeEnv, node: 3}
+
+
 spequeries:
   # This query chooses the interesting source data from vehicles. We might simply choose all of them.
   # Can't I group by road and direction instead of choosing particular roads and directions? Then we
@@ -550,6 +610,393 @@ Consuming Traffic; '
               select *
               from trafficRouteStream; '
 
+  - name: "Currency Conversion (NexMark query 1)"
+    id: 13
+    output-stream-id: 40
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: ""
+      flink: ""
+      esper: ""
+      template: "SELECT Istream(auction, bidder, DOLTOEUR(price), dateTime)
+                 FROM bid [ROWS UNBOUNDED];"  # This query is modified so that bidder is selected before price
+                                              # That way, we can use the same output schema as the input schema
+
+  - name: "Selection (NexMark query 2)"
+    id: 14
+    output-stream-id: 41
+    type: fetch-query
+    sql-query:
+      # T-Rex lacks the 'or' operator for attribute constraints
+      t-rex: ""
+      siddhi: "from Bid[auction == 1007 or auction == 1020 or auction == 2001 or auction == 2019 or auction == 2087]
+               select auction, price
+               insert into OutQuery2;"
+      flink: "select auction, price
+              from Bid
+              where auction = 1007 or auction = 1020 or auction = 2001 or auction = 2019 or auction = 2087"
+      esper: "insert into OutQuery2
+              select auction, price
+              from Bid
+              where auction = 1007 or auction = 1020 or auction = 2001 or auction = 2019 or auction = 2087;"
+      template: "SELECT Rstream(auction, price)
+                 FROM Bid [NOW]
+                 WHERE auction = 1007 OR auction = 1020 OR auction = 2001 OR auction = 2019 OR auction = 2087;"
+
+  - name: "Local Item Suggestion (NexMark query 3)"
+    id: 15
+    output-stream-id: 42
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: "from Auction[category == 10]#window.time(99999 years) as A
+               join Person[state == 'OR' or state == 'ID' or state == 'CA']#window.time(99999 years) as P on A.seller == P.id
+               select P.name, P.city, P.state, A.id
+               insert into OutQuery3;"
+      flink: "select P.name, P.city, P.state, A.id
+              from Auction A, Person P
+              where A.seller = P.id and (P.state = 'OR' or P.state = 'ID' or P.state = 'CA') and A.category = 10"
+      esper: "insert into OutQuery3
+              select P.name as name, P.city as city, P.state as state, A.id as id
+              from Auction#time(999 minutes) A, Person#time(999 minutes) P
+              where A.seller = P.id and (P.state = 'OR' or P.state = 'ID' or P.state = 'CA') and A.category = 10;"
+      template: "SELECT Istream(P.name, P.city, P.state, A.id)
+                 FROM Auction A [ROWS UNBOUNDED], Person P [ROWS UNBOUNDED]
+                 WHERE A.seller = P.id AND (P.state = `OR' OR P.state = `ID' OR P.state = `CA') AND A.category = 10;"
+
+  - name: "Average Price for a Category (NexMark query 4)"
+    id: 16
+    output-stream-id: 43
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: "from Auction#window.time(999 years) as A
+               join Bid#window.time(999 years) as B on A.id == B.auction and B.dateTime < A.expires
+               select max(B.price) as final, A.category
+               group by A.id, A.category
+               insert into MidQuery4;
+
+               from MidQuery4#window.time(999 years) as M
+               join Category#window.time(999 years) as C on M.category == C.id
+               select avg(M.final) as price, C.id as category
+               group by C.id
+               insert into OutQuery4;"
+      flink: "select avg(Q.final), C.id
+              from Category C, (select max(B.price) as final, A.category
+                                from Auction A, Bid B
+                                where A.id=B.auction and B.dateTime2 < A.expires2
+                                group by A.id, A.category) Q
+              where Q.category = C.id
+              group by C.id"
+      esper: "insert into MidQuery4
+              select max(B.price) as final, A.category as category
+              from Auction#time(999 minutes) A, Bid#time(999 minutes) B
+              where A.id = B.auction and B.dateTime < A.expires
+              group by A.id, A.category;
+
+              insert into OutQuery4
+              select avg(Q.final) as price, C.id as category
+              from Category#time(999 minutes) C, MidQuery4#time(999 minutes) as Q
+              where Q.category = C.id
+              group by C.id;"
+      template: "SELECT Istream(AVG(Q.final))
+                 FROM Category C, (SELECT Rstream(MAX(B.price) AS final, A.category)
+                                   FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
+                                   WHERE A.id=B.auction AND B.dateTime < A.expires AND A.expires < CURRENT_TIME
+                                   GROUP BY A.id, A.category) Q
+                 WHERE Q.category = C.id
+                 GROUP BY C.id;"
+
+  - name: "MidQuery5_1"
+    id: 22
+    output-stream-id: 54
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: ""
+      flink: "select auction, count(*) as num
+              from Bid
+              group by auction, tumble(eventTime, interval '1' minute)"
+      esper: ""
+
+  - name: "MidQuery5_2"
+    id: 23
+    output-stream-id: 64
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: ""
+      flink: "select auction, max(num) as maxnum
+              from MidQuery5_1
+              group by auction"
+      esper: ""
+
+  - name: "Hot Items (NexMark query 5) (Might not be possible)"
+    id: 17
+    output-stream-id: 44
+    type: fetch-query
+    dependency-queries: [22, 23]
+    sql-query:
+      t-rex: ""
+      siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
+               select auction, count(*) as num
+               group by auction
+               insert into MidQuery5_1;
+
+               from MidQuery5_1
+               select auction, max(num) as maxnum
+               group by auction
+               insert into MidQuery5_2;
+
+               from MidQuery5_2
+               select auction
+               insert into OutQuery5;"
+      flink: "select auction
+              from MidQuery5_2"
+      esper: "insert into MidQuery5_1
+              select auction, count(*) as num
+              from Bid#ext_timed_batch(dateTime, 1 minute)
+              group by auction;
+
+              insert into MidQuery5_2
+              select auction, max(num) as maxnum
+              from MidQuery5_1
+              group by auction;
+
+              insert into OutQuery5
+              select auction
+              from MidQuery5_2;
+              "
+
+              # The below query is the correct one, but the other SPEs don't
+              # support the ALL operator, and so they will produce nearly 5000 tuples
+              # instead of 1 tuple, which is the correct number.
+              # "insert into OutQuery5
+              #  select auction
+              #  from MidQuery5_1
+              #  where num >= all (select count(*)
+              #                    from Bid#ext_timed_batch(dateTime, 1 minute) B2
+              #                    group by B2.auction);"
+      template: "SELECT Rstream(auction)
+                 FROM (SELECT B1.auction, count(*) AS num
+                       FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B1
+                       GROUP BY B1.auction)
+                 WHERE num >= ALL (SELECT count(*)
+                                   FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B2
+                                   GROUP BY B2.auction);"
+
+  - name: "MidQuery6"
+    id: 24
+    output-stream-id: 55
+    sql-query:
+      flink: "select max(B.price) as final, A.seller
+              from Auction A, Bid B
+              where A.id=B.auction and B.dateTime2 < A.expires2
+              group by A.id, A.seller"
+
+  - name: "Average Selling Price by Seller (NexMark query 6)"
+    id: 18
+    output-stream-id: 45
+    #dependency-queries: [24]
+    sql-query:
+      t-rex: "
+Assign 31 => Auction, 32 => Bid, 55 => MidQuery6
+Define MidQuery6(auction: int, seller: int, final: int, dateTime: int)
+From Auction() as A and
+each Bid([int] auction=A.id, [int] dateTime < A.expires) as B within 500000000 from A
+Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime
+Consuming A, B;
+
+Assign 31 => Auction, 32 => Bid, 55 => MidQuery6
+Define MidQuery6(auction: int, seller: int, final: int, dateTime: int)
+From Bid() as B and
+each Auction([int] id=B.auction, [int] expires > B.dateTime) as A within 500000000 from A
+Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime
+Consuming A, B;
+
+Assign 55 => MidQuery6, 45 => OutQuery6
+Define OutQuery6(auction: int, seller: int, final: int, dateTime: int)
+From MidQuery6() as M
+Where auction := M.auction, seller := M.seller, final := M.price, dateTime := M.dateTime
+Consuming M;
+"  # Bid and MidQuery6 get consumed because they will only be matched once
+      siddhi: "from Bid#window.time(5 seconds) as B
+                 join Auction#window.time(5 seconds) as A
+                 on A.id == B.auction and B.dateTime < A.expires
+               select price, seller, auction
+               group by auction
+               insert into MidQuery6_1;
+
+               from MidQuery6_1#window.timeBatch(5 seconds)
+               select max(price) as final, seller
+               group by auction, seller
+               insert into MidQuery6_2;
+
+               from MidQuery6_2
+               select avg(final) as final, seller as seller
+               group by seller
+               insert into OutQuery6;"
+      flink: "SELECT AVG(Q.final), Q.seller
+              FROM (SELECT MAX(B.price) AS final, A.seller
+                    FROM Auction A, Bid B
+                    WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+                    GROUP BY A.id, A.seller) Q
+              GROUP BY Q.seller"
+             #"select avg(final) as final, seller
+             # from MidQuery6
+             # group by seller"
+      esper: "insert into OutQuery6
+              select price as final, auction as seller
+              from Bid#win:time_batch(5 seconds);"
+             # What if we do a regular join in this query, the max aggregation in next, bound by dateTime, and average thereafter?
+             #"insert into MidQuery6_1
+             # select price, seller
+             # from Auction#win:time(10 seconds) as A, Bid#win:time(10 seconds) as B
+             # where A.id = B.auction and B.dateTime < A.expires
+             # group by A.id, A.seller;
+#
+             # insert into MidQuery6_2
+             # select max(price) as final, seller
+             # from MidQuery6_1#win:time_batch(5 seconds)
+             # group by auction, seller;
+#
+             # insert into OutQuery6
+             # select avg(final) as final, seller
+             # from MidQuery6_2#win:time(5 seconds)
+             # group by seller;"
+      template_sql: "SELECT Istream(AVG(Q.final), Q.seller)
+                     FROM (SELECT Rstream(MAX(B.price) AS final, A.seller)
+                           FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
+                           WHERE A.id=B.auction AND B.dateTime < A.expires AND A.expires < CURRENT_TIME
+                           GROUP BY A.id, A.seller) [PARTITION BY A.seller ROWS 10] Q
+                     GROUP BY Q.seller;"
+
+#      siddhi: "from Bid#window.externalTimeBatch(dateTime, 20 seconds)
+#               select max(price) as final, auction
+#               group by auction
+#               insert into MidQuery6;
+#
+#               from MidQuery6#window.time(200 seconds) as M
+#               join Auction#window.time(200 seconds) as A
+#               on M.auction == A.id
+#               select avg(M.final) as final, A.seller
+#               group by A.seller
+#               insert into OutQuery6;"
+#      flink: "SELECT AVG(Q.final), A.seller
+#              FROM (SELECT MAX(B.price) AS final, B.auction
+#                    FROM Bid B
+#                    GROUP BY A.id, A.seller) Q,
+#                  Auction A, Bid B
+#              WHERE A.id=Q.auction AND B.dateTime2 < A.expires2 AND B.
+#              GROUP BY Q.seller"
+#        #"SELECT AVG(Q.final), Q.seller
+#        # FROM (SELECT MAX(B.price) AS final, A.seller
+#        #       FROM Auction A, Bid B
+#        #       WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+#        #       GROUP BY A.id, A.seller) Q
+#        # GROUP BY Q.seller"
+#        #"select avg(final) as final, seller
+#        # from MidQuery6
+#      # group by seller"
+#      esper: "insert into MidQuery6
+#              select max(price) as final, auction
+#              from Bid#ext_timed_batch(dateTime, 1 minute) as B
+#              group by B.auction;
+#
+#              insert into OutQuery6
+#              select avg(final) as final, seller
+#              from MidQuery6#time(999 years) as M, Auction#time(999 years) as A
+#              where M.auction = A.id
+#              group by A.seller;"
+#        #"insert into MidQuery6
+#        # select max(price) as final, auction
+#        # from Auction#time(999 years) as A, Bid#time(999 years) as B
+#        # where A.id = B.auction and B.dateTime < A.expires
+#        # group by A.id, A.seller;
+#        #
+#        # insert into OutQuery6
+#        # select avg(final) as final, seller
+#        # from MidQuery6
+#      # group by seller;"
+#      template_sql: "SELECT Istream(AVG(Q.final), Q.seller)
+#                     FROM (SELECT Rstream(MAX(B.price) AS final, A.seller)
+#                           FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
+#                           WHERE A.id=B.auction AND B.dateTime < A.expires AND A.expires < CURRENT_TIME
+#                           GROUP BY A.id, A.seller) [PARTITION BY A.seller ROWS 10] Q
+#                     GROUP BY Q.seller;"
+
+
+  - name: "MidQuery7"
+    id: 21
+    output-stream-id: 56
+    sql-query:
+      flink: "select max(price) as price
+              from Bid
+              group by tumble(eventTime, interval '1' minute)"
+
+  - name: "Highest Bid (NexMark query 7) (Might not be possible)"
+    id: 19
+    output-stream-id: 46
+    dependency-queries: [21]
+    sql-query:
+      t-rex: ""
+      siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
+               select max(price) as price
+               insert into MidQuery7;
+
+               from MidQuery7#window.time(999 years) as M
+               join Bid#window.time(999 years) as B on B.price == M.price
+               select B.auction, M.price, B.bidder
+               insert into OutQuery7;"
+      flink: "select B.auction, M.price, B.bidder
+              from Bid B
+              join MidQuery7 M on B.price=M.price"
+      esper: "insert into OutQuery7
+              select auction, price, bidder
+              from Bid#ext_timed_batch(dateTime, 1 minute) as B
+              where price = (select max(B1.price)
+                             from Bid#ext_timed_batch(dateTime, 1 minute) as B1);"
+      # I thought the above was logically equivalent to the one below. But where the
+      # below emits 92000 tuples, the above emits 1 tuple, which is the correct number.
+      # "insert into OutQuery7
+      #  select auction, max(price) as price, bidder
+      #  from Bid#ext_timed_batch(dateTime, 1 minute);"
+      template: "SELECT Rstream(B.auction, B.price, B.bidder)
+                 FROM Bid [RANGE 1 MINUTE SLIDE 1 MINUTE] B
+                 WHERE B.price = (SELECT MAX(B1.price)
+                                  FROM BID [RANGE 1 MINUTE SLIDE 1 MINUTE] B1);"
+
+  - name: "Monitor New Users (NexMark query 8) (Might not be possible)"
+    comment: "We modify the template query by removing the window. That's
+              because the dataset only spans 10 seconds, and so a 12 hour window
+              will include all tuples anyway. Since T-Rex doesn't support external
+              time windows, T-Rex can then run this query."
+    id: 20
+    output-stream-id: 47
+    sql-query:
+      t-rex: "
+Assign 30 => Person, 31 => Auction, 47 => OutQuery8
+Define  OutQuery8(id: int, name: string, reserve: int)
+From   Person() as P and
+each   Auction([int] seller=P.id) as A within 5000 from P
+Where id := P.id, name := P.name, reserve := reserve
+Consuming A; "  # Auction is consumed because they will only be matched once
+      siddhi: "from Auction#window.time(999 years) as A
+               join Person#window.time(999 years) as P on P.id == A.seller
+               select P.id, P.name, A.reserve
+               insert into OutQuery8;"
+      flink: "select P.id, P.name, A.reserve
+              from Auction A
+              join Person P on P.id = A.seller"
+      esper: "insert into OutQuery8
+              select P.id as id, P.name as name, A.reserve as reserve
+              from Auction#time(999 years) as A, Person#time(999 years) as P
+              where P.id = A.seller;"
+      template: "SELECT Rstream(P.id, P.name, A.reserve)
+                 FROM Person [RANGE 12 HOUR] P, Auction [RANGE 12 HOUR] A
+                 WHERE P.id = A.seller;"
+
 stream-definitions:
   - id: 9
     stream-id: 16
@@ -583,6 +1030,105 @@ stream-definitions:
     tuple-format: [{name: id, type: int}, {name: ts, type: long-timestamp}, {name: road, type: int}, {name: speed, type: double},
                    {name: dist, type: double}, {name: lane, type: int}, {name: segmentId, type: int}]
 
+  - id: 13
+    stream-id: 30
+    name: Person
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: emailAddress, type: string},
+                   {name: creditCard, type: string}, {name: city, type: string}, {name: state, type: string}]
+
+  - id: 14
+    stream-id: 31
+    name: Auction
+    rowtime-column: {column: expires, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: id, type: int}, {name: itemName, type: string}, {name: description, type: string},
+                   {name: initialBid, type: double}, {name: reserve, type: int}, {name: expires, type: long-timestamp},
+                   {name: expires2, type: long}, {name: seller, type: int}, {name: category, type: int}]
+
+  - id: 15
+    stream-id: 32
+    name: Bid
+    rowtime-column: {column: dateTime, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: auction, type: int}, {name: bidder, type: int}, {name: price, type: double},
+                   {name: dateTime, type: long-timestamp}, {name: dateTime2, type: long}]
+
+  - id: 16
+    stream-id: 33
+    name: Category
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: description, type: string},
+                   {name: parentCategory, type: int}]
+
+  - id: 41
+    stream-id: 41
+    name: OutQuery2
+    tuple-format: [{name: auction, type: int}, {name: price, type: double}]
+
+  - id: 42
+    stream-id: 42
+    name: OutQuery3
+    tuple-format: [{name: name, type: string}, {name: city, type: string}, {name: state, type: string},
+                   {name: id, type: int}]
+
+  - id: 43
+    stream-id: 43
+    name: OutQuery4
+    tuple-format: [{name: price, type: double}, {name: category, type: int}]
+
+  - id: 53
+    stream-id: 53
+    name: MidQuery4
+    tuple-format: [{name: final, type: double}, {name: category, type: int}]
+
+  - id: 44
+    stream-id: 44
+    name: OutQuery5
+    tuple-format: [{name: auction, type: int}]
+
+  - id: 54
+    stream-id: 54
+    name: MidQuery5_1
+    intermediary-stream: true
+    tuple-format: [{name: auction, type: int}, {name: num, type: long}]
+
+  - id: 64
+    stream-id: 64
+    name: MidQuery5_2
+    intermediary-stream: true
+    tuple-format: [{name: auction, type: int}, {name: maxnum, type: long}]
+
+  - id: 55
+    stream-id: 55
+    name: MidQuery6_1
+    intermediary-stream: true
+    tuple-format: [{name: price, type: double}, {name: seller, type: int}, {name: auction, type: int}]
+
+  - id: 65
+    stream-id: 65
+    name: MidQuery6_2
+    intermediary-stream: true
+    tuple-format: [{name: final, type: double}, {name: seller, type: int}]
+
+  - id: 45
+    stream-id: 45
+    name: OutQuery6
+    tuple-format: [{name: final, type: double}, {name: seller, type: int}]
+
+  - id: 46
+    stream-id: 46
+    name: OutQuery7
+    tuple-format: [{name: auction, type: int}, {name: price, type: double}, {name: bidder, type: int}]
+
+  - id: 47
+    stream-id: 47
+    name: OutQuery8
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: reserve, type: int}]
+
+  - id: 56
+    stream-id: 56
+    name: MidQuery7
+    intermediary-stream: true
+    tuple-format: [{name: price, type: double}]
+
+
 datasets:
   - name: Traffic routing data 2 (YAML)
     type: yaml
@@ -601,6 +1147,11 @@ datasets:
     id: 7
     stream-id: 16
     file: Datasets/MovSim/city_example.traj.route_main-40k.yaml
+
+  - name: NexMark 100,000 tuples (YAML)
+    type: yaml
+    id: 8
+    file: Datasets/NexMark/nexmark-dataset.yaml
 
 tracepoints:
   - id: 0
