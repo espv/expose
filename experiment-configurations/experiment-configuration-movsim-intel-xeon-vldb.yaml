@@ -671,35 +671,37 @@ Consuming Traffic; '
     type: fetch-query
     sql-query:
       t-rex: ""
-      siddhi: "from Auction#window.time(999 years) as A
-               join Bid#window.time(999 years) as B on A.id == B.auction and B.dateTime < A.expires
-               select max(B.price) as final, A.category
-               group by A.id, A.category
-               insert into MidQuery4;
+      siddhi: "from Bid#window.time(999 years) as B
+               join Auction#window.time(999 years) as A on A.id == B.auction
+               select B.dateTime, B.price, A.category, B.auction, A.expires
+               insert into MidQuery4_1;
 
-               from MidQuery4#window.time(999 years) as M
-               join Category#window.time(999 years) as C on M.category == C.id
-               select avg(M.final) as price, C.id as category
-               group by C.id
+               from MidQuery4_1#window.externalTimeBatch(dateTime, 1 minute)[dateTime < expires]
+               select max(price) as final, category
+               group by auction, category
+               insert into MidQuery4_2;
+
+               from MidQuery4_2#window.time(999 years)
+               select avg(final) as price, category
+               group by category
                insert into OutQuery4;"
       flink: "select avg(Q.final), C.id
-              from Category C, (select max(B.price) as final, A.category
-                                from Auction A, Bid B
-                                where A.id=B.auction and B.dateTime2 < A.expires2
-                                group by A.id, A.category) Q
+              from Category C, (SELECT MAX(B.price) AS final, A.category
+                                FROM Auction A, Bid B
+                                WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+                                GROUP BY A.id, A.category) Q
               where Q.category = C.id
               group by C.id"
-      esper: "insert into MidQuery4
+      esper: "insert into MidQuery4_2
               select max(B.price) as final, A.category as category
-              from Auction#time(999 minutes) A, Bid#time(999 minutes) B
+              from Auction#time(999 minutes) A, Bid#ext_timed_batch(dateTime, 1 minute) B
               where A.id = B.auction and B.dateTime < A.expires
-              group by A.id, A.category;
+              group by B.auction, A.category;
 
               insert into OutQuery4
-              select avg(Q.final) as price, C.id as category
-              from Category#time(999 minutes) C, MidQuery4#time(999 minutes) as Q
-              where Q.category = C.id
-              group by C.id;"
+              select avg(final) as price, category
+              from MidQuery4_2
+              group by category;"
       template: "SELECT Istream(AVG(Q.final))
                  FROM Category C, (SELECT Rstream(MAX(B.price) AS final, A.category)
                                    FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
@@ -717,7 +719,7 @@ Consuming Traffic; '
       siddhi: ""
       flink: "select auction, count(*) as num
               from Bid
-              group by auction, tumble(eventTime, interval '1' minute)"
+              group by auction"
       esper: ""
 
   - name: "MidQuery5_2"
@@ -727,9 +729,8 @@ Consuming Traffic; '
     sql-query:
       t-rex: ""
       siddhi: ""
-      flink: "select auction, max(num) as maxnum
-              from MidQuery5_1
-              group by auction"
+      flink: "select max(num) as maxnum
+              from MidQuery5_1"
       esper: ""
 
   - name: "Hot Items (NexMark query 5) (Might not be possible)"
@@ -745,29 +746,56 @@ Consuming Traffic; '
                insert into MidQuery5_1;
 
                from MidQuery5_1
-               select auction, max(num) as maxnum
-               group by auction
-               insert into MidQuery5_2;
-
-               from MidQuery5_2
-               select auction
+               select auction, num as maxnum
+               having num == max(num)
                insert into OutQuery5;"
-      flink: "select auction
-              from MidQuery5_2"
+      # The one below is identical to the one above
+      #"from Bid
+      # select auction, count(*) as num
+      # group by auction
+      # insert into MidQuery5_1;
+#
+      # from MidQuery5_1#window.timeBatch(5 seconds)
+      # select num as maxnum
+      # having maxnum == max(maxnum)
+      # insert into MidQuery5_2;
+#
+      # from MidQuery5_2#window.time(1000 seconds) as M2 join MidQuery5_1#window.time(1000 seconds) as M1
+      # on M1.num == M2.maxnum
+      # select M1.auction, M2.maxnum
+      # insert into OutQuery5;
+      # "
+      flink: "SELECT Q.auction, M2.maxnum
+              FROM (SELECT B1.auction, count(*) AS num
+                    FROM Bid B1
+                    GROUP BY B1.auction) Q join MidQuery5_2 M2 on M2.maxnum = Q.num"
+             #"select M1.auction, M2.maxnum
+             # from MidQuery5_1 M1 join MidQuery5_2 M2 on M1.num = M2.maxnum"
       esper: "insert into MidQuery5_1
               select auction, count(*) as num
               from Bid#ext_timed_batch(dateTime, 1 minute)
               group by auction;
 
-              insert into MidQuery5_2
-              select auction, max(num) as maxnum
-              from MidQuery5_1
-              group by auction;
-
               insert into OutQuery5
-              select auction
-              from MidQuery5_2;
-              "
+              select auction, num as maxnum
+              from MidQuery5_1
+              where num >= all (select count(*)
+                                from Bid#ext_timed_batch(dateTime, 1 minute) B2
+                                group by B2.auction);"
+
+             #"insert into MidQuery5_1
+             # select auction, count(*) as num
+             # from Bid#ext_timed_batch(dateTime, 1 minute)
+             # group by auction;
+#
+             # insert into MidQuery5_2
+             # select max(num) as maxnum
+             # from MidQuery5_1;
+#
+             # insert into OutQuery5
+             # select auction, num
+             # from MidQuery5_2 M2 join MidQuery5_1 M1 on M2.maxnum = M1.num;
+             # "
 
               # The below query is the correct one, but the other SPEs don't
               # support the ALL operator, and so they will produce nearly 5000 tuples
@@ -821,20 +849,19 @@ From MidQuery6() as M
 Where auction := M.auction, seller := M.seller, final := M.price, dateTime := M.dateTime
 Consuming M;
 "  # Bid and MidQuery6 get consumed because they will only be matched once
-      siddhi: "from Bid#window.time(5 seconds) as B
-                 join Auction#window.time(5 seconds) as A
-                 on A.id == B.auction and B.dateTime < A.expires
-               select price, seller, auction
-               group by auction
+      siddhi: "from Bid#window.time(999 years) as B
+                 join Auction#window.time(999 years) as A
+                 on A.id == B.auction
+               select price, seller, auction, dateTime, expires
                insert into MidQuery6_1;
 
-               from MidQuery6_1#window.timeBatch(5 seconds)
+               from MidQuery6_1#window.externalTimeBatch(dateTime, 1 minute)[dateTime < expires]
                select max(price) as final, seller
                group by auction, seller
                insert into MidQuery6_2;
 
                from MidQuery6_2
-               select avg(final) as final, seller as seller
+               select avg(final) as final, seller
                group by seller
                insert into OutQuery6;"
       flink: "SELECT AVG(Q.final), Q.seller
@@ -846,25 +873,28 @@ Consuming M;
              #"select avg(final) as final, seller
              # from MidQuery6
              # group by seller"
-      esper: "insert into OutQuery6
-              select price as final, auction as seller
-              from Bid#win:time_batch(5 seconds);"
+      esper: #"insert into OutQuery6
+             # select price as final, auction as seller
+             # from Bid#win:time_batch(5 seconds);"
              # What if we do a regular join in this query, the max aggregation in next, bound by dateTime, and average thereafter?
-             #"insert into MidQuery6_1
-             # select price, seller
-             # from Auction#win:time(10 seconds) as A, Bid#win:time(10 seconds) as B
-             # where A.id = B.auction and B.dateTime < A.expires
-             # group by A.id, A.seller;
-#
-             # insert into MidQuery6_2
-             # select max(price) as final, seller
-             # from MidQuery6_1#win:time_batch(5 seconds)
-             # group by auction, seller;
-#
-             # insert into OutQuery6
-             # select avg(final) as final, seller
-             # from MidQuery6_2#win:time(5 seconds)
-             # group by seller;"
+
+             # Do regular join without the condition of B.dateTime < A.expires, and delay that to the second query
+             "insert into MidQuery6_1
+              select price, seller, auction, dateTime, expires
+              from Auction#win:time(999 years) as A, Bid#win:time(999 years) as B
+              where A.id = B.auction
+              group by A.id, A.seller;
+
+              insert into MidQuery6_2
+              select max(price) as final, seller
+              from MidQuery6_1#win:ext_timed_batch(dateTime, 1 minute)
+              where dateTime < expires
+              group by auction, seller;
+
+              insert into OutQuery6
+              select avg(final) as final, seller
+              from MidQuery6_2#win:time(999 years)
+              group by seller;"
       template_sql: "SELECT Istream(AVG(Q.final), Q.seller)
                      FROM (SELECT Rstream(MAX(B.price) AS final, A.seller)
                            FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
@@ -1075,13 +1105,19 @@ stream-definitions:
 
   - id: 53
     stream-id: 53
-    name: MidQuery4
+    name: MidQuery4_1
+    tuple-format: [{name: dateTime, type: long-timestamp}, {name: price, type: double}, {name: category, type: int}, {name: auction, type: int},
+                   {name: expires, type: long-timestamp}]
+
+  - id: 63
+    stream-id: 63
+    name: MidQuery4_2
     tuple-format: [{name: final, type: double}, {name: category, type: int}]
 
   - id: 44
     stream-id: 44
     name: OutQuery5
-    tuple-format: [{name: auction, type: int}]
+    tuple-format: [{name: auction, type: int}, {name: maxnum, type: long}]
 
   - id: 54
     stream-id: 54
@@ -1093,13 +1129,14 @@ stream-definitions:
     stream-id: 64
     name: MidQuery5_2
     intermediary-stream: true
-    tuple-format: [{name: auction, type: int}, {name: maxnum, type: long}]
+    tuple-format: [{name: maxnum, type: long}]
 
   - id: 55
     stream-id: 55
     name: MidQuery6_1
     intermediary-stream: true
-    tuple-format: [{name: price, type: double}, {name: seller, type: int}, {name: auction, type: int}]
+    tuple-format: [{name: price, type: double}, {name: seller, type: int}, {name: auction, type: int}, {name: dateTime, type: long-timestamp},
+                   {name: expires, type: long-timestamp}]
 
   - id: 65
     stream-id: 65
