@@ -413,7 +413,7 @@ Consuming M;
   - name: "Highest Bid (NexMark query 7) (Might not be possible)"
     id: 10
     output-stream-id: 14
-    dependency-queries: [9]
+    #dependency-queries: [9]
     sql-query:
       t-rex: ""
       siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
@@ -424,9 +424,10 @@ Consuming M;
                join Bid#window.time(999 years) as B on B.price == M.price
                select B.auction, M.price, B.bidder
                insert into OutQuery7;"
-      flink: "select B.auction, M.price, B.bidder
-              from Bid B
-              join MidQuery7 M on B.price=M.price"
+      flink: "SELECT B.auction, B.price, B.bidder
+              FROM Bid B
+              WHERE B.price = (SELECT MAX(B1.price)
+                               FROM Bid B1)"
       esper: "insert into OutQuery7
               select auction, price, bidder
               from Bid#ext_timed_batch(dateTime, 1 minute) as B
