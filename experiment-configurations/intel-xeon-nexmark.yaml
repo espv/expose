@@ -280,22 +280,10 @@ spequeries:
               group by auction"
       esper: ""
 
-  - name: "MidQuery5_2"
-    id: 6
-    output-stream-id: 10
-    type: fetch-query
-    sql-query:
-      t-rex: ""
-      siddhi: ""
-      flink: "select max(num) as maxnum
-              from MidQuery5_1"
-      esper: ""
-
   - name: "Hot Items (NexMark query 5) (Might not be possible)"
     id: 7
     output-stream-id: 8
     type: fetch-query
-    dependency-queries: [5, 6]
     sql-query:
       t-rex: ""
       siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
@@ -307,10 +295,15 @@ spequeries:
                select auction, num as maxnum
                having maxnum == max(maxnum)
                insert into OutQuery5;"
-      flink: "SELECT Q.auction, M2.maxnum
+      flink: "SELECT Q1.auction, Q2.maxnum
               FROM (SELECT B1.auction, count(*) AS num
                     FROM Bid B1
-                    GROUP BY B1.auction) Q join MidQuery5_2 M2 on M2.maxnum = Q.num"
+                    GROUP BY B1.auction) Q1,
+                   (select max(num) as maxnum
+                    from (SELECT B1.auction, count(*) AS num
+                          FROM Bid B1
+                          GROUP BY B1.auction)) Q2
+              WHERE Q1.num = Q2.maxnum"
         #"select M1.auction, M2.maxnum
       # from MidQuery5_1 M1 join MidQuery5_2 M2 on M1.num = M2.maxnum"
       esper: "insert into MidQuery5_1
