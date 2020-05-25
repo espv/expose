@@ -11,6 +11,32 @@
 name: Experiment configuration
 
 experiments:
+  - name: experiment 1 --- NexMark
+    id: 1
+    flow:
+      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [17, 3], node: 2}
+
+      - {task: deployQueries, arguments: [1, 1], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [1, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+
   - name: experiment 2 --- NexMark
     id: 2
     flow:
@@ -40,7 +66,7 @@ experiments:
   - name: experiment 3 --- NexMark
     id: 3
     flow:
-      - {task: writeStreamToCsv, arguments: [6, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/6"], node: 3}
+      - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -66,7 +92,7 @@ experiments:
   - name: experiment 4 --- NexMark
     id: 4
     flow:
-      - {task: writeStreamToCsv, arguments: [7, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/7"], node: 3}
+      - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -92,7 +118,7 @@ experiments:
   - name: experiment 5 --- NexMark
     id: 5
     flow:
-      - {task: writeStreamToCsv, arguments: [8, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/8"], node: 3}
+      - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -118,7 +144,7 @@ experiments:
   - name: experiment 6 --- NexMark
     id: 6
     flow:
-      - {task: writeStreamToCsv, arguments: [13, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/13"], node: 3}
+      - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -146,7 +172,7 @@ experiments:
   - name: experiment 7 --- NexMark
     id: 7
     flow:
-      - {task: writeStreamToCsv, arguments: [14, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/14"], node: 3}
+      - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -175,10 +201,20 @@ spequeries:
     output-stream-id: 3  # Bid
     type: fetch-query
     sql-query:
-      t-rex: ""
-      siddhi: ""
-      flink: ""
-      esper: ""
+      t-rex: "Assign 3 => Bid, 17 => OutBid
+              Define OutBid(auction: int, bidder: int, price: float, dateTime: int, dateTime2: int)
+              From Auction() as A and
+              each Bid([int] auction=A.id, [int] dateTime < A.expires) as B within 500000000 from A
+              Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime, dateTime2 := B.dateTim2
+              Consuming A, B;"
+      siddhi: "from Bid
+               select *
+               insert into OutBid;"
+      flink: "select *
+              from Bid"
+      esper: "insert into OutBid
+              select *
+              from Bid"
       template: ""
 
   - name: "Selection (NexMark query 2)"
@@ -566,6 +602,13 @@ stream-definitions:
     name: MidQuery7
     intermediary-stream: true
     tuple-format: [{name: price, type: double}]
+
+  - id: 17
+    stream-id: 17
+    name: OutBid
+    rowtime-column: {column: dateTime, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: auction, type: int}, {name: bidder, type: int}, {name: price, type: double},
+                   {name: dateTime, type: long-timestamp}, {name: dateTime2, type: long}]
 
 
 datasets:
