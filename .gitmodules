@@ -13,3 +13,6 @@
 [submodule "SPE-dependencies/kafka"]
 	path = SPE-dependencies/kafka
 	url = https://github.com/confluentinc/kafka.git
+[submodule "SPE-dependencies/ksql"]
+	path = SPE-dependencies/ksql
+	url = https://github.com/confluentinc/ksql.git
