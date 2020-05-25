@@ -259,7 +259,7 @@ experiments:
 spequeries:
   - name: "Passthrough (NexMark query 0)"
     id: 1
-    output-stream-id: 3  # Bid
+    output-stream-id: 17  # Bid
     type: fetch-query
     sql-query:
       t-rex: "Assign 3 => Bid, 17 => OutBid
