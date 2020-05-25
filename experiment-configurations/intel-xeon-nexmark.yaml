@@ -264,10 +264,9 @@ spequeries:
     sql-query:
       t-rex: "Assign 3 => Bid, 17 => OutBid
               Define OutBid(auction: int, bidder: int, price: float, dateTime: int, dateTime2: int)
-              From Auction() as A and
-              each Bid([int] auction=A.id, [int] dateTime < A.expires) as B within 500000000 from A
-              Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime, dateTime2 := B.dateTim2
-              Consuming A, B;"
+              Bid() as B
+              Where auction := B.auction, bidder := B.seller, price := B.price, dateTime := B.dateTime, dateTime2 := B.dateTime2
+              Consuming B;"
       siddhi: "from Bid
                select *
                insert into OutBid;"
