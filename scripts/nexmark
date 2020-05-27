@@ -9,7 +9,6 @@
 # The RPI 4 can't handle as heavy load as the Intel Xeon server, and therefore it runs different
 # experiments, which only go to around 50 queries, instead of 200 on the Intel Xeon.
 
-stream_processing_systems=(Siddhi Esper Flink TRex)
 ansible_target=intel_xeon
 local_expose_path=$1
 intel_expose_path=$2
@@ -19,6 +18,7 @@ yaml_config_rpi=$5
 isolated_cpu_core_intel_xeon=$6
 isolated_cpu_core_rpi=$7
 
+stream_processing_systems=(Siddhi Esper Flink TRex)
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
 	./runCompleteExperimentRemotely 1 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
@@ -39,18 +39,18 @@ stream_processing_systems=(Siddhi Esper Flink TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	./runCompleteExperimentRemotely 1 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 11 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
 		continue
 	fi
-	./runCompleteExperimentRemotely 2 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 3 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 4 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 5 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 6 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 7 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 8 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
 done
 
 uuid=$(cat /proc/sys/kernel/random/uuid)
