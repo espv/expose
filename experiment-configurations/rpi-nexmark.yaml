@@ -12,7 +12,7 @@ name: Experiment configuration
 
 experiments:
   - name: experiment 1 --- NexMark
-    id: 1
+    id: 11
     flow:
       - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
 
@@ -50,7 +50,7 @@ experiments:
          ]]}
 
   - name: experiment 2 --- NexMark
-    id: 2
+    id: 12
     flow:
       - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: 3}
 
@@ -88,7 +88,7 @@ experiments:
          ]]}
 
   - name: experiment 3 --- NexMark
-    id: 3
+    id: 13
     flow:
       - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: 3}
 
@@ -126,7 +126,7 @@ experiments:
          ]]}
 
   - name: experiment 4 --- NexMark
-    id: 4
+    id: 14
     flow:
       - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: 3}
 
@@ -164,7 +164,7 @@ experiments:
          ]]}
 
   - name: experiment 5 --- NexMark
-    id: 5
+    id: 15
     flow:
       - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: 3}
 
@@ -202,7 +202,7 @@ experiments:
          ]]}
 
   - name: experiment 6 --- NexMark
-    id: 6
+    id: 16
     flow:
       - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: 3}
 
@@ -240,7 +240,7 @@ experiments:
          ]]}
 
   - name: experiment 7 --- NexMark
-    id: 7
+    id: 17
     flow:
       - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: 3}
 
@@ -278,7 +278,7 @@ experiments:
          ]]}
 
   - name: experiment 8 --- NexMark
-    id: 8
+    id: 18
     flow:
       - {task: writeStreamToCsv, arguments: [15, "scripts/Experiments/sink-output/15"], node: 3}
 
