@@ -274,7 +274,7 @@ spequeries:
               from Bid"
       esper: "insert into OutBid
               select *
-              from Bid"
+              from Bid;"
       template: ""
 
   - name: "Selection (NexMark query 2)"
