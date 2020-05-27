@@ -734,7 +734,7 @@ datasets:
   - name: NexMark 100,000 tuples (YAML)
     type: yaml
     id: 8
-    file: Datasets/NexMark/nexmark-dataset-40k.yaml
+    file: Datasets/NexMark/nexmark-dataset-100k.yaml
 
 tracepoints:
   - id: 0
