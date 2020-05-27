@@ -156,3 +156,5 @@ buildNumber.properties
 
 *.trace
 *.log
+
+scripts/Experiments/

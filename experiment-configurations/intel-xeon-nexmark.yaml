@@ -274,7 +274,7 @@ spequeries:
               from Bid"
       esper: "insert into OutBid
               select *
-              from Bid"
+              from Bid;"
       template: ""
 
   - name: "Selection (NexMark query 2)"
@@ -675,7 +675,7 @@ datasets:
   - name: NexMark 100,000 tuples (YAML)
     type: yaml
     id: 8
-    file: Datasets/NexMark/nexmark-dataset.yaml
+    file: Datasets/NexMark/nexmark-dataset-100k.yaml
 
 tracepoints:
   - id: 0
