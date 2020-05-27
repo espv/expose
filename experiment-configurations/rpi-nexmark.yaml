@@ -30,21 +30,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 2 --- NexMark
     id: 2
@@ -65,21 +68,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 3 --- NexMark
     id: 3
@@ -100,21 +106,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 4 --- NexMark
     id: 4
@@ -135,21 +144,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 5 --- NexMark
     id: 5
@@ -170,21 +182,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 6 --- NexMark
     id: 6
@@ -205,21 +220,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 7 --- NexMark
     id: 7
@@ -240,21 +258,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
   - name: experiment 8 --- NexMark
     id: 8
@@ -275,21 +296,24 @@ experiments:
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [1000]},
-         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
          {task: traceTuple, node: 2, arguments: [200, []]},
          {task: stopRuntimeEnv, node: 2},
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]}
-      - {task: startRuntimeEnv, node: 2}
-      - {task: startRuntimeEnv, node: 3}
-      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
-      - {task: retEndOfStream, node: 3, arguments: [1000]}
-      - {task: retEndOfStream, node: 2, arguments: [1000]}
-      - {task: traceTuple, node: 2, arguments: [200, []]}
-      - {task: stopRuntimeEnv, node: 2}
-      - {task: stopRuntimeEnv, node: 3}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
 
 spequeries:
   - name: "Passthrough (NexMark query 0)"
