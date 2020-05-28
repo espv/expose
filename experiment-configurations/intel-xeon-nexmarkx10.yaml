@@ -374,13 +374,12 @@ spequeries:
                select avg(final) as price, category
                group by category
                insert into OutQuery4;"
-      flink: "select avg(Q.final), C.id
-              from Category C, (SELECT MAX(B.price) AS final, A.category
-                                FROM Auction A, Bid B
-                                WHERE A.id=B.auction AND B.dateTime2 < A.expires2
-                                GROUP BY A.id, A.category) Q
-              where Q.category = C.id
-              group by C.id"
+      flink: "select avg(final), category
+              from (SELECT MAX(B.price) AS final, A.category
+                    FROM Auction A, Bid B
+                    WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+                    GROUP BY A.id, A.category) Q
+              group by category"
       esper: "insert into MidQuery4_2
               select max(B.price) as final, A.category as category
               from Auction#time(999 minutes) A, Bid#ext_timed_batch(dateTime, 1 minute) B
