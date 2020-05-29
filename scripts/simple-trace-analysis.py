@@ -75,6 +75,7 @@ class TraceAnalysis(object):
                 elif tracepoint["name"] == "Finished Processing Event":
                     last_received = timestamp
 
+        print("Statistics for trace:", trace_file)
         for i, throughput in enumerate(throughputs):
             print("Run 1:", throughput, "tuples per second")
         mean = np.mean(np.array(throughputs))
