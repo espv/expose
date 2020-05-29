@@ -50,21 +50,22 @@ class TraceAnalysis(object):
                         tracepoint = t
                         break
 
-                if tracepoint["name"] == "Finished one set":
-                    throughput = number_tuples_received / ((last_received-first_received) / 1000000000)
-                    throughputs.append(throughput)
-                    number_tuples_received = 0.0
-                    last_received = 0
-                    first_received = 0
-                    run += 1
-                    pass
-
                 if received_start_experiment is False:
-                    number_tuples_received += 1
                     if tracepoint.get("name") == "Start experiment":
                         received_start_experiment = True
                     continue
+
+                if received_start_experiment is not False and tracepoint["name"] == "Finished one set":
+                    throughput = number_tuples_received / ((last_received-first_received) / 1000000000.0)
+                    throughputs.append(throughput)
+                    number_tuples_received = 0.0
+                    last_received = 0.0
+                    first_received = 0.0
+                    run += 1
+                    pass
+
                 if tracepoint["name"] == "Receive Event":
+                    number_tuples_received += 1
                     if first_received == 0:
                         first_received = timestamp
                 elif tracepoint["name"] == "Passed Constraints":
@@ -74,10 +75,14 @@ class TraceAnalysis(object):
                 elif tracepoint["name"] == "Finished Processing Event":
                     last_received = timestamp
 
+        for i, throughput in enumerate(throughputs):
+            print("Run 1:", throughput, "tuples per second")
         mean = np.mean(np.array(throughputs))
         print("Average throughput over", run, "runs:", mean)
-        rsd = (np.std(np.array(throughputs)) / np.mean(np.array(throughputs)))
-        print("RSD over", run, "runs:", rsd)
+        sd = np.std(np.array(throughputs), ddof=1)
+        print("Sample SD over", run, "runs:", sd)
+        rsd = 100.0 * (sd / mean)
+        print("RSD% over", run, "runs:", rsd)
 
 
 if __name__ == '__main__':
