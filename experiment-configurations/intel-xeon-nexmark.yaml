@@ -376,13 +376,13 @@ spequeries:
 
   - name: "Currency Conversion (NexMark query 1)"
     id: 1
-    output-stream-id: 17  # Bid
+    output-stream-id: 17  # OutBid
     type: fetch-query
     sql-query:
       siddhi: "from Bid
-               select *
+               select auction, bidder, udf:doltoeur(price) as price, dateTime, dateTime2
                insert into OutBid;"
-      flink: "select *
+      flink: "select auction, bidder, DOLTOEUR(price) as price, eventTime, dateTime2
               from Bid"
       esper: "insert into OutBid
               select auction, bidder, DOLTOEUR(price) as price, dateTime, dateTime2
