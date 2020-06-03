@@ -21,11 +21,12 @@ isolated_cpu_core_rpi=$7
 stream_processing_systems=(Esper Flink TRex Siddhi)
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	./runCompleteExperimentRemotely 1 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 0 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
 		continue
 	fi
+	./runCompleteExperimentRemotely 1 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 	./runCompleteExperimentRemotely 2 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 	./runCompleteExperimentRemotely 3 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 	./runCompleteExperimentRemotely 4 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
@@ -39,11 +40,12 @@ stream_processing_systems=(Esper Flink TRex Siddhi)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	./runCompleteExperimentRemotely 11 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 10 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
 		continue
 	fi
+	./runCompleteExperimentRemotely 11 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
 	./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
 	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
