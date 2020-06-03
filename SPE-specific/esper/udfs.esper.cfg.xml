@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration>
+    <compiler>
+        <plugin-singlerow-function name="DOLTOEUR"
+                                   function-class="com.espertech.esper.experiments.UserDefinedFunctions"
+                                   function-method="computeDolToEur" />
+    </compiler>
+</esper-configuration>

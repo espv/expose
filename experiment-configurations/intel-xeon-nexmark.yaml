@@ -11,10 +11,48 @@
 name: Experiment configuration
 
 experiments:
+  - name: experiment 0 --- NexMark
+    id: 0
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [17, 3], node: 2}
+
+      - {task: deployQueries, arguments: [0, 1], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [2000]},
+         {task: retEndOfStream, node: 2, arguments: [2000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+
   - name: experiment 1 --- NexMark
     id: 1
     flow:
-            #      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
+      #      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -317,7 +355,7 @@ experiments:
 
 spequeries:
   - name: "Passthrough (NexMark query 0)"
-    id: 1
+    id: 0
     output-stream-id: 17  # Bid
     type: fetch-query
     sql-query:
@@ -333,6 +371,21 @@ spequeries:
               from Bid"
       esper: "insert into OutBid
               select *
+              from Bid;"
+      template: ""
+
+  - name: "Currency Conversion (NexMark query 1)"
+    id: 1
+    output-stream-id: 17  # Bid
+    type: fetch-query
+    sql-query:
+      siddhi: "from Bid
+               select *
+               insert into OutBid;"
+      flink: "select *
+              from Bid"
+      esper: "insert into OutBid
+              select auction, bidder, DOLTOEUR(price) as price, dateTime, dateTime2
               from Bid;"
       template: ""
 
