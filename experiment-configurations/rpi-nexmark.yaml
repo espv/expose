@@ -27,7 +27,7 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: 2}
 
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [
+         arguments: [5, [
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},

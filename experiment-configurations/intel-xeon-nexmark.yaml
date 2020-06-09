@@ -27,7 +27,7 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: 2}
 
       - {task: loopTasks, node: coordinator,
-         arguments: [1, [
+         arguments: [5, [
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
          {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
@@ -822,7 +822,7 @@ datasets:
   - name: NexMark 1,000,000 tuples (YAML)
     type: yaml
     id: 8
-    file: Datasets/NexMark/nexmark-dataset-1k.yaml
+    file: Datasets/NexMark/nexmark-dataset-100k.yaml
 
 tracepoints:
   - id: 0
