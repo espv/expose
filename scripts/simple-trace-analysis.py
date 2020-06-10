@@ -83,7 +83,7 @@ class TraceAnalysis(object):
         print("Statistics for trace:", trace_file)
         print("Iteration 1 of warmup:", first_throughput, "tuples per second")
         for i, throughput in enumerate(throughputs):
-            print("Run", i:", throughput, "tuples per second")
+            print("Run", i, ":", throughput, "tuples per second")
         mean = np.mean(np.array(throughputs))
         print("Average throughput over", run, "runs:", mean)
         sd = np.std(np.array(throughputs), ddof=1)
