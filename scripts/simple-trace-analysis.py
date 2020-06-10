@@ -86,6 +86,7 @@ class TraceAnalysis(object):
             print("Run", i+1, ":", throughput, "tuples per second")
         mean = np.mean(np.array(throughputs))
         print("Average throughput over", run, "runs:", mean)
+        print("The average throughput is", (mean/first_throughput)*100, "% higher than the throughput for the first iteration")
         sd = np.std(np.array(throughputs), ddof=1)
         print("Sample SD over", run, "runs:", sd)
         rsd = 100.0 * (sd / mean)
