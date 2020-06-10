@@ -54,13 +54,13 @@ class TraceAnalysis(object):
                 if received_start_experiment is False:
                     if tracepoint.get("name") == "Start experiment":
                         received_start_experiment = True
-                    continue
 
                 if received_start_experiment is not False and tracepoint["name"] == "Finished one set":
                     throughput = number_tuples_received / ((last_received-first_received) / 1000000000.0)
                     if first_throughput is None:
                         first_throughput = throughput
-                    throughputs.append(throughput)
+                    if received_start_experiment is not False:
+                        throughputs.append(throughput)
                     number_tuples_received = 0.0
                     last_received = 0.0
                     first_received = 0.0
