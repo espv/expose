@@ -36,6 +36,7 @@ class TraceAnalysis(object):
         throughputs = []
         run = 0
         received_start_experiment = False
+        first_throughput = None
 
         with open(trace_file) as infile:
             i = -1
@@ -57,6 +58,8 @@ class TraceAnalysis(object):
 
                 if received_start_experiment is not False and tracepoint["name"] == "Finished one set":
                     throughput = number_tuples_received / ((last_received-first_received) / 1000000000.0)
+                    if first_throughput is None:
+                        first_throughput = throughput
                     throughputs.append(throughput)
                     number_tuples_received = 0.0
                     last_received = 0.0
@@ -68,16 +71,19 @@ class TraceAnalysis(object):
                     number_tuples_received += 1
                     if first_received == 0:
                         first_received = timestamp
+                    last_received = timestamp
                 elif tracepoint["name"] == "Passed Constraints":
                     pass
                 elif tracepoint["name"] == "Created Complex Event":
                     pass
                 elif tracepoint["name"] == "Finished Processing Event":
                     last_received = timestamp
+                    pass
 
         print("Statistics for trace:", trace_file)
+        print("Iteration 1 of warmup:", first_throughput, "tuples per second")
         for i, throughput in enumerate(throughputs):
-            print("Run 1:", throughput, "tuples per second")
+            print("Run", i:", throughput, "tuples per second")
         mean = np.mean(np.array(throughputs))
         print("Average throughput over", run, "runs:", mean)
         sd = np.std(np.array(throughputs), ddof=1)
