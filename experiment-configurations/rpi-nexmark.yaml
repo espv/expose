@@ -383,7 +383,7 @@ spequeries:
     type: fetch-query
     sql-query:
       siddhi: "from Bid
-               select auction, bidder, DOLTOEUR(price), dateTime, dateTime2
+               select auction, bidder, udf:doltoeur(price) as price, dateTime, dateTime2
                insert into OutBid;"
       beam: "select auction, bidder, DOLTOEUR(price) as price, eventTime, dateTime2
              from Bid"
