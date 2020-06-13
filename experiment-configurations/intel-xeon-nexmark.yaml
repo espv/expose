@@ -14,7 +14,7 @@ experiments:
   - name: experiment 0 --- NexMark
     id: 0
     flow:
-      #- {task: writeStreamToCsv, arguments: [17, "scripts/Experiments/sink-output/1/17"], node: 3}
+      - {task: writeStreamToCsv, arguments: [17, "scripts/Experiments/sink-output/1/17"], node: 3}
       #- {task: writeStreamToCsv, arguments: [3, "scripts/Experiments/sink-output/1/3"], node: 2}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
@@ -53,7 +53,7 @@ experiments:
   - name: experiment 1 --- NexMark
     id: 1
     flow:
-      #      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
+      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -91,7 +91,7 @@ experiments:
   - name: experiment 2 --- NexMark
     id: 2
     flow:
-            #      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: 3}
+      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -129,7 +129,7 @@ experiments:
   - name: experiment 3 --- NexMark
     id: 3
     flow:
-            #      - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: 3}
+      - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -167,7 +167,7 @@ experiments:
   - name: experiment 4 --- NexMark
     id: 4
     flow:
-            #      - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: 3}
+      - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -205,7 +205,7 @@ experiments:
   - name: experiment 5 --- NexMark
     id: 5
     flow:
-            #      - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: 3}
+      - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -243,7 +243,7 @@ experiments:
   - name: experiment 6 --- NexMark
     id: 6
     flow:
-            #      - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: 3}
+      - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -281,7 +281,7 @@ experiments:
   - name: experiment 7 --- NexMark
     id: 7
     flow:
-            #      - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: 3}
+      - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: 3}
 
       - {task: addNextHop, arguments: [1, 2], node: 1}
       - {task: addNextHop, arguments: [2, 2], node: 1}
@@ -383,7 +383,7 @@ spequeries:
     type: fetch-query
     sql-query:
       siddhi: "from Bid
-               select auction, bidder, DOLTOEUR(price), dateTime, dateTime2
+               select auction, bidder, udf:doltoeur(price) as price, dateTime, dateTime2
                insert into OutBid;"
       beam: "select auction, bidder, DOLTOEUR(price) as price, eventTime, dateTime2
              from Bid"
@@ -822,7 +822,7 @@ datasets:
   - name: NexMark 1,000,000 tuples (YAML)
     type: yaml
     id: 8
-    file: Datasets/NexMark/nexmark-dataset-100k.yaml
+    file: Datasets/NexMark/nexmark-dataset-1M.yaml
 
 tracepoints:
   - id: 0
