@@ -39,11 +39,11 @@ Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
 
 By using the isolcpus kernel parameter, isolate one of the CPU cores in the Intel Xeon server and the RPI. We isolated the 19th CPU core of the Intel Xeon server and the 3rd CPU core of the RPI 4. Hyperthreading is also off in the Intel Xeon server.
 
-Apache Flink specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -cp <isolated core> <zookeeper PID> && taskset -cp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
+Apache Flink and Beam specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -cp <isolated core> <zookeeper PID> && taskset -cp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
 
 Run experiments:
 In the scripts folder, the RUN script contains the lines to run, in order to execute the experiments:
-nohup ./vldb ~/expose/scripts/Experiments ../experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml ../experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml 19 3 &
+nohup ./nexmark ~/expose/scripts/Experiments ../experiment-configurations/intel-xeon-nexmark.yaml ../experiment-configurations/rpi-nexmark.yaml 19 3 &
 
 nohup just ensures that all the output gets written to nohup.out and that it runs even though the user exits the terminal.
 
