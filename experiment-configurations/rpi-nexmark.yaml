@@ -399,7 +399,7 @@ spequeries:
       flink: "select auction, bidder, DOLTOEUR(price) as price, eventTime, dateTime2
               from Bid"
       esper: "insert into OutBid
-              select doltoeur(price)
+              select doltoeur(price) as price
               from Bid;"
       template: ""
 
