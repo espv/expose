@@ -55,13 +55,20 @@ do
 		continue
 	fi
 	./runCompleteExperimentRemotely 11 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-#	./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-#	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-#	./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-	./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
-#	./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi_xeon
+	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	# Beam can only do 0, 1, 2, 5 and 7
+	if [[ "$stream_processing_system" = "Beam" ]];
+	then
+		./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		continue
+	fi
+	./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 done
 
 uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -91,5 +98,6 @@ mv $log_folder/$log_name/experiment-19/* $log_folder/$log_name/experiment-13
 rmdir $log_folder/$log_name/experiment-19
 # Run analyze_all on the log folders
 ./analyze_all $log_folder/$log_name $yaml_config_intel $yaml_config_rpi
+find . -name "*.trace" -exec python $local_expose_path/scripts/simple-trace-analysis.py $local_expose_path/experiment-configurations/intel-xeon-nexmark.yaml {} \; > $log_folder/$log_name/analysis_results
 
-echo "Finished all the experiments and results are written to $log_folder/$log_name/Results-Figures"
+echo "Finished all the experiments and results are written to $log_folder/$log_name/analysis_results"
