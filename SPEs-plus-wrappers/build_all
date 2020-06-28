@@ -7,3 +7,5 @@ cd ../flink-plus-wrapper
 ./build_flink
 cd ../trex-plus-wrapper
 ./build_trex
+cd ../beam-plus-wrapper
+./gradlew shadowJar
