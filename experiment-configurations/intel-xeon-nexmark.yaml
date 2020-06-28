@@ -467,7 +467,7 @@ spequeries:
                insert into MidQuery4_2;
 
                from MidQuery4_2#window.time(999 years)
-               select avg(final) as price, category
+               select convert(avg(final), 'double') as price, category
                group by category
                insert into OutQuery4;"
       beam: "select avg(final), category
@@ -604,7 +604,7 @@ Consuming M;
                insert into MidQuery6_2;
 
                from MidQuery6_2
-               select avg(final) as final, seller
+               select convert(avg(final), 'double') as final, seller
                group by seller
                insert into OutQuery6;"
       flink: "SELECT AVG(Q.final), Q.seller
