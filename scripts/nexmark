@@ -18,7 +18,7 @@ yaml_config_rpi=$5
 isolated_cpu_core_intel_xeon=$6
 isolated_cpu_core_rpi=$7
 
-stream_processing_systems=(Flink Beam Siddhi Esper TRex)
+stream_processing_systems=()
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
 	./runCompleteExperimentRemotely 0 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
@@ -45,10 +45,19 @@ do
 	./runCompleteExperimentRemotely 8 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 done
 
-stream_processing_systems=(Flink Beam Siddhi Esper TRex)
+stream_processing_systems=(Esper TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
+	if [[ "$stream_processing_system" = "Esper" ]];
+	then
+		./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		continue
+	fi
 	./runCompleteExperimentRemotely 10 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
@@ -92,12 +101,9 @@ tar -C $log_folder -xf $log_folder/log_intel_xeon.tar.gz
 tar -C $log_folder -xf $log_folder/log_raspberrypi_4.tar.gz
 rm $log_folder/log_intel_xeon.tar.gz
 rm $log_folder/log_raspberrypi_4.tar.gz
-mv $log_folder/$log_name/experiment-9/* $log_folder/$log_name/experiment-3
-rmdir $log_folder/$log_name/experiment-9
-mv $log_folder/$log_name/experiment-19/* $log_folder/$log_name/experiment-13
-rmdir $log_folder/$log_name/experiment-19
 # Run analyze_all on the log folders
+workon analysis
 ./analyze_all $log_folder/$log_name $yaml_config_intel $yaml_config_rpi
-find . -name "*.trace" -exec python $local_expose_path/scripts/simple-trace-analysis.py $local_expose_path/experiment-configurations/intel-xeon-nexmark.yaml {} \; > $log_folder/$log_name/analysis_results
+find $log_folder/$log_name -name "*.trace" -exec python $local_expose_path/scripts/simple-trace-analysis.py $local_expose_path/experiment-configurations/intel-xeon-nexmark.yaml {} \; > $log_folder/$log_name/analysis_results
 
 echo "Finished all the experiments and results are written to $log_folder/$log_name/analysis_results"
