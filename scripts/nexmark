@@ -18,7 +18,7 @@ yaml_config_rpi=$5
 isolated_cpu_core_intel_xeon=$6
 isolated_cpu_core_rpi=$7
 
-stream_processing_systems=()
+stream_processing_systems=(Flink Beam Esper Siddhi TRex)
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
 	./runCompleteExperimentRemotely 0 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
@@ -45,7 +45,7 @@ do
 	./runCompleteExperimentRemotely 8 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
 done
 
-stream_processing_systems=(Esper TRex)
+stream_processing_systems=(Flink Beam Esper Siddhi TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
