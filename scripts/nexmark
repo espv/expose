@@ -49,15 +49,6 @@ stream_processing_systems=(Flink Beam Esper Siddhi TRex)
 ansible_target=raspberrypi_4
 for stream_processing_system in "${stream_processing_systems[@]}"
 do
-	if [[ "$stream_processing_system" = "Esper" ]];
-	then
-		./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-		./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-		./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-		./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-		./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
-		continue
-	fi
 	./runCompleteExperimentRemotely 10 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
 	if [[ "$stream_processing_system" = "TRex" ]];
 	then
