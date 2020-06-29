@@ -490,7 +490,7 @@ spequeries:
               group by B.auction, A.category;
 
               insert into OutQuery4
-              select avg(final) as price, category
+              select cast(avg(final), long) as price, category
               from MidQuery4_2
               group by category;"
       template: "SELECT Istream(AVG(Q.final))
@@ -633,6 +633,7 @@ Consuming M;
               group by auction, seller;
 
               insert into OutQuery6
+              select cast(avg(final), long) as final, seller
               select avg(final) as final, seller
               from MidQuery6_2#win:time(999 years)
               group by seller;"
