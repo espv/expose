@@ -10,6 +10,12 @@ local_expose_path=$6
 remote_expose_path=$7
 yaml_config=$8
 isolated_cpu_core=$9
+if [[ -z "$isolated_cpu_core" ]]
+then
+	echo "Must provide an isolated CPU core"
+	echo "Hint: You may provide multiple cores in a list, as 0,1,2,3, or 0-3"
+	exit 1
+fi
 uuid=$(cat /proc/sys/kernel/random/uuid)
 uuid=${uuid: -4}
 dt=`date +%s`
