@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 public class CoordinatorExperimentAPI {
-	CoordinatorComm coordinatorComm;
-	int node_id;
+	public static Map<String, Object> CreateConfigureTask(int node_id) {
+		Map<String, Object> configure_task = new HashMap<>();
+		configure_task.put("task", "configure");
+		configure_task.put("node", node_id);
 
-	CoordinatorExperimentAPI(CoordinatorComm coordinatorComm, int node_id) {
-		this.coordinatorComm = coordinatorComm;
-		this.node_id = node_id;
+		return configure_task;
 	}
+
+
 
 	/*@Override
 	public String Configure() {

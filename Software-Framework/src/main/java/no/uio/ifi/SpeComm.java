@@ -17,9 +17,10 @@ public class SpeComm extends Comm {
 	int coordinator_port;
 	int spe_coordinator_port;
 	ExperimentAPI experimentAPI;
+	SpeSpecificAPI speSpecificAPI;
 	boolean isRunning = true;
 	String trace_folder;
-	CoordinatorComm speCoordinatorComm;
+	public CoordinatorComm speCoordinatorComm;
 
 	private InputStreamReader fromCoordinator;
 	private Map<Integer, InputStreamReader> fromSpeCoordinators = new HashMap<>();
@@ -32,7 +33,7 @@ public class SpeComm extends Comm {
 	private Socket coordinatorSocket;
 	private Map<Integer, Socket> speCoordinatorSockets = new HashMap<>();
 
-	public SpeComm(String[] args, ExperimentAPI experimentAPI) {
+	public SpeComm(String[] args, ExperimentAPI experimentAPI, SpeSpecificAPI speSpecificAPI) {
 		Options options = new Options();
 		Option cp = new Option("c", "client-port", true, "Client port");
 		cp.setRequired(true);
@@ -87,6 +88,7 @@ public class SpeComm extends Comm {
 		this.spe_coordinator_port = Integer.parseInt(cmd.getOptionValue("spe-coordinator-port"));
 		this.trace_folder = cmd.getOptionValue("trace-output-folder");
 		this.experimentAPI = experimentAPI;
+		this.speSpecificAPI = speSpecificAPI;
 		try {
 			ConnectToCoordinator(coordinator_ip, coordinator_port);
 		} catch (Exception e) {
@@ -302,8 +304,57 @@ public class SpeComm extends Comm {
 					}
 				}
 				break;
-			} default: {
-				throw new RuntimeException("Invalid task from mediator: " + cmd_string);
+			} case "moveQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				experimentAPI.MoveQueryState(query_id, new_host);
+				break;
+			} case "moveStaticQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				experimentAPI.MoveStaticQueryState(query_id, new_host);
+				break;
+			} case "moveDynamicQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				experimentAPI.MoveDynamicQueryState(query_id, new_host);
+				break;
+			} case "resumeStream": {
+				int stream_id = (int) args.get(0);
+				experimentAPI.ResumeStream(stream_id);
+				break;
+			} case "stopStream": {
+				int stream_id = (int) args.get(0);
+				experimentAPI.StopStream(stream_id);
+				break;
+			} case "bufferStream": {
+				int stream_id = (int) args.get(0);
+				experimentAPI.BufferStream(stream_id);
+				break;
+			} case "stopAndBufferStream": {
+				int stream_id = (int) args.get(0);
+				experimentAPI.StopAndBufferStream(stream_id);
+				break;
+			} case "relayStream": {
+				int stream_id = (int) args.get(0);
+				int old_host = (int) args.get(1);
+				int new_host = (int) args.get(2);
+				experimentAPI.RelayStream(stream_id, old_host, new_host);
+				break;
+			} case "removeNextHop": {
+				int stream_id = (int) args.get(0);
+				int host = (int) args.get(1);
+				experimentAPI.RemoveNextHop(stream_id, host);
+				break;
+			} case "addSourceNode": {
+				int query_id = (int) args.get(0);
+				int stream_id = (int) args.get(1);
+				List<Integer> node_id_list = (List<Integer>) args.get(2);
+				experimentAPI.AddSourceNode(query_id, stream_id, node_id_list);
+				break;
+			}
+			default: {
+				this.speSpecificAPI.HandleSpeSpecificTask(cmd);
 			}
 		}
 		System.out.println("After handling " + cmd);

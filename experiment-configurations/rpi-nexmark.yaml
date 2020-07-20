@@ -22,7 +22,14 @@ experiments:
       - {task: addNextHop, arguments: [3, 2], node: 1}
       - {task: addNextHop, arguments: [4, 2], node: 1}
 
+      # Goal is to replace these with RelayStream
+      - {task: addNextHop, arguments: [1, 4], node: 1}
+      - {task: addNextHop, arguments: [2, 4], node: 1}
+      - {task: addNextHop, arguments: [3, 4], node: 1}
+      - {task: addNextHop, arguments: [4, 4], node: 1}
+
       - {task: addNextHop, arguments: [17, 3], node: 2}
+      - {task: addNextHop, arguments: [17, 3], node: 4}
 
       - {task: deployQueries, arguments: [0, 1], node: 2}
       # Warmup: send dataset as stream 5 times
@@ -38,6 +45,8 @@ experiments:
          {task: stopRuntimeEnv, node: 3}
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]} # Trace that warmup is finished
+      - {task: moveQueryState, node: 2, arguments: [0, 4]}
+      - {task: stopStream, node: 2, arguments: [17]}
       # Runs that count: send dataset as stream 5 times
       - {task: loopTasks, node: 1,
          arguments: [5, [

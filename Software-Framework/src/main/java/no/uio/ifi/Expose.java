@@ -209,7 +209,6 @@ public class Expose {
 		switch (cmd) {
 			case "setEventBatchSize": {
 				task_args.add(args.get(0));
-				map.put("arguments", task_args);
 				break;
 			}
 			case "wait": {
@@ -241,7 +240,6 @@ public class Expose {
 			}
 			case "setIntervalBetweenEvents": {
 				task_args.add(args.get(0));
-				map.put("arguments", task_args);
 				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
 				break;
 			}
@@ -259,7 +257,6 @@ public class Expose {
 
 				int quantity = (int) args.get(1);
 				task_args.add(spe_rule_to_create);
-				map.put("arguments", task_args);
 				for (int i = 0; i < quantity; ++i) {
 					// TODO: Add number of iterations as argument
 					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
@@ -277,7 +274,6 @@ public class Expose {
 
 				task_args.add(numberIterations);
 				task_args.add(tasks);
-				map.put("arguments", task_args);
 				break;
 			}
 			case "addNextHop": {
@@ -289,7 +285,6 @@ public class Expose {
 						int nodeId = (int) args.get(1);
 						task_args.add(streamId);
 						task_args.add(nodeId);
-						map.put("arguments", task_args);
 						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
 						break;
 					}
@@ -301,7 +296,6 @@ public class Expose {
 				String csvFolder = (String) args.get(1);
 				task_args.add(stream_id);
 				task_args.add(csvFolder);
-				map.put("arguments", task_args);
 				//mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
 				break;
 			}
@@ -313,7 +307,6 @@ public class Expose {
 					ds.put("file", ds.get("file"));
 					if ((int) ds.get("id") == dataset_id) {
 						task_args.add(ds);
-						map.put("arguments", task_args);
 
 						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
 						break;
@@ -330,7 +323,6 @@ public class Expose {
 				Map<Integer, Map<String, Object>> nodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
 
 				task_args.add(nodeIdToIpAndPort);
-				map.put("arguments", task_args);
 
 				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
 				break;
@@ -349,7 +341,6 @@ public class Expose {
 			case "retEndOfStream": {
 				int nanoseconds = (int) args.get(0);
 				task_args.add(nanoseconds);
-				map.put("arguments", task_args);
 
 				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
 				break;
@@ -360,7 +351,6 @@ public class Expose {
 
 				task_args.add(tracepointId);
 				task_args.add(traceArguments);
-				map.put("arguments", task_args);
 
 				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).TraceTuple((int) args.get(0), (List<String>) args.get(1));
 				break;
@@ -369,58 +359,69 @@ public class Expose {
 
 				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
 				break;
+			} case "moveQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				task_args.add(query_id);
+				task_args.add(new_host);
+				break;
+			} case "moveStaticQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				task_args.add(query_id);
+				task_args.add(new_host);
+				break;
+			} case "moveDynamicQueryState": {
+				int query_id = (int) args.get(0);
+				int new_host = (int) args.get(1);
+				task_args.add(query_id);
+				task_args.add(new_host);
+				break;
+			} case "resumeStream": {
+				int stream_id = (int) args.get(0);
+				task_args.add(stream_id);
+				break;
+			} case "stopStream": {
+				int stream_id = (int) args.get(0);
+				task_args.add(stream_id);
+				break;
+			} case "bufferStream": {
+				int stream_id = (int) args.get(0);
+				task_args.add(stream_id);
+				break;
+			} case "stopAndBufferStream": {
+				int stream_id = (int) args.get(0);
+				task_args.add(stream_id);
+				break;
+			} case "relayStream": {
+				int stream_id = (int) args.get(0);
+				int old_host = (int) args.get(1);
+				int new_host = (int) args.get(2);
+				task_args.add(stream_id);
+				task_args.add(old_host);
+				task_args.add(new_host);
+				break;
+			} case "removeNextHop": {
+				int stream_id = (int) args.get(0);
+				int host = (int) args.get(1);
+				task_args.add(stream_id);
+				task_args.add(host);
+				break;
+			} case "addSourceNode": {
+				int query_id = (int) args.get(0);
+				int stream_id = (int) args.get(1);
+				List<Integer> node_id_list = (List<Integer>) args.get(2);
+				task_args.add(query_id);
+				task_args.add(stream_id);
+				task_args.add(node_id_list);
+				break;
 			}
-				/*case "migrateQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "migrateStaticQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveStaticQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "migrateDynamicQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveDynamicQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "resumeQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeQuery(query_id);
-					break;
-				}
-				case "stopQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).StopQuery(query_id);
-					break;
-				}
-				case "bufferQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).BufferQuery(query_id);
-					break;
-				}
-				case "stopAndBufferQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).StopAndBufferQuery(query_id);
-					break;
-				}
-				case "relayStream": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeStream(stream_id, old_host, new_host);
-					break;
-				}
-				case "removeNextHop": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).RemoveNextHop(stream_id, old_host, new_host);
-					break;
-				}
-				case "performQueryMigration": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).PerformQueryMigration(query_id, old_host, new_host, migration_policy);
-					break;
-				}
-				case "deploySubQueries": {
-					// If the query with query_id gets migrated, all number_instances of them will get migrated to the
-					// new host, and the source_nodes will be notified so that they can transmit tuples to the new host
-					ret = nodeIdsToExperimentAPIs.get(node_id).DeploySubQueries(query_id, number_instances, source_nodes);
-					break;
-				}*/
 			default: {
 				throw new RuntimeException("Unknown task " + cmd + " parsed");
 			}
 		}
 
+		map.put("arguments", task_args);
 		return map;
 	}
 
