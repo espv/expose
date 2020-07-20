@@ -4,6 +4,7 @@ import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,14 +15,22 @@ public class SpeComm extends Comm {
 	int node_id;
 	String coordinator_ip;
 	int coordinator_port;
+	int spe_coordinator_port;
 	ExperimentAPI experimentAPI;
 	boolean isRunning = true;
 	String trace_folder;
+	CoordinatorComm speCoordinatorComm;
 
 	private InputStreamReader fromCoordinator;
+	private Map<Integer, InputStreamReader> fromSpeCoordinators = new HashMap<>();
+	private Map<Integer, BufferedReader> fromSpeCoordinatorsBR = new HashMap<>();
 	private BufferedReader bufferedFromCoordinator;
+	private Map<Integer, BufferedReader> bufferedFromSpeCoordinators = new HashMap<>();
 	private DataOutputStream outToCoordinator;
+	private Map<Integer, DataOutputStream> outToSpeCoordinators = new HashMap<>();
+	private Map<Integer, PrintWriter> outToSpeCoordinatorsPW = new HashMap<>();
 	private Socket coordinatorSocket;
+	private Map<Integer, Socket> speCoordinatorSockets = new HashMap<>();
 
 	public SpeComm(String[] args, ExperimentAPI experimentAPI) {
 		Options options = new Options();
@@ -40,6 +49,10 @@ public class SpeComm extends Comm {
 		Option port = new Option("p", "coordinator-port", true, "Coordinator port");
 		port.setRequired(true);
 		options.addOption(port);
+
+		Option spe_coordinator_port = new Option("scp", "spe-coordinator-port", true, "SPE coordinator port");
+		port.setRequired(true);
+		options.addOption(spe_coordinator_port);
 
 		Option node_id = new Option("n", "node-id", true, "Node ID");
 		node_id.setRequired(true);
@@ -71,6 +84,7 @@ public class SpeComm extends Comm {
 		this.node_id = Integer.parseInt(cmd.getOptionValue("node-id"));
 		this.coordinator_ip = cmd.getOptionValue("coordinator-ip");
 		this.coordinator_port = Integer.parseInt(cmd.getOptionValue("coordinator-port"));
+		this.spe_coordinator_port = Integer.parseInt(cmd.getOptionValue("spe-coordinator-port"));
 		this.trace_folder = cmd.getOptionValue("trace-output-folder");
 		this.experimentAPI = experimentAPI;
 		try {
@@ -79,18 +93,76 @@ public class SpeComm extends Comm {
 			e.printStackTrace();
 			System.exit(10);
 		}
+
+		speCoordinatorComm = new CoordinatorComm(this.spe_coordinator_port, null, this.node_id);
+		//speCoordinatorComm.nodeIdsToExperimentAPIs.put(this.node_id, experimentAPI);
+		new Thread(speCoordinatorComm).start();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void ConnectToCoordinator(String coordinatorIp, int coordinatorPort) throws Exception {
-		System.out.println("Connecting to coordinator at ip " + coordinatorIp + ":" + coordinatorPort);
-		this.coordinatorSocket = new Socket(coordinatorIp, coordinatorPort);
+	public void ConnectToCoordinator(String coordinator_ip, int coordinator_port) throws Exception {
+		System.out.println("Connecting to coordinator at ip " + coordinator_ip + ":" + coordinator_port);
+		this.coordinatorSocket = new Socket(coordinator_ip, coordinator_port);
 		this.fromCoordinator = new InputStreamReader(coordinatorSocket.getInputStream());
 		this.bufferedFromCoordinator = new BufferedReader(this.fromCoordinator);
 		this.outToCoordinator = new DataOutputStream(coordinatorSocket.getOutputStream());
-		outToCoordinator.writeBytes(node_id           + "\n" +
+		this.outToCoordinator.writeBytes(this.node_id           + "\n" +
 				this.client_ip          + "\n" +
-				this.client_port + "\n");
-		outToCoordinator.flush();
+				this.client_port + "\n" +
+				this.spe_coordinator_port + "\n");
+		this.outToCoordinator.flush();
+	}
+
+	public void ConnectToSpeCoordinator(int spe_coordinator_node_id, String coordinator_ip, int coordinator_port) throws Exception {
+		System.out.println("Connecting to SPE coordinator at ip " + coordinator_ip + ":" + coordinator_port);
+		/*this.speCoordinatorSockets.put(node_id, new Socket(coordinator_ip, coordinator_port));
+		this.fromSpeCoordinators.put(node_id, new InputStreamReader(coordinatorSocket.getInputStream()));
+		//this.fromSpeCoordinatorsBR.put(node_id, new BufferedReader(new InputStreamReader(coordinatorSocket.getInputStream())));
+		this.bufferedFromSpeCoordinators.put(node_id, new BufferedReader(this.fromCoordinator));
+		this.outToSpeCoordinators.put(node_id, new DataOutputStream(coordinatorSocket.getOutputStream()));
+		//this.outToSpeCoordinatorsPW.put(node_id, new PrintWriter(coordinatorSocket.getOutputStream()));
+		outToSpeCoordinators.get(node_id).writeBytes(this.node_id           + "\n" +
+				this.client_ip          + "\n" +
+				this.client_port + "\n" +
+				this.spe_coordinator_port + "\n");
+		outToSpeCoordinators.get(node_id).flush();*/
+
+
+		this.speCoordinatorSockets.put(spe_coordinator_node_id, new Socket(coordinator_ip, coordinator_port));
+		this.fromSpeCoordinators.put(spe_coordinator_node_id, new InputStreamReader(this.speCoordinatorSockets.get(spe_coordinator_node_id).getInputStream()));
+		this.bufferedFromSpeCoordinators.put(spe_coordinator_node_id, new BufferedReader(this.fromSpeCoordinators.get(spe_coordinator_node_id)));
+		this.outToSpeCoordinators.put(spe_coordinator_node_id, new DataOutputStream(speCoordinatorSockets.get(spe_coordinator_node_id).getOutputStream()));
+		this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(this.node_id           + "\n" +
+				this.client_ip          + "\n" +
+				this.client_port + "\n" +
+				this.spe_coordinator_port + "\n");
+		this.outToSpeCoordinators.get(spe_coordinator_node_id).flush();
+
+		// TODO: Add listener for this SPE node, on the same port as well
+		new Thread(() -> {
+			while (this.isRunning) {
+				Map<String, Object> cmd;
+				try {
+					cmd = receiveMap(bufferedFromSpeCoordinators.get(spe_coordinator_node_id), yaml);
+				} catch (Exception e) {
+					e.printStackTrace();
+					ShutDown();
+					return;
+				}
+				String response = this.HandleEvent(cmd);
+				try {
+					this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(response);
+				} catch (Exception e) {
+					e.printStackTrace();
+					ShutDown();
+					return;
+				}
+			}
+		}).start();
 	}
 
 	public String GetTraceOutputFolder() {return this.trace_folder;}
@@ -108,10 +180,9 @@ public class SpeComm extends Comm {
 
 	public void AcceptTasks() {
 		while (this.isRunning) {
-			Task cmd;
+			Map<String, Object> cmd;
 			try {
-				Map<String, Object> event = receiveMap(bufferedFromCoordinator, yaml);
-				cmd = new Task(event);
+				cmd = receiveMap(bufferedFromCoordinator, yaml);
 			} catch (Exception e) {
 				e.printStackTrace();
 				ShutDown();
@@ -132,92 +203,110 @@ public class SpeComm extends Comm {
 
 	public int GetClientPort() {return this.client_port;}
 
+	public String IssueTask(Map<String, Object> task, int node_id_to_execute) {
+		// TODO: Send task to node_id_to_execute
+		// TODO: For that, we must have a connection to the other nodes
+		System.out.println("Issuing task " + task  + " to Node " + node_id_to_execute);
+		speCoordinatorComm.SendToSpe(task);
+		/*try {
+			SendMap(cmd.event, this.outToSpeCoordinatorsPW.get(node_id_to_execute));
+			boolean expectAck = (boolean) cmd.event.getOrDefault("ack", true);
+			String ret = null;
+			if (expectAck) {
+				ret = fromSpeCoordinatorsBR.get(node_id_to_execute).readLine();
+			}
+			return ret;
+		} catch (IOException e) {
+			ShutDown();
+			return e.toString();
+		}*/
+		return "Success";
+	}
+
 	@SuppressWarnings("unchecked")
-	public String HandleEvent(Task cmd) {
-		String cmd_string = (String) cmd.event.get("task");
-		List<Object> args = (List<Object>) cmd.event.get("arguments");
-		System.out.println("Before handling " + cmd.event);
+	public String HandleEvent(Map<String, Object> cmd) {
+		String cmd_string = (String) cmd.get("task");
+		List<Object> args = (List<Object>) cmd.get("arguments");
+		System.out.println("Before handling " + cmd);
+		int node_id_to_execute = (int) cmd.getOrDefault("node", this.node_id);
+		if (node_id_to_execute != node_id) {
+			return IssueTask(cmd, node_id_to_execute);
+		}
 		switch (cmd_string) {
-			case "Configure": {
+			case "configure": {
 				experimentAPI.Configure();
 				break;
-			} case "SetTupleBatchSize": {
+			} case "setTupleBatchSize": {
 				int batch_size = (int) args.get(0);
 				experimentAPI.SetTupleBatchSize(batch_size);
 				break;
-			} case "SetIntervalBetweenTuples": {
+			} case "setIntervalBetweenTuples": {
 				int interval = (int) args.get(0);
 				experimentAPI.SetIntervalBetweenTuples(interval);
 				break;
-			} case "AddTuples": {
-				Map<String, Object> tuple = (Map<String, Object>) args.get(0);
-				int quantity = (int) args.get(1);
-				experimentAPI.AddTuples(tuple, quantity);
-				break;
-			} case "AddDataset": {
-				Map<String, Object> ds = (Map<String, Object>) args.get(0);
-				experimentAPI.AddDataset(ds);
-				break;
-			} case "SendDsAsStream": {
+			} case "sendDsAsStream": {
 				Map<String, Object> ds = (Map<String, Object>) args.get(0);
 				experimentAPI.SendDsAsStream(ds);
 				break;
-			} case "AddSchemas": {
+			} case "addSchemas": {
 				List<Map<String, Object>> stream_schemas = (List<Map<String, Object>>) (List<?>) args;
 				experimentAPI.AddSchemas(stream_schemas);
 				break;
-			} case "DeployQueries": {
+			} case "deployQueries": {
 				Map<String, Object> query = (Map<String, Object>) args.get(0);
 				experimentAPI.DeployQueries(query);
 				break;
-			} case "AddNextHop": {
+			} case "addNextHop": {
 				int schemaId = (int) args.get(0);
 				int node_id = (int) args.get(1);
 				experimentAPI.AddNextHop(schemaId, node_id);
 				break;
-			} case "WriteStreamToCsv": {
+			} case "writeStreamToCsv": {
 				int stream_id = (int) args.get(0);
 				String csvFilename = (String) args.get(1);
 				experimentAPI.WriteStreamToCsv(stream_id, csvFilename);
 				break;
-			} case "SetNidToAddress": {
+			} case "setNidToAddress": {
 				Map<Integer, Map<String, Object> > newNodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
 				experimentAPI.SetNidToAddress(newNodeIdToIpAndPort);
 				break;
-			} case "ProcessTuples": {
-				int number_tuples = (int) args.get(0);
-				experimentAPI.ProcessTuples(number_tuples);
-				break;
-			} case "ClearQueries": {
+			} case "clearQueries": {
 				experimentAPI.ClearQueries();
 				break;
-			} case "ClearTuples": {
-				experimentAPI.ClearTuples();
-				break;
-			} case "StartRuntimeEnv": {
+			} case "startRuntimeEnv": {
 				experimentAPI.StartRuntimeEnv();
 				break;
-			} case "StopRuntimeEnv": {
+			} case "stopRuntimeEnv": {
 				experimentAPI.StopRuntimeEnv();
 				break;
-			} case "EndExperiment": {
+			} case "endExperiment": {
 				experimentAPI.EndExperiment();
 				ShutDown();
 				break;
-			} case "AddTpIds": {
+			} case "addTpIds": {
 				experimentAPI.AddTpIds(args);
 				break;
-			} case "RetEndOfStream": {
+			} case "retEndOfStream": {
 				String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
 				return msSinceLastReceivedTuple + "\n";
-			} case "TraceTuple": {
+			} case "traceTuple": {
 				experimentAPI.TraceTuple((int) args.get(0), (List<String>) args.get(1));
+				break;
+			} case "loopTasks": {
+				int number_iterations = (int) args.get(0);
+				List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
+				//experimentAPI.LoopTasks((int) args.get(0), cmds);
+				for (int i = 0; i < number_iterations; i++) {
+					for (Map<String, Object> inner_task : tasks) {
+						HandleEvent(inner_task);
+					}
+				}
 				break;
 			} default: {
 				throw new RuntimeException("Invalid task from mediator: " + cmd_string);
 			}
 		}
-		System.out.println("After handling " + cmd.event);
-		return "Spe node " + node_id + " completed task " + cmd.event.get("task") + "\n";
+		System.out.println("After handling " + cmd);
+		return "Spe node " + node_id + " completed task " + cmd.get("task") + "\n";
 	}
 }

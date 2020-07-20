@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CoordinatorExperimentAPI implements ExperimentAPI {
+public class CoordinatorExperimentAPI {
 	CoordinatorComm coordinatorComm;
 	int node_id;
 
@@ -14,7 +14,7 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 		this.node_id = node_id;
 	}
 
-	@Override
+	/*@Override
 	public String Configure() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("task", "Configure");
@@ -39,29 +39,6 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 		map.put("task", "SetIntervalBetweenTuples");
 		List<Object> args = new ArrayList<>();
 		args.add(interval);
-		map.put("arguments", args);
-		Task cmd = new Task(map);
-		return coordinatorComm.SendToSpe(cmd, node_id);
-	}
-
-	@Override
-	public String AddTuples(Map<String, Object> tuple, int quantity) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddTuples");
-		List<Object> args = new ArrayList<>();
-		args.add(tuple);
-		args.add(quantity);
-		map.put("arguments", args);
-		Task cmd = new Task(map);
-		return coordinatorComm.SendToSpe(cmd, node_id);
-	}
-
-	@Override
-	public String AddDataset(Map<String, Object> ds) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("task", "AddDataset");
-		List<Object> args = new ArrayList<>();
-		args.add(ds);
 		map.put("arguments", args);
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
@@ -134,28 +111,9 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 	}
 
 	@Override
-	public String ProcessTuples(int number_tuples) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("task", "ProcessTuples");
-		List<Object> args = new ArrayList<>();
-		args.add(number_tuples);
-		map.put("arguments", args);
-		Task cmd = new Task(map);
-		return coordinatorComm.SendToSpe(cmd, node_id);
-	}
-
-	@Override
 	public String ClearQueries() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("task", "ClearQueries");
-		Task cmd = new Task(map);
-		return coordinatorComm.SendToSpe(cmd, node_id);
-	}
-
-	@Override
-	public String ClearTuples() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("task", "ClearTuples");
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
@@ -215,4 +173,16 @@ public class CoordinatorExperimentAPI implements ExperimentAPI {
 		Task cmd = new Task(map);
 		return coordinatorComm.SendToSpe(cmd, node_id);
 	}
+
+	@Override
+	public String LoopTasks(int numberIterations, List<Map<String, Object>> tasks) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("task", "LoopTasks");
+		List<Object> args = new ArrayList<>();
+		args.add(numberIterations);
+		args.add(tasks);
+		map.put("arguments", args);
+		Task cmd = new Task(map);
+		return coordinatorComm.SendToSpe(cmd, node_id);
+	}*/
 }

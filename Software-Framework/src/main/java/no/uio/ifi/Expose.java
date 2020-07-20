@@ -1,7 +1,6 @@
 package no.uio.ifi;
 
 import org.apache.commons.cli.*;
-import org.apache.commons.text.StringEscapeUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -11,6 +10,7 @@ public class Expose {
 	private Map<String, Object> yaml_configuration;
 	private boolean available = true;
 	private CoordinatorComm mc;
+	List<Map<String, Object>> tasks;
 
 	private int cmd_number = 1;
 
@@ -19,23 +19,21 @@ public class Expose {
 	}
 
 	class TaskHandler implements Runnable {
-		String cmd;
-		List<Object> args;
-		int node_id;
+		Map<String, Object> task;
 
-		TaskHandler(String cmd, List<Object> args, int node_id) {
-			this.cmd = cmd;
-			this.args = args;
-			this.node_id = node_id;
+		TaskHandler(Map<String, Object> task) {
+			this.task = task;
 		}
 
 		public void doHandleEvent() {
-			String ret = null;
+			int node_id = (int) task.get("node");
+			if (node_id != 0) {
+				mc.SendToSpe(task);
+				return;
+			}
+			String cmd = (String) task.get("task");
+			List<Object> args = (List<Object>) task.get("arguments");
 			switch (cmd) {
-				case "setEventBatchSize": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetTupleBatchSize((int) args.get(0));
-					break;
-				}
 				case "wait": {
 					if (args.size() == 0) {
 						System.out.println("Hit enter when you want to continue to next task");
@@ -55,171 +53,65 @@ public class Expose {
 					}
 					break;
 				}
-				case "startRuntimeEnv": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
-					break;
-				}
-				case "stopRuntimeEnv": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
-					break;
-				}
-				case "setIntervalBetweenEvents": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
-					break;
-				}
-				case "addEvents": {
-					System.out.println("Adding events with arguments " + args);
-					int event_id = (int) args.get(0);
-					Map<String, Object> spe_event_to_create = null;
-					List<Map<String, Object>>
-							speevents = (ArrayList<Map<String, Object>>) yaml_configuration.get("speevents");
-					for (Map<String, Object> speevent : speevents) {
-						if ((int) speevent.get("id") == event_id) {
-							spe_event_to_create = speevent;
-							break;
-						}
-					}
-
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTuples(spe_event_to_create, (int) args.get(1));
-					break;
-				}
-				case "addDataset": {
-					int dataset_id = (int) args.get(0);
-					List<Map<String, Object>>
-							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
-					for (Map<String, Object> ds : datasets) {
-						if ((int) ds.get("id") == dataset_id) {
-							ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddDataset(ds);
-							break;
-						}
-					}
-					break;
-				}
-				case "deployQueries": {
-					int query_id = (int) args.get(0);
-					Map<String, Object> spe_rule_to_create = null;
-					List<Map<String, Object>>
-							spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
-					for (Map<String, Object> spequery : spequeries) {
-						if ((int) spequery.get("id") == query_id) {
-							spe_rule_to_create = spequery;
-							break;
-						}
-					}
-
-					/*Map<String, String> sql_query = (Map<String, String>) spe_rule_to_create.get("sql-query");
-					for (String key : sql_query.keySet()) {
-						sql_query.put(key, StringEscapeUtils.escapeJava(sql_query.get(key)));
-					}*/
-
-                    List<Integer> dependency_queries = (List<Integer>) spe_rule_to_create.getOrDefault("dependency-queries", new ArrayList());
-					for (int dependency_query : dependency_queries) {
-					    Map<String, Object> new_event = new HashMap<>();
-					    new_event.put("task", "deployQueries");
-					    List<Integer> arguments = new ArrayList<>();
-					    arguments.add(dependency_query);
-					    arguments.add(1);
-					    new_event.put("arguments", arguments);
-					    new_event.put("node", node_id);
-
-					    handleEvent(new_event);
-                    }
-
-					int quantity = (int) args.get(1);
-					for (int i = 0; i < quantity; ++i) {
-						ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
-					}
-					break;
-				}
 				case "loopTasks": {
 					int numberIterations = (int) args.get(0);
+					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
 					for (int i = 0; i < numberIterations; i++) {
-						List<Map<String, Object>> cmds = (ArrayList<Map<String, Object>>) args.get(1);
-						for (Map<String, Object> inner_cmd : cmds) {
-							handleEvent(inner_cmd);
+						for (Map<String, Object> inner_task : tasks) {
+							handleEvent(inner_task);
 						}
 					}
-					break;
-				} case "addNextHop": {
-					List<Map<String, Object> >
-							streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
-					for (Map<String, Object> stream_definition: streamDefinitions) {
-						if ((int) stream_definition.get("id") == (int) args.get(0)) {
-							ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
-						}
-					}
-					break;
-				} case "writeStreamToCsv": {
-					int stream_id = (int) args.get(0);
-					String csvFolder = (String) args.get(1);
-					mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
-					break;
-				} case "processEvents": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ProcessTuples((int) args.get(0));
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
 					break;
 				}
-				case "sendDsAsStream": {
-					int dataset_id = (int) args.get(0);
-					List<Map<String, Object>>
-							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
-					for (Map<String, Object> ds : datasets) {
-						ds.put("file", ds.get("file"));
-						if ((int) ds.get("id") == dataset_id) {
-							ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
-							break;
-						}
-					}
+				/*case "migrateQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
 					break;
 				}
-				case "runParallel": {
-					for (Object o : args) {
-						Map<String, Object> inner_cmd = (Map<String, Object>) o;
-						handleEvent(inner_cmd);
-					}
-					// Wait for ack here
-					for (Object o : args) {
-						Map<String, Object> inner_cmd = (Map<String, Object>) o;
-						int nodeId = (int) inner_cmd.get("node");
-						mc.PrintIncomingOfClient(nodeId);
-					}
+				case "migrateStaticQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveStaticQueryState(query_id, old_host, new_host);
 					break;
 				}
-				case "clearQueries": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
+				case "migrateDynamicQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveDynamicQueryState(query_id, old_host, new_host);
 					break;
 				}
-				case "clearEvents": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearTuples();
+				case "resumeQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeQuery(query_id);
 					break;
 				}
-				case "setNidToAddress": {
-					Map<Integer, Map<String, Object> > nodeIdToIpAndPort = (Map<Integer, Map<String, Object> >) args.get(0);
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
+				case "stopQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).StopQuery(query_id);
 					break;
 				}
-				case "endExperiment": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
+				case "bufferQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).BufferQuery(query_id);
 					break;
 				}
-				case "addTpIds": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
+				case "stopAndBufferQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).StopAndBufferQuery(query_id);
 					break;
 				}
-				case "retEndOfStream": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
-					System.out.println("Last received tuple: " + ret + " ms ago");
+				case "relayStream": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeStream(stream_id, old_host, new_host);
 					break;
 				}
-				case "traceTuple": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).TraceTuple((int) args.get(0), (List<String>) args.get(1));
+				case "removeNextHop": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).RemoveNextHop(stream_id, old_host, new_host);
 					break;
 				}
-				case "configure": {
-					ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
+				case "performQueryMigration": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).PerformQueryMigration(query_id, old_host, new_host, migration_policy);
 					break;
 				}
+				case "deploySubQueries": {
+					// If the query with query_id gets migrated, all number_instances of them will get migrated to the
+					// new host, and the source_nodes will be notified so that they can transmit tuples to the new host
+					ret = nodeIdsToExperimentAPIs.get(node_id).DeploySubQueries(query_id, number_instances, source_nodes);
+					break;
+				}*/
 				default: {
-					throw new RuntimeException("Unknown task " + cmd + " parsed");
+					throw new RuntimeException("Unknown task " + task.get("task") + " parsed");
 				}
 			}
 		}
@@ -230,17 +122,13 @@ public class Expose {
 	}
 
 	@SuppressWarnings("unchecked")
-	void handleEvent(Map<String, Object> event) {
+	void handleEvent(Map<String, Object> task) {
 		++cmd_number;
-		String cmd = (String)event.get("task");
-		List<Object> args = (List<Object>) event.get("arguments");
-		int node_id = 0;
-		if (!event.get("node").equals("coordinator")) {
-			node_id = (int) event.get("node");
-		}
-		System.out.println("Line " + cmd_number + ": Node " + node_id + " executes " + event);
-		TaskHandler taskHandler = new TaskHandler(cmd, args, node_id);
-		if ((boolean) event.getOrDefault("parallel", false)) {
+		int node_id = (int) task.get("node");
+		System.out.println("Line " + cmd_number + ": Node " + node_id + " executes " + task);
+		TaskHandler taskHandler = new TaskHandler(task);
+		// TODO: add whether the task should be executed in parallel
+		if ((boolean) task.getOrDefault("parallel", false)) {
 			new Thread(taskHandler).start();
 		} else {
 			taskHandler.doHandleEvent();
@@ -259,11 +147,23 @@ public class Expose {
 			activeTracepointIds.add(tracepoint_id);
 		}
 		System.out.println("Node " + node_id + ": AddTpIds " + activeTracepointIds);
-		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(activeTracepointIds);
+		Map<String, Object> map = new HashMap<>();
+		map.put("task", "addTpIds");
+		map.put("arguments", activeTracepointIds);
+		map.put("node", node_id);
+		mc.SendToSpe(map);
+
+		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(activeTracepointIds);
 
 		List<Map<String, Object> >
 				streamDefinitions = (ArrayList<Map<String, Object> >) yaml_configuration.get("stream-definitions");
-		this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSchemas(streamDefinitions);
+
+		map = new HashMap<>();
+		map.put("task", "addSchemas");
+		map.put("arguments", streamDefinitions);
+		map.put("node", node_id);
+		mc.SendToSpe(map);
+		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSchemas(streamDefinitions);
 		System.out.println("Node " + node_id + ": AddSchemas " + streamDefinitions);
 	}
 
@@ -290,6 +190,248 @@ public class Expose {
 		}
 	}
 
+	Map<String, Object> PreprocessTask(Map<String, Object> raw_task) {
+		String cmd = (String) raw_task.get("task");
+		int node_id = 0;
+		if (!raw_task.get("node").equals("coordinator")) {
+			node_id = (int) raw_task.get("node");
+		}
+		List<Object> args = (List<Object>) raw_task.get("arguments");
+
+		List<Object> task_args = new ArrayList<>();
+
+		Map<String, Object> map = new HashMap<>();
+		for (String k : raw_task.keySet()) {
+			map.put(k, raw_task.get(k));
+		}
+		map.put("node", node_id);
+
+		switch (cmd) {
+			case "setEventBatchSize": {
+				task_args.add(args.get(0));
+				map.put("arguments", task_args);
+				break;
+			}
+			case "wait": {
+				/*if (args.size() == 0) {
+					System.out.println("Hit enter when you want to continue to next task");
+					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+					try {
+						reader.readLine();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					System.out.println("Wait is done");
+				} else {
+					try {
+						Thread.sleep((int) args.get(0));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				break;*/
+			}
+			case "startRuntimeEnv": {
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
+				break;
+			}
+			case "stopRuntimeEnv": {
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
+				break;
+			}
+			case "setIntervalBetweenEvents": {
+				task_args.add(args.get(0));
+				map.put("arguments", task_args);
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
+				break;
+			}
+			case "deployQueries": {
+				int query_id = (int) args.get(0);
+				Map<String, Object> spe_rule_to_create = null;
+				List<Map<String, Object>>
+						spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
+				for (Map<String, Object> spequery : spequeries) {
+					if ((int) spequery.get("id") == query_id) {
+						spe_rule_to_create = spequery;
+						break;
+					}
+				}
+
+				int quantity = (int) args.get(1);
+				task_args.add(spe_rule_to_create);
+				map.put("arguments", task_args);
+				for (int i = 0; i < quantity; ++i) {
+					// TODO: Add number of iterations as argument
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
+				}
+				break;
+			}
+			case "loopTasks": {
+				int numberIterations = (int) args.get(0);
+				List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(1);
+				List<Map<String, Object>> tasks = new ArrayList<>();
+				for (Map<String, Object> inner_cmd : cmds) {
+					Map<String, Object> inner_task = PreprocessTask(inner_cmd);
+					tasks.add(inner_task);
+				}
+
+				task_args.add(numberIterations);
+				task_args.add(tasks);
+				map.put("arguments", task_args);
+				break;
+			}
+			case "addNextHop": {
+				List<Map<String, Object>>
+						streamDefinitions = (ArrayList<Map<String, Object>>) yaml_configuration.get("stream-definitions");
+				for (Map<String, Object> stream_definition : streamDefinitions) {
+					if ((int) stream_definition.get("id") == (int) args.get(0)) {
+						int streamId = (int) stream_definition.get("stream-id");
+						int nodeId = (int) args.get(1);
+						task_args.add(streamId);
+						task_args.add(nodeId);
+						map.put("arguments", task_args);
+						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
+						break;
+					}
+				}
+				break;
+			}
+			case "writeStreamToCsv": {
+				int stream_id = (int) args.get(0);
+				String csvFolder = (String) args.get(1);
+				task_args.add(stream_id);
+				task_args.add(csvFolder);
+				map.put("arguments", task_args);
+				//mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
+				break;
+			}
+			case "sendDsAsStream": {
+				int dataset_id = (int) args.get(0);
+				List<Map<String, Object>>
+						datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
+				for (Map<String, Object> ds : datasets) {
+					ds.put("file", ds.get("file"));
+					if ((int) ds.get("id") == dataset_id) {
+						task_args.add(ds);
+						map.put("arguments", task_args);
+
+						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
+						break;
+					}
+				}
+				break;
+			}
+			case "clearQueries": {
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
+				break;
+			}
+			case "setNidToAddress": {
+				Map<Integer, Map<String, Object>> nodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
+
+				task_args.add(nodeIdToIpAndPort);
+				map.put("arguments", task_args);
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
+				break;
+			}
+			case "endExperiment": {
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
+				break;
+			}
+			case "addTpIds": {
+				map.put("arguments", args);
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
+				break;
+			}
+			case "retEndOfStream": {
+				int nanoseconds = (int) args.get(0);
+				task_args.add(nanoseconds);
+				map.put("arguments", task_args);
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
+				break;
+			}
+			case "traceTuple": {
+				int tracepointId = (int) args.get(0);
+				List<String> traceArguments = (List<String>) args.get(1);
+
+				task_args.add(tracepointId);
+				task_args.add(traceArguments);
+				map.put("arguments", task_args);
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).TraceTuple((int) args.get(0), (List<String>) args.get(1));
+				break;
+			}
+			case "configure": {
+
+				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
+				break;
+			}
+				/*case "migrateQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
+					break;
+				}
+				case "migrateStaticQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveStaticQueryState(query_id, old_host, new_host);
+					break;
+				}
+				case "migrateDynamicQueryState": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).MoveDynamicQueryState(query_id, old_host, new_host);
+					break;
+				}
+				case "resumeQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeQuery(query_id);
+					break;
+				}
+				case "stopQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).StopQuery(query_id);
+					break;
+				}
+				case "bufferQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).BufferQuery(query_id);
+					break;
+				}
+				case "stopAndBufferQuery": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).StopAndBufferQuery(query_id);
+					break;
+				}
+				case "relayStream": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeStream(stream_id, old_host, new_host);
+					break;
+				}
+				case "removeNextHop": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).RemoveNextHop(stream_id, old_host, new_host);
+					break;
+				}
+				case "performQueryMigration": {
+					ret = nodeIdsToExperimentAPIs.get(node_id).PerformQueryMigration(query_id, old_host, new_host, migration_policy);
+					break;
+				}
+				case "deploySubQueries": {
+					// If the query with query_id gets migrated, all number_instances of them will get migrated to the
+					// new host, and the source_nodes will be notified so that they can transmit tuples to the new host
+					ret = nodeIdsToExperimentAPIs.get(node_id).DeploySubQueries(query_id, number_instances, source_nodes);
+					break;
+				}*/
+			default: {
+				throw new RuntimeException("Unknown task " + cmd + " parsed");
+			}
+		}
+
+		return map;
+	}
+
+	void PreprocessTasks(List<Map<String, Object> > raw_tasks) {
+		tasks = new ArrayList<>();
+		for (Map<String, Object> raw_task : raw_tasks) {
+			Map<String, Object> task = PreprocessTask(raw_task);
+			tasks.add(task);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	void InterpretEvents(int eid) {
 		System.out.println("Running from yaml config");
@@ -299,8 +441,16 @@ public class Expose {
 			if (experiment.get("id").equals(eid)) {
 				List<Map<String, Object> > cmds = (ArrayList<Map<String, Object> >) experiment.get("flow");
 				Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients = mc.GetNodeIdsToClients();
-				// Pre-processing to ensure that all the necessary mediators are registered
+				PreprocessTasks(cmds);
+				// Ensure that all the necessary nodes are registered
 				WaitForSPEs(cmds, nodeIdsToClients);
+				// SetNidToAddress
+				Map<String, Object> cmd = new HashMap<>();
+				cmd.put("task", "setNidToAddress");
+				List<Map<Integer, Map<String, Object>>> args = new ArrayList<>();
+				args.add(mc.nodeIdsToClientInformation);
+				cmd.put("arguments", args);
+				mc.SendCoordinatorTask(cmd);
 
 				try {
 					Thread.sleep(1000);
@@ -310,11 +460,11 @@ public class Expose {
 				}
 
 				// All agents have registered, and now they can set up connections
-				Map<String, Object> cmd = new HashMap<>();
-				cmd.put("task", "Configure");
+				cmd = new HashMap<>();
+				cmd.put("task", "configure");
 				this.mc.SendCoordinatorTask(cmd);
 
-				for (Map<String, Object> event : cmds) {
+				for (Map<String, Object> task : tasks) {
 					while (!SetUnavailableIfAvailable()) {
 						try {
 							Thread.sleep(1000);
@@ -323,7 +473,7 @@ public class Expose {
 							System.exit(21);
 						}
 					}
-					handleEvent(event);
+					handleEvent(task);
 					SetAvailable();
 				}
 				break;
@@ -394,7 +544,7 @@ public class Expose {
 
 			void handleEvent(Map<String, Object> map) {
 				try {
-					jspef.handleEvent(map);
+					handleEvent(map);
 				} catch (Exception e) {
 					e.printStackTrace();
 					System.err.println("User-task caused an error");
@@ -415,7 +565,7 @@ public class Expose {
 						map = yaml.load(reader.readLine());
 					} catch (ClassCastException e) {
 						e.printStackTrace();
-						System.err.println("Task must be formatted as a JSON object");
+						System.err.println("Map<String, Object> must be formatted as a JSON object");
 						continue;
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -449,7 +599,7 @@ public class Expose {
 			}
 		});
 
-		jspef.mc = new CoordinatorComm(Integer.parseInt(cmd.getOptionValue("coordinator-port")), jspef);
+		jspef.mc = new CoordinatorComm(Integer.parseInt(cmd.getOptionValue("coordinator-port")), jspef, 0);
 		new Thread(jspef.mc).start();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		boolean cont = true;

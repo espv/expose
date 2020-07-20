@@ -26,7 +26,7 @@ experiments:
 
       - {task: deployQueries, arguments: [0, 1], node: 2}
       # Warmup: send dataset as stream 5 times
-      - {task: loopTasks, node: coordinator,
+      - {task: loopTasks, node: 1,
          arguments: [5, [
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
@@ -39,7 +39,7 @@ experiments:
          ]]}
       - {task: traceTuple, node: 2, arguments: [0, []]} # Trace that warmup is finished
       # Runs that count: send dataset as stream 5 times
-      - {task: loopTasks, node: coordinator,
+      - {task: loopTasks, node: 1,
          arguments: [5, [
          {task: startRuntimeEnv, node: 2},
          {task: startRuntimeEnv, node: 3},
@@ -297,6 +297,7 @@ experiments:
 
       - {task: addNextHop, arguments: [14, 3], node: 2}
 
+      - {task: deployQueries, arguments: [9, 1], node: 2}
       - {task: deployQueries, arguments: [10, 1], node: 2}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: coordinator,
@@ -648,12 +649,11 @@ Consuming M;
     output-stream-id: 16
     sql-query:
       beam: "select max(price) as price
-              from Bid"
+             from Bid"
 
   - name: "Highest Bid (NexMark query 7) (Might not be possible)"
     id: 10
     output-stream-id: 14
-    dependency-queries: [9]
     sql-query:
       t-rex: ""
       siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)

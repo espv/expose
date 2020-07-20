@@ -15,10 +15,13 @@ public class CoordinatorComm extends Comm implements Runnable {
 	private boolean isRunning = true;
 	Map<Integer, CoordinatorClient> nodeIdsToClients = new HashMap<>();
 	Map<Integer, Boolean> nodeIdReady = new HashMap<>();
-	private Map<Integer, Map<String, Object> > nodeIdsToClientInformation = new HashMap<>();
-	Map<Integer, CoordinatorExperimentAPI > nodeIdsToExperimentAPIs = new HashMap<>();
+	Map<Integer, Map<String, Object> > nodeIdsToClientInformation = new HashMap<>();
+	//Map<Integer, ExperimentAPI> nodeIdsToExperimentAPIs = new HashMap<>();
+	int local_node_id;
+	int port;
 
-	CoordinatorComm(int port, Expose expose) {
+	CoordinatorComm(int port, Expose expose, int local_node_id) {
+		this.local_node_id = local_node_id;
 		try {
 			server = new ServerSocket(port);
 		} catch (IOException e) {
@@ -26,14 +29,16 @@ public class CoordinatorComm extends Comm implements Runnable {
 			ShutDown();
 		}
 		this.expose = expose;
+		this.port = port;
 	}
 
 	// Put this method in a different class
-	public String SendToSpe(Task cmd, int node_id) {
+	public String SendToSpe(Map<String, Object> task) {
+		int node_id = (int) task.get("node");
 		try {
 			CoordinatorClient mc = nodeIdsToClients.get(node_id);
-			SendMap(cmd.event, mc.out);
-			boolean expectAck = (boolean) cmd.event.getOrDefault("ack", true);
+			SendMap(task, mc.out);
+			boolean expectAck = (boolean) task.getOrDefault("ack", true);
 			String ret = null;
 			if (expectAck) {
 				ret = mc.in.readLine();
@@ -82,15 +87,15 @@ public class CoordinatorComm extends Comm implements Runnable {
 
 	public void EndExperimentTask() {
 		Map<String, Object> cmd = new HashMap<>();
-		cmd.put("task", "EndExperiment");
+		cmd.put("task", "endExperiment");
 		cmd.put("ack", false);
 		SendCoordinatorTask(cmd);
 	}
 
 	public void run() {
-		System.out.println("CoordinatorServer is running");
+		System.out.println("CoordinatorServer is running at 127.0.0.1:" + port);
 		while (isRunning) {
-			CoordinatorClient client = null;
+			CoordinatorClient client;
 			try {
 				client = new CoordinatorClient(server.accept());
 			} catch (IOException e) {
@@ -101,27 +106,24 @@ public class CoordinatorComm extends Comm implements Runnable {
 				e.printStackTrace();
 				continue;
 			}
-			assert client != null;
 			int nodeId = client.getNodeId();
-			String clientIp = client.getIp();
-			int clientPort = client.getPort();
+			String speIp = client.getIp();
+			int speClientPort = client.getPort();
+			int speCoordinatorPort = client.getPort();
 			Map<String, Object> address = new HashMap<>();
-			address.put("ip", clientIp);
-			address.put("port", clientPort);
-			System.out.println("New client's node ID: " + nodeId + ", address: " + clientIp + ":" + clientPort);
+			address.put("ip", speIp);
+			address.put("client-port", speClientPort);
+			address.put("spe-coordinator-port", speCoordinatorPort);
+			System.out.println("New client's node ID: " + nodeId + ", address: " + speIp + ":" + speClientPort);
 			nodeIdsToClientInformation.put(nodeId, address);
 			nodeIdsToClients.put(nodeId, client);
-			nodeIdsToExperimentAPIs.put(nodeId, new CoordinatorExperimentAPI(this, nodeId));
-			Map<String, Object> cmd = new HashMap<>();
-			cmd.put("task", "SetNidToAddress");
-			List<Map<Integer, Map<String, Object>>> args = new ArrayList<>();
-			args.add(this.nodeIdsToClientInformation);
-			cmd.put("arguments", args);
-			SendCoordinatorTask(cmd);
-			this.expose.Configure(nodeId);
+			//nodeIdsToExperimentAPIs.put(nodeId, new CoordinatorExperimentAPI(this, nodeId));
 
-			// This node is now ready to participate in the experiment
-			nodeIdReady.put(nodeId, true);
+			if (this.expose != null) {
+				this.expose.Configure(nodeId);
+				// This node is now ready to participate in the experiment
+				nodeIdReady.put(nodeId, true);
+			}
 		}
 		System.out.println("CoordinatorServer is exiting");
 	}
@@ -144,7 +146,8 @@ public class CoordinatorComm extends Comm implements Runnable {
 		public int getNodeId() {
 			int nodeId = -1;
 			try {
-				nodeId = Integer.parseInt(in.readLine());
+				String l = in.readLine();
+				nodeId = Integer.parseInt(l);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(3);
@@ -166,7 +169,8 @@ public class CoordinatorComm extends Comm implements Runnable {
 		public int getPort() {
 			int port = -1;
 			try {
-				port = Integer.parseInt(in.readLine());
+				String l = in.readLine();
+				port = Integer.parseInt(l);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(7);
