@@ -34,12 +34,13 @@ public class TracingFramework implements Serializable {
 			BufferedWriter bw = new BufferedWriter(fw);
 			writer = new PrintWriter(bw);
 			synchronized (traceTuples) {
-				for (TraceTuple tuple : traceTuples) {
-					writer.println(tuple);
+				// The "enhanced 'for' loop causes a java.util.ConcurrentModificationException
+				for (int i = 0; i < traceTuples.size(); i++) {
+					writer.println(traceTuples.get(i));
 				}
 				writer.close();
-				traceTuples.clear();
 			}
+			traceTuples.clear();
 			System.out.println("Trace output written to " + trace_filename);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -64,6 +64,14 @@ public class Expose {
 					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
 					break;
 				}
+				case "batchTasks": {
+					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
+					for (Map<String, Object> inner_task : tasks) {
+						handleEvent(inner_task);
+					}
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
+					break;
+				}
 				/*case "migrateQueryState": {
 					ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
 					break;
@@ -174,6 +182,10 @@ public class Expose {
 				List<Object> args = (List<Object>) event.get("arguments");
 				List<Map<String, Object>> loopCmds = (ArrayList<Map<String, Object>>) args.get(1);
 				WaitForSPEs(loopCmds, nodeIdsToClients);
+			} else if (event.get("task").equals("batchTasks")) {
+				List<Object> args = (List<Object>) event.get("arguments");
+				List<Map<String, Object>> batchCmds = (ArrayList<Map<String, Object>>) args.get(0);
+				WaitForSPEs(batchCmds, nodeIdsToClients);
 			}
 			if (isCoordinator) {
 				continue;
@@ -273,6 +285,17 @@ public class Expose {
 				}
 
 				task_args.add(numberIterations);
+				task_args.add(tasks);
+				break;
+			}
+			case "batchTasks": {
+				List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(0);
+				List<Map<String, Object>> tasks = new ArrayList<>();
+				for (Map<String, Object> inner_cmd : cmds) {
+					Map<String, Object> inner_task = PreprocessTask(inner_cmd);
+					tasks.add(inner_task);
+				}
+
 				task_args.add(tasks);
 				break;
 			}
@@ -389,9 +412,17 @@ public class Expose {
 				int stream_id = (int) args.get(0);
 				task_args.add(stream_id);
 				break;
-			} case "stopAndBufferStream": {
+			} case "bufferAndStopStream": {
 				int stream_id = (int) args.get(0);
 				task_args.add(stream_id);
+				break;
+			} case "bufferStopAndRelayStream": {
+				int stream_id = (int) args.get(0);
+				int old_host = (int) args.get(1);
+				int new_host = (int) args.get(2);
+				task_args.add(stream_id);
+				task_args.add(old_host);
+				task_args.add(new_host);
 				break;
 			} case "relayStream": {
 				int stream_id = (int) args.get(0);
@@ -407,7 +438,7 @@ public class Expose {
 				task_args.add(stream_id);
 				task_args.add(host);
 				break;
-			} case "addSourceNode": {
+			} case "addSourceNodes": {
 				int query_id = (int) args.get(0);
 				int stream_id = (int) args.get(1);
 				List<Integer> node_id_list = (List<Integer>) args.get(2);

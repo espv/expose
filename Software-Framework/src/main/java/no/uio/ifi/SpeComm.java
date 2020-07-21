@@ -304,6 +304,13 @@ public class SpeComm extends Comm {
 					}
 				}
 				break;
+			} case "batchTasks": {
+				List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
+				//experimentAPI.LoopTasks((int) args.get(0), cmds);
+				for (Map<String, Object> inner_task : tasks) {
+					HandleEvent(inner_task);
+				}
+				break;
 			} case "moveQueryState": {
 				int query_id = (int) args.get(0);
 				int new_host = (int) args.get(1);
@@ -331,9 +338,15 @@ public class SpeComm extends Comm {
 				int stream_id = (int) args.get(0);
 				experimentAPI.BufferStream(stream_id);
 				break;
-			} case "stopAndBufferStream": {
+			} case "bufferAndStopStream": {
 				int stream_id = (int) args.get(0);
-				experimentAPI.StopAndBufferStream(stream_id);
+				experimentAPI.BufferAndStopStream(stream_id);
+				break;
+			} case "bufferStopAndRelayStream": {
+				int stream_id = (int) args.get(0);
+				int old_host = (int) args.get(1);
+				int new_host = (int) args.get(2);
+				experimentAPI.BufferStopAndRelayStream(stream_id, old_host, new_host);
 				break;
 			} case "relayStream": {
 				int stream_id = (int) args.get(0);
@@ -346,11 +359,11 @@ public class SpeComm extends Comm {
 				int host = (int) args.get(1);
 				experimentAPI.RemoveNextHop(stream_id, host);
 				break;
-			} case "addSourceNode": {
+			} case "addSourceNodes": {
 				int query_id = (int) args.get(0);
 				int stream_id = (int) args.get(1);
 				List<Integer> node_id_list = (List<Integer>) args.get(2);
-				experimentAPI.AddSourceNode(query_id, stream_id, node_id_list);
+				experimentAPI.AddSourceNodes(query_id, stream_id, node_id_list);
 				break;
 			}
 			default: {

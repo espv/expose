@@ -26,8 +26,9 @@ public interface ExperimentAPI {
 	String ResumeStream(int stream_id);
 	String StopStream(int stream_id);
 	String BufferStream(int stream_id);
-	String StopAndBufferStream(int stream_id);
+	String BufferAndStopStream(int stream_id);
+	String BufferStopAndRelayStream(int stream_id, int old_host, int new_host);
 	String RelayStream(int stream_id, int old_host, int new_host);
 	String RemoveNextHop(int stream_id, int host);
-	String AddSourceNode(int query_id, int stream_id, List<Integer> node_id_list);
+	String AddSourceNodes(int query_id, int stream_id, List<Integer> node_id_list);
 }
