@@ -4,6 +4,7 @@ import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -230,147 +231,180 @@ public class SpeComm extends Comm {
 		String cmd_string = (String) cmd.get("task");
 		List<Object> args = (List<Object>) cmd.get("arguments");
 		System.out.println("Before handling " + cmd);
-		int node_id_to_execute = (int) cmd.getOrDefault("node", this.node_id);
-		if (node_id_to_execute != node_id) {
-			return IssueTask(cmd, node_id_to_execute);
-		}
-		switch (cmd_string) {
-			case "configure": {
-				experimentAPI.Configure();
-				break;
-			} case "setTupleBatchSize": {
-				int batch_size = (int) args.get(0);
-				experimentAPI.SetTupleBatchSize(batch_size);
-				break;
-			} case "setIntervalBetweenTuples": {
-				int interval = (int) args.get(0);
-				experimentAPI.SetIntervalBetweenTuples(interval);
-				break;
-			} case "sendDsAsStream": {
-				Map<String, Object> ds = (Map<String, Object>) args.get(0);
-				experimentAPI.SendDsAsStream(ds);
-				break;
-			} case "addSchemas": {
-				List<Map<String, Object>> stream_schemas = (List<Map<String, Object>>) (List<?>) args;
-				experimentAPI.AddSchemas(stream_schemas);
-				break;
-			} case "deployQueries": {
-				Map<String, Object> query = (Map<String, Object>) args.get(0);
-				experimentAPI.DeployQueries(query);
-				break;
-			} case "addNextHop": {
-				int schemaId = (int) args.get(0);
-				int node_id = (int) args.get(1);
-				experimentAPI.AddNextHop(schemaId, node_id);
-				break;
-			} case "writeStreamToCsv": {
-				int stream_id = (int) args.get(0);
-				String csvFilename = (String) args.get(1);
-				experimentAPI.WriteStreamToCsv(stream_id, csvFilename);
-				break;
-			} case "setNidToAddress": {
-				Map<Integer, Map<String, Object> > newNodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
-				experimentAPI.SetNidToAddress(newNodeIdToIpAndPort);
-				break;
-			} case "clearQueries": {
-				experimentAPI.ClearQueries();
-				break;
-			} case "startRuntimeEnv": {
-				experimentAPI.StartRuntimeEnv();
-				break;
-			} case "stopRuntimeEnv": {
-				experimentAPI.StopRuntimeEnv();
-				break;
-			} case "endExperiment": {
-				experimentAPI.EndExperiment();
-				ShutDown();
-				break;
-			} case "addTpIds": {
-				experimentAPI.AddTpIds(args);
-				break;
-			} case "retEndOfStream": {
-				String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
-				return msSinceLastReceivedTuple + "\n";
-			} case "traceTuple": {
-				experimentAPI.TraceTuple((int) args.get(0), (List<String>) args.get(1));
-				break;
-			} case "loopTasks": {
-				int number_iterations = (int) args.get(0);
-				List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
-				//experimentAPI.LoopTasks((int) args.get(0), cmds);
-				for (int i = 0; i < number_iterations; i++) {
+		List<Integer> node_ids_to_execute = (List<Integer>) cmd.getOrDefault("node", Collections.singletonList(this.node_id));
+
+		StringBuilder ret = new StringBuilder();
+		for (int node_id_to_execute : node_ids_to_execute) {
+			if (node_id_to_execute != node_id) {
+				return IssueTask(cmd, node_id_to_execute);
+			}
+			switch (cmd_string) {
+				case "configure": {
+					experimentAPI.Configure();
+					break;
+				}
+				case "setTupleBatchSize": {
+					int batch_size = (int) args.get(0);
+					experimentAPI.SetTupleBatchSize(batch_size);
+					break;
+				}
+				case "setIntervalBetweenTuples": {
+					int interval = (int) args.get(0);
+					experimentAPI.SetIntervalBetweenTuples(interval);
+					break;
+				}
+				case "sendDsAsStream": {
+					Map<String, Object> ds = (Map<String, Object>) args.get(0);
+					experimentAPI.SendDsAsStream(ds);
+					break;
+				}
+				case "addSchemas": {
+					List<Map<String, Object>> stream_schemas = (List<Map<String, Object>>) (List<?>) args;
+					experimentAPI.AddSchemas(stream_schemas);
+					break;
+				}
+				case "deployQueries": {
+					Map<String, Object> query = (Map<String, Object>) args.get(0);
+					experimentAPI.DeployQueries(query);
+					break;
+				}
+				case "addNextHop": {
+					List<Integer> schemaId_list = (List<Integer>) args.get(0);
+					List<Integer> node_id_list = (List<Integer>) args.get(1);
+					experimentAPI.AddNextHop(schemaId_list, node_id_list);
+					break;
+				}
+				case "writeStreamToCsv": {
+					int stream_id = (int) args.get(0);
+					String csvFilename = (String) args.get(1);
+					experimentAPI.WriteStreamToCsv(stream_id, csvFilename);
+					break;
+				}
+				case "setNidToAddress": {
+					Map<Integer, Map<String, Object>> newNodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
+					experimentAPI.SetNidToAddress(newNodeIdToIpAndPort);
+					break;
+				}
+				case "clearQueries": {
+					experimentAPI.ClearQueries();
+					break;
+				}
+				case "startRuntimeEnv": {
+					experimentAPI.StartRuntimeEnv();
+					break;
+				}
+				case "stopRuntimeEnv": {
+					experimentAPI.StopRuntimeEnv();
+					break;
+				}
+				case "endExperiment": {
+					experimentAPI.EndExperiment();
+					ShutDown();
+					break;
+				}
+				case "addTpIds": {
+					experimentAPI.AddTpIds(args);
+					break;
+				}
+				case "retEndOfStream": {
+					String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
+					return msSinceLastReceivedTuple + "\n";
+				}
+				case "traceTuple": {
+					experimentAPI.TraceTuple((int) args.get(0), (List<String>) args.get(1));
+					break;
+				}
+				case "loopTasks": {
+					int number_iterations = (int) args.get(0);
+					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
+					//experimentAPI.LoopTasks((int) args.get(0), cmds);
+					for (int i = 0; i < number_iterations; i++) {
+						for (Map<String, Object> inner_task : tasks) {
+							HandleEvent(inner_task);
+						}
+					}
+					break;
+				}
+				case "batchTasks": {
+					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
+					//experimentAPI.LoopTasks((int) args.get(0), cmds);
 					for (Map<String, Object> inner_task : tasks) {
 						HandleEvent(inner_task);
 					}
+					break;
 				}
-				break;
-			} case "batchTasks": {
-				List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
-				//experimentAPI.LoopTasks((int) args.get(0), cmds);
-				for (Map<String, Object> inner_task : tasks) {
-					HandleEvent(inner_task);
+				case "moveQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					experimentAPI.MoveQueryState(query_id, new_host);
+					break;
 				}
-				break;
-			} case "moveQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				experimentAPI.MoveQueryState(query_id, new_host);
-				break;
-			} case "moveStaticQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				experimentAPI.MoveStaticQueryState(query_id, new_host);
-				break;
-			} case "moveDynamicQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				experimentAPI.MoveDynamicQueryState(query_id, new_host);
-				break;
-			} case "resumeStream": {
-				int stream_id = (int) args.get(0);
-				experimentAPI.ResumeStream(stream_id);
-				break;
-			} case "stopStream": {
-				int stream_id = (int) args.get(0);
-				experimentAPI.StopStream(stream_id);
-				break;
-			} case "bufferStream": {
-				int stream_id = (int) args.get(0);
-				experimentAPI.BufferStream(stream_id);
-				break;
-			} case "bufferAndStopStream": {
-				int stream_id = (int) args.get(0);
-				experimentAPI.BufferAndStopStream(stream_id);
-				break;
-			} case "bufferStopAndRelayStream": {
-				int stream_id = (int) args.get(0);
-				int old_host = (int) args.get(1);
-				int new_host = (int) args.get(2);
-				experimentAPI.BufferStopAndRelayStream(stream_id, old_host, new_host);
-				break;
-			} case "relayStream": {
-				int stream_id = (int) args.get(0);
-				int old_host = (int) args.get(1);
-				int new_host = (int) args.get(2);
-				experimentAPI.RelayStream(stream_id, old_host, new_host);
-				break;
-			} case "removeNextHop": {
-				int stream_id = (int) args.get(0);
-				int host = (int) args.get(1);
-				experimentAPI.RemoveNextHop(stream_id, host);
-				break;
-			} case "addSourceNodes": {
-				int query_id = (int) args.get(0);
-				int stream_id = (int) args.get(1);
-				List<Integer> node_id_list = (List<Integer>) args.get(2);
-				experimentAPI.AddSourceNodes(query_id, stream_id, node_id_list);
-				break;
+				case "moveStaticQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					experimentAPI.MoveStaticQueryState(query_id, new_host);
+					break;
+				}
+				case "moveDynamicQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					experimentAPI.MoveDynamicQueryState(query_id, new_host);
+					break;
+				}
+				case "resumeStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					experimentAPI.ResumeStream(stream_id_list);
+					break;
+				}
+				case "stopStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					experimentAPI.StopStream(stream_id_list);
+					break;
+				}
+				case "bufferStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					experimentAPI.BufferStream(stream_id_list);
+					break;
+				}
+				case "bufferAndStopStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					experimentAPI.BufferAndStopStream(stream_id_list);
+					break;
+				}
+				case "bufferStopAndRelayStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> old_host_list = (List<Integer>) args.get(1);
+					List<Integer> new_host_list = (List<Integer>) args.get(2);
+					experimentAPI.BufferStopAndRelayStream(stream_id_list, old_host_list, new_host_list);
+					break;
+				}
+				case "relayStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> old_host_list = (List<Integer>) args.get(1);
+					List<Integer> new_host_list = (List<Integer>) args.get(2);
+					experimentAPI.RelayStream(stream_id_list, old_host_list, new_host_list);
+					break;
+				}
+				case "removeNextHop": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> host_list = (List<Integer>) args.get(1);
+					experimentAPI.RemoveNextHop(stream_id_list, host_list);
+					break;
+				}
+				case "addSourceNodes": {
+					int query_id = (int) args.get(0);
+					List<Integer> stream_id_list = (List<Integer>) args.get(1);
+					List<Integer> node_id_list = (List<Integer>) args.get(2);
+					experimentAPI.AddSourceNodes(query_id, stream_id_list, node_id_list);
+					break;
+				}
+				default: {
+					this.speSpecificAPI.HandleSpeSpecificTask(cmd);
+				}
 			}
-			default: {
-				this.speSpecificAPI.HandleSpeSpecificTask(cmd);
-			}
+			System.out.println("After handling " + cmd);
+			ret.append("Spe node ").append(node_id).append(" completed task ").append(cmd.get("task")).append("\n");
 		}
-		System.out.println("After handling " + cmd);
-		return "Spe node " + node_id + " completed task " + cmd.get("task") + "\n";
+		return ret.toString();
 	}
 }

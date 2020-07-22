@@ -34,20 +34,22 @@ public class CoordinatorComm extends Comm implements Runnable {
 
 	// Put this method in a different class
 	public String SendToSpe(Map<String, Object> task) {
-		int node_id = (int) task.get("node");
-		try {
-			CoordinatorClient mc = nodeIdsToClients.get(node_id);
-			SendMap(task, mc.out);
-			boolean expectAck = (boolean) task.getOrDefault("ack", true);
-			String ret = null;
-			if (expectAck) {
-				ret = mc.in.readLine();
+		List<Integer> node_id_list = (List<Integer>) task.get("node");
+		StringBuilder ret = new StringBuilder();
+		for (int node_id : node_id_list) {
+			try {
+				CoordinatorClient mc = nodeIdsToClients.get(node_id);
+				SendMap(task, mc.out);
+				boolean expectAck = (boolean) task.getOrDefault("ack", true);
+				if (expectAck) {
+					ret.append(mc.in.readLine()).append(", ");
+				}
+			} catch (IOException e) {
+				ShutDown();
+				return e.toString();
 			}
-			return ret;
-		} catch (IOException e) {
-			ShutDown();
-			return e.toString();
 		}
+		return ret.toString();
 	}
 
 	public Map<Integer, CoordinatorClient> GetNodeIdsToClients() {return nodeIdsToClients;}

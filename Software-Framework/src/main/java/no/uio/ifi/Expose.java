@@ -26,100 +26,102 @@ public class Expose {
 		}
 
 		public void doHandleEvent() {
-			int node_id = (int) task.get("node");
-			if (node_id != 0) {
-				mc.SendToSpe(task);
-				return;
-			}
-			String cmd = (String) task.get("task");
-			List<Object> args = (List<Object>) task.get("arguments");
-			switch (cmd) {
-				case "wait": {
-					if (args.size() == 0) {
-						System.out.println("Hit enter when you want to continue to next task");
-						BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-						try {
-							reader.readLine();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						System.out.println("Wait is done");
-					} else {
-						try {
-							Thread.sleep((int) args.get(0));
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					break;
+			List<Integer> node_id_list = (List<Integer>) task.get("node");
+			for (int node_id : node_id_list) {
+				if (node_id != 0) {
+					mc.SendToSpe(task);
+					return;
 				}
-				case "loopTasks": {
-					int numberIterations = (int) args.get(0);
-					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
-					for (int i = 0; i < numberIterations; i++) {
+				String cmd = (String) task.get("task");
+				List<Object> args = (List<Object>) task.get("arguments");
+				switch (cmd) {
+					case "wait": {
+						if (args.size() == 0) {
+							System.out.println("Hit enter when you want to continue to next task");
+							BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+							try {
+								reader.readLine();
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							System.out.println("Wait is done");
+						} else {
+							try {
+								Thread.sleep((int) args.get(0));
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						break;
+					}
+					case "loopTasks": {
+						int numberIterations = (int) args.get(0);
+						List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(1);
+						for (int i = 0; i < numberIterations; i++) {
+							for (Map<String, Object> inner_task : tasks) {
+								handleEvent(inner_task);
+							}
+						}
+						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
+						break;
+					}
+					case "batchTasks": {
+						List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
 						for (Map<String, Object> inner_task : tasks) {
 							handleEvent(inner_task);
 						}
+						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
+						break;
 					}
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
-					break;
-				}
-				case "batchTasks": {
-					List<Map<String, Object>> tasks = (List<Map<String, Object>>) args.get(0);
-					for (Map<String, Object> inner_task : tasks) {
-						handleEvent(inner_task);
+					/*case "migrateQueryState": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
+						break;
 					}
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).LoopTasks(numberIterations, cmds);
-					break;
-				}
-				/*case "migrateQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "migrateStaticQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveStaticQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "migrateDynamicQueryState": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).MoveDynamicQueryState(query_id, old_host, new_host);
-					break;
-				}
-				case "resumeQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeQuery(query_id);
-					break;
-				}
-				case "stopQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).StopQuery(query_id);
-					break;
-				}
-				case "bufferQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).BufferQuery(query_id);
-					break;
-				}
-				case "stopAndBufferQuery": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).StopAndBufferQuery(query_id);
-					break;
-				}
-				case "relayStream": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).ResumeStream(stream_id, old_host, new_host);
-					break;
-				}
-				case "removeNextHop": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).RemoveNextHop(stream_id, old_host, new_host);
-					break;
-				}
-				case "performQueryMigration": {
-					ret = nodeIdsToExperimentAPIs.get(node_id).PerformQueryMigration(query_id, old_host, new_host, migration_policy);
-					break;
-				}
-				case "deploySubQueries": {
-					// If the query with query_id gets migrated, all number_instances of them will get migrated to the
-					// new host, and the source_nodes will be notified so that they can transmit tuples to the new host
-					ret = nodeIdsToExperimentAPIs.get(node_id).DeploySubQueries(query_id, number_instances, source_nodes);
-					break;
-				}*/
-				default: {
-					throw new RuntimeException("Unknown task " + task.get("task") + " parsed");
+					case "migrateStaticQueryState": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).MoveStaticQueryState(query_id, old_host, new_host);
+						break;
+					}
+					case "migrateDynamicQueryState": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).MoveDynamicQueryState(query_id, old_host, new_host);
+						break;
+					}
+					case "resumeQuery": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).ResumeQuery(query_id);
+						break;
+					}
+					case "stopQuery": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).StopQuery(query_id);
+						break;
+					}
+					case "bufferQuery": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).BufferQuery(query_id);
+						break;
+					}
+					case "stopAndBufferQuery": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).StopAndBufferQuery(query_id);
+						break;
+					}
+					case "relayStream": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).ResumeStream(stream_id, old_host, new_host);
+						break;
+					}
+					case "removeNextHop": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).RemoveNextHop(stream_id, old_host, new_host);
+						break;
+					}
+					case "performQueryMigration": {
+						ret = nodeIdsToExperimentAPIs.get(node_id).PerformQueryMigration(query_id, old_host, new_host, migration_policy);
+						break;
+					}
+					case "deploySubQueries": {
+						// If the query with query_id gets migrated, all number_instances of them will get migrated to the
+						// new host, and the source_nodes will be notified so that they can transmit tuples to the new host
+						ret = nodeIdsToExperimentAPIs.get(node_id).DeploySubQueries(query_id, number_instances, source_nodes);
+						break;
+					}*/
+					default: {
+						throw new RuntimeException("Unknown task " + task.get("task") + " parsed");
+					}
 				}
 			}
 		}
@@ -132,10 +134,9 @@ public class Expose {
 	@SuppressWarnings("unchecked")
 	void handleEvent(Map<String, Object> task) {
 		++cmd_number;
-		int node_id = (int) task.get("node");
-		System.out.println("Line " + cmd_number + ": Node " + node_id + " executes " + task);
+		List<Integer> node_id_list = (List<Integer>) task.get("node");
+		System.out.println("Line " + cmd_number + ": Node " + node_id_list + " executes " + task);
 		TaskHandler taskHandler = new TaskHandler(task);
-		// TODO: add whether the task should be executed in parallel
 		if ((boolean) task.getOrDefault("parallel", false)) {
 			new Thread(taskHandler).start();
 		} else {
@@ -158,7 +159,7 @@ public class Expose {
 		Map<String, Object> map = new HashMap<>();
 		map.put("task", "addTpIds");
 		map.put("arguments", activeTracepointIds);
-		map.put("node", node_id);
+		map.put("node", Collections.singletonList(node_id));
 		mc.SendToSpe(map);
 
 		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(activeTracepointIds);
@@ -169,7 +170,7 @@ public class Expose {
 		map = new HashMap<>();
 		map.put("task", "addSchemas");
 		map.put("arguments", streamDefinitions);
-		map.put("node", node_id);
+		map.put("node", Collections.singletonList(node_id));
 		mc.SendToSpe(map);
 		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSchemas(streamDefinitions);
 		System.out.println("Node " + node_id + ": AddSchemas " + streamDefinitions);
@@ -177,7 +178,7 @@ public class Expose {
 
 	void WaitForSPEs(List<Map<String, Object>> cmds, Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients) {
 		for (Map<String, Object> event : cmds) {
-			boolean isCoordinator = event.get("node").equals("coordinator");
+			boolean isCoordinator = (boolean) event.getOrDefault("coordinator", false);
 			if (event.get("task").equals("loopTasks")) {
 				List<Object> args = (List<Object>) event.get("arguments");
 				List<Map<String, Object>> loopCmds = (ArrayList<Map<String, Object>>) args.get(1);
@@ -190,277 +191,283 @@ public class Expose {
 			if (isCoordinator) {
 				continue;
 			}
-			int node_id = (int) event.get("node");
-			while (!this.mc.nodeIdReady.getOrDefault(node_id, false)) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-					System.exit(5);
+			List<Integer> node_id_list = (List<Integer>) event.get("node");
+			for (int node_id : node_id_list) {
+				while (!this.mc.nodeIdReady.getOrDefault(node_id, false)) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						System.exit(5);
+					}
 				}
 			}
 		}
 	}
 
-	Map<String, Object> PreprocessTask(Map<String, Object> raw_task) {
+	List<Map<String, Object>> PreprocessTask(Map<String, Object> raw_task) {
+		List<Map<String, Object>> ret = new ArrayList<>();
 		String cmd = (String) raw_task.get("task");
-		int node_id = 0;
-		if (!raw_task.get("node").equals("coordinator")) {
-			node_id = (int) raw_task.get("node");
+		List<Integer> node_id_list = (List<Integer>) raw_task.getOrDefault("node", Collections.singleton(0));
+		for (int node_id : node_id_list) {
+			List<Object> args = (List<Object>) raw_task.get("arguments");
+
+			List<Object> task_args = new ArrayList<>();
+
+			Map<String, Object> map = new HashMap<>();
+			for (String k : raw_task.keySet()) {
+				map.put(k, raw_task.get(k));
+			}
+			map.put("node", Collections.singletonList(node_id));
+
+			switch (cmd) {
+				case "setEventBatchSize": {
+					task_args.add(args.get(0));
+					break;
+				}
+				case "wait": {
+					/*if (args.size() == 0) {
+						System.out.println("Hit enter when you want to continue to next task");
+						BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+						try {
+							reader.readLine();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						System.out.println("Wait is done");
+					} else {
+						try {
+							Thread.sleep((int) args.get(0));
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					break;*/
+				}
+				case "startRuntimeEnv": {
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
+					break;
+				}
+				case "stopRuntimeEnv": {
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
+					break;
+				}
+				case "setIntervalBetweenEvents": {
+					task_args.add(args.get(0));
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
+					break;
+				}
+				case "deployQueries": {
+					int query_id = (int) args.get(0);
+					Map<String, Object> spe_rule_to_create = null;
+					List<Map<String, Object>>
+							spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
+					for (Map<String, Object> spequery : spequeries) {
+						if ((int) spequery.get("id") == query_id) {
+							spe_rule_to_create = spequery;
+							break;
+						}
+					}
+
+					int quantity = (int) args.get(1);
+					task_args.add(spe_rule_to_create);
+					for (int i = 0; i < quantity; ++i) {
+						// TODO: Add number of iterations as argument
+						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
+					}
+					break;
+				}
+				case "loopTasks": {
+					int numberIterations = (int) args.get(0);
+					List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(1);
+					List<Map<String, Object>> tasks = new ArrayList<>();
+					for (Map<String, Object> inner_cmd : cmds) {
+						List<Map<String, Object>> inner_task = PreprocessTask(inner_cmd);
+						tasks.addAll(inner_task);
+					}
+
+					task_args.add(numberIterations);
+					task_args.add(tasks);
+					break;
+				}
+				case "batchTasks": {
+					List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(0);
+					List<Map<String, Object>> tasks = new ArrayList<>();
+					for (Map<String, Object> inner_cmd : cmds) {
+						List<Map<String, Object>> inner_task = PreprocessTask(inner_cmd);
+						tasks.addAll(inner_task);
+					}
+
+					task_args.add(tasks);
+					break;
+				}
+				case "addNextHop": {
+					List<Integer> streamId_list = (List<Integer>) args.get(0);
+					List<Integer> nodeId_list = (List<Integer>) args.get(1);
+					task_args.add(streamId_list);
+					task_args.add(nodeId_list);
+					break;
+				}
+				case "writeStreamToCsv": {
+					int stream_id = (int) args.get(0);
+					String csvFolder = (String) args.get(1);
+					task_args.add(stream_id);
+					task_args.add(csvFolder);
+					//mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
+					break;
+				}
+				case "sendDsAsStream": {
+					int dataset_id = (int) args.get(0);
+					List<Map<String, Object>>
+							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
+					for (Map<String, Object> ds : datasets) {
+						ds.put("file", ds.get("file"));
+						if ((int) ds.get("id") == dataset_id) {
+							task_args.add(ds);
+
+							//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
+							break;
+						}
+					}
+					break;
+				}
+				case "clearQueries": {
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
+					break;
+				}
+				case "setNidToAddress": {
+					Map<Integer, Map<String, Object>> nodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
+
+					task_args.add(nodeIdToIpAndPort);
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
+					break;
+				}
+				case "endExperiment": {
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
+					break;
+				}
+				case "addTpIds": {
+					map.put("arguments", args);
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
+					break;
+				}
+				case "retEndOfStream": {
+					int nanoseconds = (int) args.get(0);
+					task_args.add(nanoseconds);
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
+					break;
+				}
+				case "traceTuple": {
+					int tracepointId = (int) args.get(0);
+					List<String> traceArguments = (List<String>) args.get(1);
+
+					task_args.add(tracepointId);
+					task_args.add(traceArguments);
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).TraceTuple((int) args.get(0), (List<String>) args.get(1));
+					break;
+				}
+				case "configure": {
+
+					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
+					break;
+				}
+				case "moveQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					task_args.add(query_id);
+					task_args.add(new_host);
+					break;
+				}
+				case "moveStaticQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					task_args.add(query_id);
+					task_args.add(new_host);
+					break;
+				}
+				case "moveDynamicQueryState": {
+					int query_id = (int) args.get(0);
+					int new_host = (int) args.get(1);
+					task_args.add(query_id);
+					task_args.add(new_host);
+					break;
+				}
+				case "resumeStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
+					break;
+				}
+				case "stopStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
+					break;
+				}
+				case "bufferStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
+					break;
+				}
+				case "bufferAndStopStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
+					break;
+				}
+				case "bufferStopAndRelayStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> old_host_list = (List<Integer>) args.get(1);
+					List<Integer> new_host_list = (List<Integer>) args.get(2);
+					task_args.add(stream_id_list);
+					task_args.add(old_host_list);
+					task_args.add(new_host_list);
+					break;
+				}
+				case "relayStream": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> old_host_list = (List<Integer>) args.get(1);
+					List<Integer> new_host_list = (List<Integer>) args.get(2);
+					task_args.add(stream_id_list);
+					task_args.add(old_host_list);
+					task_args.add(new_host_list);
+					break;
+				}
+				case "removeNextHop": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					List<Integer> host_list = (List<Integer>) args.get(1);
+					task_args.add(stream_id_list);
+					task_args.add(host_list);
+					break;
+				}
+				case "addSourceNodes": {
+					int query_id = (int) args.get(0);
+					List<Integer> stream_id_list = (List<Integer>) args.get(1);
+					List<Integer> nid_list = (List<Integer>) args.get(2);
+					task_args.add(query_id);
+					task_args.add(stream_id_list);
+					task_args.add(nid_list);
+					break;
+				}
+				default: {
+					throw new RuntimeException("Unknown task " + cmd + " parsed");
+				}
+			}
+
+			map.put("arguments", task_args);
+			ret.add(map);
 		}
-		List<Object> args = (List<Object>) raw_task.get("arguments");
-
-		List<Object> task_args = new ArrayList<>();
-
-		Map<String, Object> map = new HashMap<>();
-		for (String k : raw_task.keySet()) {
-			map.put(k, raw_task.get(k));
-		}
-		map.put("node", node_id);
-
-		switch (cmd) {
-			case "setEventBatchSize": {
-				task_args.add(args.get(0));
-				break;
-			}
-			case "wait": {
-				/*if (args.size() == 0) {
-					System.out.println("Hit enter when you want to continue to next task");
-					BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-					try {
-						reader.readLine();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					System.out.println("Wait is done");
-				} else {
-					try {
-						Thread.sleep((int) args.get(0));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				break;*/
-			}
-			case "startRuntimeEnv": {
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
-				break;
-			}
-			case "stopRuntimeEnv": {
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
-				break;
-			}
-			case "setIntervalBetweenEvents": {
-				task_args.add(args.get(0));
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
-				break;
-			}
-			case "deployQueries": {
-				int query_id = (int) args.get(0);
-				Map<String, Object> spe_rule_to_create = null;
-				List<Map<String, Object>>
-						spequeries = (ArrayList<Map<String, Object>>) yaml_configuration.get("spequeries");
-				for (Map<String, Object> spequery : spequeries) {
-					if ((int) spequery.get("id") == query_id) {
-						spe_rule_to_create = spequery;
-						break;
-					}
-				}
-
-				int quantity = (int) args.get(1);
-				task_args.add(spe_rule_to_create);
-				for (int i = 0; i < quantity; ++i) {
-					// TODO: Add number of iterations as argument
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).DeployQueries(spe_rule_to_create);
-				}
-				break;
-			}
-			case "loopTasks": {
-				int numberIterations = (int) args.get(0);
-				List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(1);
-				List<Map<String, Object>> tasks = new ArrayList<>();
-				for (Map<String, Object> inner_cmd : cmds) {
-					Map<String, Object> inner_task = PreprocessTask(inner_cmd);
-					tasks.add(inner_task);
-				}
-
-				task_args.add(numberIterations);
-				task_args.add(tasks);
-				break;
-			}
-			case "batchTasks": {
-				List<Map<String, Object>> cmds = (List<Map<String, Object>>) args.get(0);
-				List<Map<String, Object>> tasks = new ArrayList<>();
-				for (Map<String, Object> inner_cmd : cmds) {
-					Map<String, Object> inner_task = PreprocessTask(inner_cmd);
-					tasks.add(inner_task);
-				}
-
-				task_args.add(tasks);
-				break;
-			}
-			case "addNextHop": {
-				List<Map<String, Object>>
-						streamDefinitions = (ArrayList<Map<String, Object>>) yaml_configuration.get("stream-definitions");
-				for (Map<String, Object> stream_definition : streamDefinitions) {
-					if ((int) stream_definition.get("id") == (int) args.get(0)) {
-						int streamId = (int) stream_definition.get("stream-id");
-						int nodeId = (int) args.get(1);
-						task_args.add(streamId);
-						task_args.add(nodeId);
-						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddNextHop((int) stream_definition.get("stream-id"), (int) args.get(1));
-						break;
-					}
-				}
-				break;
-			}
-			case "writeStreamToCsv": {
-				int stream_id = (int) args.get(0);
-				String csvFolder = (String) args.get(1);
-				task_args.add(stream_id);
-				task_args.add(csvFolder);
-				//mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
-				break;
-			}
-			case "sendDsAsStream": {
-				int dataset_id = (int) args.get(0);
-				List<Map<String, Object>>
-						datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
-				for (Map<String, Object> ds : datasets) {
-					ds.put("file", ds.get("file"));
-					if ((int) ds.get("id") == dataset_id) {
-						task_args.add(ds);
-
-						//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
-						break;
-					}
-				}
-				break;
-			}
-			case "clearQueries": {
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
-				break;
-			}
-			case "setNidToAddress": {
-				Map<Integer, Map<String, Object>> nodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
-
-				task_args.add(nodeIdToIpAndPort);
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
-				break;
-			}
-			case "endExperiment": {
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
-				break;
-			}
-			case "addTpIds": {
-				map.put("arguments", args);
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
-				break;
-			}
-			case "retEndOfStream": {
-				int nanoseconds = (int) args.get(0);
-				task_args.add(nanoseconds);
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
-				break;
-			}
-			case "traceTuple": {
-				int tracepointId = (int) args.get(0);
-				List<String> traceArguments = (List<String>) args.get(1);
-
-				task_args.add(tracepointId);
-				task_args.add(traceArguments);
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).TraceTuple((int) args.get(0), (List<String>) args.get(1));
-				break;
-			}
-			case "configure": {
-
-				//ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
-				break;
-			} case "moveQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				task_args.add(query_id);
-				task_args.add(new_host);
-				break;
-			} case "moveStaticQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				task_args.add(query_id);
-				task_args.add(new_host);
-				break;
-			} case "moveDynamicQueryState": {
-				int query_id = (int) args.get(0);
-				int new_host = (int) args.get(1);
-				task_args.add(query_id);
-				task_args.add(new_host);
-				break;
-			} case "resumeStream": {
-				int stream_id = (int) args.get(0);
-				task_args.add(stream_id);
-				break;
-			} case "stopStream": {
-				int stream_id = (int) args.get(0);
-				task_args.add(stream_id);
-				break;
-			} case "bufferStream": {
-				int stream_id = (int) args.get(0);
-				task_args.add(stream_id);
-				break;
-			} case "bufferAndStopStream": {
-				int stream_id = (int) args.get(0);
-				task_args.add(stream_id);
-				break;
-			} case "bufferStopAndRelayStream": {
-				int stream_id = (int) args.get(0);
-				int old_host = (int) args.get(1);
-				int new_host = (int) args.get(2);
-				task_args.add(stream_id);
-				task_args.add(old_host);
-				task_args.add(new_host);
-				break;
-			} case "relayStream": {
-				int stream_id = (int) args.get(0);
-				int old_host = (int) args.get(1);
-				int new_host = (int) args.get(2);
-				task_args.add(stream_id);
-				task_args.add(old_host);
-				task_args.add(new_host);
-				break;
-			} case "removeNextHop": {
-				int stream_id = (int) args.get(0);
-				int host = (int) args.get(1);
-				task_args.add(stream_id);
-				task_args.add(host);
-				break;
-			} case "addSourceNodes": {
-				int query_id = (int) args.get(0);
-				int stream_id = (int) args.get(1);
-				List<Integer> node_id_list = (List<Integer>) args.get(2);
-				task_args.add(query_id);
-				task_args.add(stream_id);
-				task_args.add(node_id_list);
-				break;
-			}
-			default: {
-				throw new RuntimeException("Unknown task " + cmd + " parsed");
-			}
-		}
-
-		map.put("arguments", task_args);
-		return map;
+		return ret;
 	}
 
 	void PreprocessTasks(List<Map<String, Object> > raw_tasks) {
 		tasks = new ArrayList<>();
 		for (Map<String, Object> raw_task : raw_tasks) {
-			Map<String, Object> task = PreprocessTask(raw_task);
-			tasks.add(task);
+			List<Map<String, Object>> task = PreprocessTask(raw_task);
+			tasks.addAll(task);
 		}
 	}
 

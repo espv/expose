@@ -10,7 +10,7 @@ public interface ExperimentAPI {
 	String SendDsAsStream(Map<String, Object> ds);
 	String AddSchemas(List<Map<String, Object>> stream_schema);
 	String DeployQueries(Map<String, Object> query);
-	String AddNextHop(int streamId, int nodeId);
+	String AddNextHop(List<Integer> streamId_list, List<Integer> nodeId_list);
 	String SetNidToAddress(Map<Integer, Map<String, Object> > newNodeIdToIpAndPort);
 	String ClearQueries();
 	String StartRuntimeEnv();
@@ -23,12 +23,12 @@ public interface ExperimentAPI {
 	String MoveQueryState(int query_id, int new_host);
 	String MoveStaticQueryState(int query_id, int new_host);
 	String MoveDynamicQueryState(int query_id, int new_host);
-	String ResumeStream(int stream_id);
-	String StopStream(int stream_id);
-	String BufferStream(int stream_id);
-	String BufferAndStopStream(int stream_id);
-	String BufferStopAndRelayStream(int stream_id, int old_host, int new_host);
-	String RelayStream(int stream_id, int old_host, int new_host);
-	String RemoveNextHop(int stream_id, int host);
-	String AddSourceNodes(int query_id, int stream_id, List<Integer> node_id_list);
+	String ResumeStream(List<Integer> stream_id_list);
+	String StopStream(List<Integer> stream_id_list);
+	String BufferStream(List<Integer> stream_id_list);
+	String BufferAndStopStream(List<Integer> stream_id_list);
+	String BufferStopAndRelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
+	String RelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
+	String RemoveNextHop(List<Integer> stream_id_list, List<Integer> host_list);
+	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
 }
