@@ -17,74 +17,44 @@ experiments:
       - {task: writeStreamToCsv, arguments: [17, "scripts/Experiments/sink-output/1/17"], node: [3]}
       #- {task: writeStreamToCsv, arguments: [3, "scripts/Experiments/sink-output/1/3"], node: [2]}
 
-      - {task: addSourceNodes, arguments: [0, [1], [1]], node: [2]}
-      - {task: addSourceNodes, arguments: [0, [2], [1]], node: [2]}
-      - {task: addSourceNodes, arguments: [0, [3], [1]], node: [2]}
-      - {task: addSourceNodes, arguments: [0, [4], [1]], node: [2]}
-      - {task: addNextHop, arguments: [[1], [2]], node: [1]}
-      - {task: addNextHop, arguments: [[2, 2]], node: [1]}
-      - {task: addNextHop, arguments: [[3, 2]], node: [1]}
-      - {task: addNextHop, arguments: [[4, 2]], node: [1]}
+      - {task: addSourceNodes, arguments: [0, [1, 2, 3, 4], [1]], node: [2]}
+      - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
 
-      - {task: addNextHop, arguments: [17, 3], node: [2]}
-      - {task: addNextHop, arguments: [17, 3], node: [4]}
+      - {task: addNextHop, arguments: [[17], [3]], node: [2, 4]}
 
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
          arguments: [1, [
-          {task: startRuntimeEnv, node: [2]},
-          {task: startRuntimeEnv, node: [3]},
-          {task: startRuntimeEnv, node: [4]},
+          {task: startRuntimeEnv, node: [2, 3, 4]},
           {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
           {task: retEndOfStream, node: [3], arguments: [2000]},
           {task: traceTuple, node: [2], arguments: [200, []]},
-          {task: stopRuntimeEnv, node: [2]},
-          {task: stopRuntimeEnv, node: [3]},
-          {task: stopRuntimeEnv, node: [4]}
+          {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
       - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
-      - {task: startRuntimeEnv, node: [2]}
-      - {task: startRuntimeEnv, node: [3]}
-      - {task: startRuntimeEnv, node: [4]}
+      - {task: startRuntimeEnv, node: [2, 3, 4]}
       - {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true}
       - {task: batchTasks, node: [2], arguments: [[
-          {task: bufferAndStopStream, node: [2], arguments: [17]},
-          {task: batchTasks, node: [1], arguments: [[
-              {task: bufferStopAndRelayStream, node: [[1]], arguments: [1, 2, 4]},
-              {task: bufferStopAndRelayStream, node: [[1]], arguments: [2, 2, 4]},
-              {task: bufferStopAndRelayStream, node: [[1]], arguments: [3, 2, 4]},
-              {task: bufferStopAndRelayStream, node: [[1]], arguments: [4, 2, 4]}
-          ]]},
+          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
+          {task: bufferStopAndRelayStream, node: [1], arguments: [[1, 2, 3, 4], [2], [4]]},
             # When Node 4 receives the query state, it calls resumeStream on the child nodes
           {task: moveQueryState, node: [2], arguments: [0, 4]},
             # Node 2 resumes the stream simply to flush the buffer
-          {task: resumeStream, node: [[2]], arguments: [17]},
-          {task: resumeStream, node: [[4]], arguments: [17]},
-          {task: batchTasks, node: [1], arguments: [[
-              {task: resumeStream, node: [[1]], arguments: [1]},
-              {task: resumeStream, node: [[1]], arguments: [2]},
-              {task: resumeStream, node: [[1]], arguments: [3]},
-              {task: resumeStream, node: [[1]], arguments: [4]}
-          ]]}
+          {task: resumeStream, node: [2, 4], arguments: [[17]]},
+          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
       ]]}
-      - {task: stopStream, node: [[1]], arguments: [17]}
+      - {task: stopStream, node: [1], arguments: [[17]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
-      - {task: stopRuntimeEnv, node: [2]}
-      - {task: stopRuntimeEnv, node: [3]}
-      - {task: stopRuntimeEnv, node: [4]}
+      - {task: stopRuntimeEnv, node: [2, 3, 4]}
       # Runs that count: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
          arguments: [1, [
-         {task: startRuntimeEnv, node: [2]},
-         {task: startRuntimeEnv, node: [3]},
-         {task: startRuntimeEnv, node: [4]},
+         {task: startRuntimeEnv, node: [2, 3, 4]},
          {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
-         {task: stopRuntimeEnv, node: [2]},
-         {task: stopRuntimeEnv, node: [3]},
-         {task: stopRuntimeEnv, node: [4]}
+         {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
 
   - name: experiment 1 --- NexMark with good operator migration V2
