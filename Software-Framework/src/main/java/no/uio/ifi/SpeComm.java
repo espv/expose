@@ -233,6 +233,7 @@ public class SpeComm extends Comm {
 		System.out.println("Before handling " + cmd);
 		List<Integer> node_ids_to_execute = (List<Integer>) cmd.getOrDefault("node", Collections.singletonList(this.node_id));
 
+		experimentAPI.LockExecution();
 		StringBuilder ret = new StringBuilder();
 		for (int node_id_to_execute : node_ids_to_execute) {
 			if (node_id_to_execute != node_id) {
@@ -405,6 +406,7 @@ public class SpeComm extends Comm {
 			System.out.println("After handling " + cmd);
 			ret.append("Spe node ").append(node_id).append(" completed task ").append(cmd.get("task")).append("\n");
 		}
+		experimentAPI.UnlockExecution();
 		return ret.toString();
 	}
 }

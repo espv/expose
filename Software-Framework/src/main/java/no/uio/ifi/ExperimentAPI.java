@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface ExperimentAPI {
+	void LockExecution();
+	void UnlockExecution();
+
 	String Configure();
 	String SetTupleBatchSize(int size);
 	String SetIntervalBetweenTuples(int interval);
