@@ -87,7 +87,7 @@ experiments:
       - {task: batchTasks, node: [2], arguments:
          [[
           {task: traceTuple, node: [2], arguments: [3, []]},
-          {task: bufferAndStopStream, node: [4], parallel: true, arguments: [[1,2,3,4]]},
+          {task: bufferAndStopStream, node: [4], arguments: [[1,2,3,4]]},
           {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
           {task: bufferAndStopStream, node: [2], arguments: [[17]]},
           {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
