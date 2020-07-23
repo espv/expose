@@ -40,13 +40,7 @@ experiments:
           {task: traceTuple, node: [2], arguments: [3, []]},
           {task: bufferStopAndRelayStream, node: [1], arguments: [[1, 2, 3, 4], [2], [4]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          # Node 2 resumes the stream simply to flush the buffer
-          {task: resumeStream, node: [2], arguments: [[17]]},
-          {task: batchTasks, node: [4], arguments:
-            [[
-              {task: resumeStream, node: [4], parallel: true, arguments: [[17]]},
-              {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]}
-          ]]},
+          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
@@ -87,12 +81,13 @@ experiments:
       - {task: batchTasks, node: [2], arguments:
          [[
           {task: traceTuple, node: [2], arguments: [3, []]},
+          # We don't need to resume this stream because it gets resumed after moveQueryState
           {task: bufferAndStopStream, node: [4], arguments: [[1,2,3,4]]},
           {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
-          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
           {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
+          {task: stopAndBufferStream, node: [2], arguments: [[17]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          {task: resumeStream, node: [4], arguments: [[17]]},
+          {task: resumeStream, node: [2], parallel: true, arguments: [[17]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
