@@ -85,7 +85,7 @@ experiments:
           {task: bufferAndStopStream, node: [4], arguments: [[1,2,3,4]]},
           {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
           {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
-          {task: stopAndBufferStream, node: [2], arguments: [[17]]},
+          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
           {task: resumeStream, node: [2], parallel: true, arguments: [[17]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
