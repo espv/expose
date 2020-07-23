@@ -81,13 +81,12 @@ experiments:
       - {task: batchTasks, node: [2], arguments:
          [[
           {task: traceTuple, node: [2], arguments: [3, []]},
-          # We don't need to resume this stream because it gets resumed after moveQueryState
           {task: bufferAndStopStream, node: [4], arguments: [[1,2,3,4]]},
           {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
           {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
-          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          {task: resumeStream, node: [2], parallel: true, arguments: [[17]]},
+          # This should be done by Node 4 when receiving the query state
+          {task: resumeStream, node: [4], arguments: [[1,2,3,4]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
