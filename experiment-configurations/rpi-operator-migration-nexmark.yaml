@@ -25,7 +25,7 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
-         arguments: [1, [
+         arguments: [5, [
           {task: startRuntimeEnv, node: [2, 3, 4]},
           {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
           {task: retEndOfStream, node: [3], arguments: [2000]},
@@ -35,16 +35,20 @@ experiments:
       - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       - {task: startRuntimeEnv, node: [2, 3, 4]}
       - {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true}
-      - {task: batchTasks, node: [2], arguments: [[
-          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
+      - {task: batchTasks, node: [2], arguments:
+        [[
+          {task: traceTuple, node: [2], arguments: [3, []]},
           {task: bufferStopAndRelayStream, node: [1], arguments: [[1, 2, 3, 4], [2], [4]]},
-            # When Node 4 receives the query state, it calls resumeStream on the child nodes
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-            # Node 2 resumes the stream simply to flush the buffer
-          {task: resumeStream, node: [2, 4], arguments: [[17]]},
-          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
+          # Node 2 resumes the stream simply to flush the buffer
+          {task: resumeStream, node: [2], arguments: [[17]]},
+          {task: batchTasks, node: [4], arguments:
+            [[
+              {task: resumeStream, node: [4], parallel: true, arguments: [[17]]},
+              {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]}
+          ]]},
+          {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
-      - {task: stopStream, node: [1], arguments: [[17]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
       # Runs that count: send dataset as stream 5 times
@@ -70,7 +74,7 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
-         arguments: [1, [
+         arguments: [5, [
          {task: startRuntimeEnv, node: [2,3,4]},
          {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
@@ -81,16 +85,16 @@ experiments:
       - {task: startRuntimeEnv, node: [2,3,4]}
       - {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true}
       - {task: batchTasks, node: [2], arguments:
-         [[  # Between the task below and moveQueryState, data
-          {task: bufferStream, node: [4], arguments: [[1,2,3,4]]},
-          {task: relayStream, node: [1], arguments: [[1,2,3,4], [2], [4]]},
+         [[
+          {task: traceTuple, node: [2], arguments: [3, []]},
+          {task: bufferAndStopStream, node: [4], parallel: true, arguments: [[1,2,3,4]]},
+          {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
+          {task: bufferAndStopStream, node: [2], arguments: [[17]]},
           {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
-          {task: stopStream, node: [2], arguments: [[17]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          # Node 4 will resume before Node 2 because the order matters
-          {task: resumeStream, node: [4, 2], arguments: [[17]]},
+          {task: resumeStream, node: [4], arguments: [[17]]},
+          {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
-      - {task: stopStream, node: [2], arguments: [[17]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
       - {task: stopRuntimeEnv, node: [2,3,4]}
       # Runs that count: send dataset as stream 5 times
@@ -863,6 +867,41 @@ tracepoints:
       - name: tid
         type: int
       - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 2
+    name: Transmit event
+    active: true
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 3
+    name: Start operator migration
+    active: true
+    arguments:
+      - name: tid
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 4
+    name: Stop operator migration
+    active: true
+    arguments:
+      - name: tid
         type: int
     description:
     category:

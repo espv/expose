@@ -210,7 +210,11 @@ public class SpeComm extends Comm {
 		// TODO: Send task to node_id_to_execute
 		// TODO: For that, we must have a connection to the other nodes
 		System.out.println("Issuing task " + task  + " to Node " + node_id_to_execute);
-		speCoordinatorComm.SendToSpe(task);
+		if ((boolean) task.getOrDefault("parallel", true)) {
+			speCoordinatorComm.SendToSpe(task);
+		} else {
+			new Thread(() -> speCoordinatorComm.SendToSpe(task));
+		}
 		/*try {
 			SendMap(cmd.event, this.outToSpeCoordinatorsPW.get(node_id_to_execute));
 			boolean expectAck = (boolean) cmd.event.getOrDefault("ack", true);
