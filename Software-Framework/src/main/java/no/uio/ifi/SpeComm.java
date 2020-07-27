@@ -420,7 +420,8 @@ public class SpeComm extends Comm {
 					break;
 				}
 				case "setAsPotentialHost": {
-					experimentAPI.SetAsPotentialHost();
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					experimentAPI.SetAsPotentialHost(stream_id_list);
 					break;
 				}
 				default: {

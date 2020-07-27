@@ -36,5 +36,5 @@ public interface ExperimentAPI {
 	String RelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
 	String RemoveNextHop(List<Integer> stream_id_list, List<Integer> host_list);
 	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
-	String SetAsPotentialHost();
+	String SetAsPotentialHost(List<Integer> stream_id_list);
 }

@@ -432,6 +432,8 @@ public class Expose {
 					break;
 				}
 				case "setAsPotentialHost": {
+					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
 					break;
 				}
 				default: {
