@@ -237,11 +237,14 @@ public class SpeComm extends Comm {
 		System.out.println("Before handling " + cmd);
 		List<Integer> node_ids_to_execute = (List<Integer>) cmd.getOrDefault("node", Collections.singletonList(this.node_id));
 
-		experimentAPI.LockExecution();
 		StringBuilder ret = new StringBuilder();
 		for (int node_id_to_execute : node_ids_to_execute) {
 			if (node_id_to_execute != node_id) {
-				return IssueTask(cmd, node_id_to_execute);
+				ret.append(IssueTask(cmd, node_id_to_execute)).append("\n");
+				break;
+			}
+			if ((boolean) cmd.getOrDefault("lock-spe", false)) {
+				experimentAPI.LockExecution();
 			}
 			switch (cmd_string) {
 				case "configure": {
@@ -260,7 +263,9 @@ public class SpeComm extends Comm {
 				}
 				case "sendDsAsStream": {
 					Map<String, Object> ds = (Map<String, Object>) args.get(0);
-					experimentAPI.SendDsAsStream(ds);
+					int iterations = (int) args.get(1);
+					boolean realism = (boolean) args.get(2);
+					experimentAPI.SendDsAsStream(ds, iterations, realism);
 					break;
 				}
 				case "addSchemas": {
@@ -313,7 +318,18 @@ public class SpeComm extends Comm {
 				}
 				case "retEndOfStream": {
 					String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
-					return msSinceLastReceivedTuple + "\n";
+					ret.append(msSinceLastReceivedTuple).append("\n");
+					break;
+				}
+				case "retReceivedXTuples": {
+					String number_tuples = experimentAPI.RetReceivedXTuples((int) args.get(0));
+					ret.append(number_tuples).append("\n");
+					break;
+				}
+				case "wait": {
+					int milliseconds = (int) args.get(0);
+					experimentAPI.Wait(milliseconds);
+					break;
 				}
 				case "traceTuple": {
 					experimentAPI.TraceTuple((int) args.get(0), (List<String>) args.get(1));
@@ -403,14 +419,20 @@ public class SpeComm extends Comm {
 					experimentAPI.AddSourceNodes(query_id, stream_id_list, node_id_list);
 					break;
 				}
+				case "setAsPotentialHost": {
+					experimentAPI.SetAsPotentialHost();
+					break;
+				}
 				default: {
 					this.speSpecificAPI.HandleSpeSpecificTask(cmd);
 				}
 			}
+			if ((boolean) cmd.getOrDefault("lock-spe", false)) {
+				experimentAPI.UnlockExecution();
+			}
 			System.out.println("After handling " + cmd);
 			ret.append("Spe node ").append(node_id).append(" completed task ").append(cmd.get("task")).append("\n");
 		}
-		experimentAPI.UnlockExecution();
 		return ret.toString();
 	}
 }

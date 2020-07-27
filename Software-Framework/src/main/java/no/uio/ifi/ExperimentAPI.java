@@ -10,7 +10,7 @@ public interface ExperimentAPI {
 	String Configure();
 	String SetTupleBatchSize(int size);
 	String SetIntervalBetweenTuples(int interval);
-	String SendDsAsStream(Map<String, Object> ds);
+	String SendDsAsStream(Map<String, Object> ds, int iterations, boolean realism);
 	String AddSchemas(List<Map<String, Object>> stream_schema);
 	String DeployQueries(Map<String, Object> query);
 	String AddNextHop(List<Integer> streamId_list, List<Integer> nodeId_list);
@@ -21,6 +21,8 @@ public interface ExperimentAPI {
 	String EndExperiment();
 	String AddTpIds(List<Object> tracepointIds);
 	String RetEndOfStream(int milliseconds);
+	String RetReceivedXTuples(int number_tuples);
+	String Wait(int milliseconds);
 	String WriteStreamToCsv(int stream_id, String csvFilename);
 	String TraceTuple(int tracepointId, List<String> arguments);
 	String MoveQueryState(int query_id, int new_host);
@@ -34,4 +36,5 @@ public interface ExperimentAPI {
 	String RelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
 	String RemoveNextHop(List<Integer> stream_id_list, List<Integer> host_list);
 	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
+	String SetAsPotentialHost();
 }

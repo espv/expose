@@ -178,7 +178,7 @@ public class Expose {
 
 	void WaitForSPEs(List<Map<String, Object>> cmds, Map<Integer, CoordinatorComm.CoordinatorClient> nodeIdsToClients) {
 		for (Map<String, Object> event : cmds) {
-			boolean isCoordinator = (boolean) event.getOrDefault("coordinator", false);
+			boolean isCoordinator = event.get("node") == null;
 			if (event.get("task").equals("loopTasks")) {
 				List<Object> args = (List<Object>) event.get("arguments");
 				List<Map<String, Object>> loopCmds = (ArrayList<Map<String, Object>>) args.get(1);
@@ -208,7 +208,7 @@ public class Expose {
 	List<Map<String, Object>> PreprocessTask(Map<String, Object> raw_task) {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		String cmd = (String) raw_task.get("task");
-		List<Integer> node_id_list = (List<Integer>) raw_task.getOrDefault("node", Collections.singleton(0));
+		List<Integer> node_id_list = (List<Integer>) raw_task.getOrDefault("node", Collections.singletonList(0));
 		for (int node_id : node_id_list) {
 			List<Object> args = (List<Object>) raw_task.get("arguments");
 
@@ -221,40 +221,25 @@ public class Expose {
 			map.put("node", Collections.singletonList(node_id));
 
 			switch (cmd) {
-				case "setEventBatchSize": {
+				case "setTupleBatchSize": {
 					task_args.add(args.get(0));
 					break;
 				}
+				case "setIntervalBetweenTuples": {
+					task_args.add(args.get(0));
+				}
 				case "wait": {
-					/*if (args.size() == 0) {
-						System.out.println("Hit enter when you want to continue to next task");
-						BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-						try {
-							reader.readLine();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						System.out.println("Wait is done");
-					} else {
-						try {
-							Thread.sleep((int) args.get(0));
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					break;*/
+					task_args.add(args.get(0));
+					break;
 				}
 				case "startRuntimeEnv": {
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StartRuntimeEnv();
 					break;
 				}
 				case "stopRuntimeEnv": {
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).StopRuntimeEnv();
 					break;
 				}
 				case "setIntervalBetweenEvents": {
 					task_args.add(args.get(0));
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetIntervalBetweenTuples((int) args.get(0));
 					break;
 				}
 				case "deployQueries": {
@@ -313,7 +298,6 @@ public class Expose {
 					String csvFolder = (String) args.get(1);
 					task_args.add(stream_id);
 					task_args.add(csvFolder);
-					//mc.nodeIdsToExperimentAPIs.get(node_id).WriteStreamToCsv(stream_id, csvFolder);
 					break;
 				}
 				case "sendDsAsStream": {
@@ -324,42 +308,39 @@ public class Expose {
 						ds.put("file", ds.get("file"));
 						if ((int) ds.get("id") == dataset_id) {
 							task_args.add(ds);
-
-							//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SendDsAsStream(ds);
 							break;
 						}
 					}
+
+					int iterations = (int) args.get(1);
+					boolean realism = (boolean) args.get(2);
+					task_args.add(iterations);
+					task_args.add(realism);
 					break;
 				}
 				case "clearQueries": {
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).ClearQueries();
 					break;
 				}
 				case "setNidToAddress": {
 					Map<Integer, Map<String, Object>> nodeIdToIpAndPort = (Map<Integer, Map<String, Object>>) args.get(0);
-
 					task_args.add(nodeIdToIpAndPort);
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).SetNidToAddress(nodeIdToIpAndPort);
 					break;
 				}
 				case "endExperiment": {
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).EndExperiment();
 					break;
 				}
 				case "addTpIds": {
 					map.put("arguments", args);
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(args);
 					break;
 				}
 				case "retEndOfStream": {
 					int nanoseconds = (int) args.get(0);
 					task_args.add(nanoseconds);
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).RetEndOfStream((int) args.get(0));
+					break;
+				}
+				case "retReceivedXTuples": {
+					int number_tuples = (int) args.get(0);
+					task_args.add(number_tuples);
 					break;
 				}
 				case "traceTuple": {
@@ -373,8 +354,6 @@ public class Expose {
 					break;
 				}
 				case "configure": {
-
-					//ret = mc.nodeIdsToExperimentAPIs.get(node_id).Configure();
 					break;
 				}
 				case "moveQueryState": {
@@ -450,6 +429,9 @@ public class Expose {
 					task_args.add(query_id);
 					task_args.add(stream_id_list);
 					task_args.add(nid_list);
+					break;
+				}
+				case "setAsPotentialHost": {
 					break;
 				}
 				default: {
