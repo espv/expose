@@ -25,22 +25,24 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
-         arguments: [5, [
+         arguments: [1, [
           {task: startRuntimeEnv, node: [2, 3, 4]},
-          {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
           {task: retEndOfStream, node: [3], arguments: [2000]},
-          {task: traceTuple, node: [2], arguments: [200, []]},
           {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
       - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       - {task: startRuntimeEnv, node: [2, 3, 4]}
-      - {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true}
+      - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
+      - {task: retReceivedXTuples, node: [3], arguments: [100000]}
       - {task: batchTasks, node: [2], arguments:
         [[
           {task: traceTuple, node: [2], arguments: [3, []]},
-          {task: bufferStopAndRelayStream, node: [1], arguments: [[1, 2, 3, 4], [2], [4]]},
+          {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
+          {task: wait, node: [2], arguments: [4000]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
+          # Node 4 should do this automatically after moveQueryState
+          {task: resumeStream, node: [1], parallel: true, lock-spe: true, arguments: [[1, 2, 3, 4]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
@@ -49,9 +51,8 @@ experiments:
       - {task: loopTasks, node: [1],
          arguments: [1, [
          {task: startRuntimeEnv, node: [2, 3, 4]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
-         {task: traceTuple, node: [2], arguments: [200, []]},
          {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
 
@@ -68,25 +69,26 @@ experiments:
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
-         arguments: [5, [
+         arguments: [1, [
          {task: startRuntimeEnv, node: [2,3,4]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
          {task: stopRuntimeEnv, node: [2,3,4]},
       ]]}
       - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       - {task: startRuntimeEnv, node: [2,3,4]}
-      - {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true}
+      - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
+      - {task: retReceivedXTuples, node: [3], arguments: [400000]}
       - {task: batchTasks, node: [2], arguments:
          [[
           {task: traceTuple, node: [2], arguments: [3, []]},
-          {task: bufferAndStopStream, node: [4], arguments: [[1,2,3,4]]},
-          {task: relayStream, node: [1], parallel: true, arguments: [[1,2,3,4], [2], [4]]},
-          {task: addNextHop, arguments: [[1,2,3,4], [4]], node: [2]},
+          {task: bufferAndStopStream, node: [4], lock-spe: true, arguments: [[1,2,3,4]]},
+          {task: relayStream, node: [1], parallel: true, lock-spe: true, arguments: [[1,2,3,4], [2], [4]]},
+          {task: bufferAndStopStream, node: [2], arguments: [[1,2,3,4,17]]},
+          {task: addNextHop, node: [2], arguments: [[1,2,3,4], [4]]},
           {task: moveQueryState, node: [2], arguments: [0, 4]},
-          # This should be done by Node 4 when receiving the query state
-          {task: resumeStream, node: [4], arguments: [[1,2,3,4]]},
+          {task: resumeStream, node: [2, 4], arguments: [[1,2,3,4]]},
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
@@ -95,7 +97,7 @@ experiments:
       - {task: loopTasks, node: [1],
          arguments: [1, [
          {task: startRuntimeEnv, node: [2,3,4]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
          {task: stopRuntimeEnv, node: [2,3,4]},
@@ -120,7 +122,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -133,7 +135,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -159,7 +161,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -172,7 +174,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -198,7 +200,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -211,7 +213,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -237,7 +239,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -250,7 +252,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -276,7 +278,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -289,7 +291,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -316,7 +318,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -329,7 +331,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -355,7 +357,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
@@ -368,7 +370,7 @@ experiments:
          arguments: [5, [
          {task: startRuntimeEnv, node: [2]},
          {task: startRuntimeEnv, node: [3]},
-         {task: sendDsAsStream, arguments: [8], node: [1], realism: false, parallel: true},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
          {task: retEndOfStream, node: [3], arguments: [2000]},
          {task: retEndOfStream, node: [2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
