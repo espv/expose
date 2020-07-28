@@ -33,8 +33,8 @@ experiments:
           {task: retEndOfStream, node: [3], arguments: [2000]},
           {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
-      - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       - {task: startRuntimeEnv, node: [2, 3, 4]}
+      - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
@@ -45,16 +45,18 @@ experiments:
           {task: traceTuple, node: [2], arguments: [3, []]},
            # Old host tells the source node to buffer all the tuples
           {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
-          {task: wait, node: [2], arguments: [4000]},
+          {task: waitForStoppedStreams, node: [2], arguments: [1, [1, 2, 3, 4]]},
+          #{task: wait, node: [2], arguments: [1]},
           # Old host moves the query state to the new host
           {task: moveQueryState, node: [2], arguments: [0, 4]},
           # Old host tells the source node to resume sending the tuples
-          {task: resumeStream, node: [1], parallel: true, arguments: [[1, 2, 3, 4]]},
+          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
           # Trace end of migration
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
+      - {task: traceTuple, node: [2,3], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
          arguments: [1, [
@@ -89,7 +91,7 @@ experiments:
          {task: traceTuple, node: [2], arguments: [200, []]},
          {task: stopRuntimeEnv, node: [2,3,4]},
       ]]}
-      - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
+      - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       - {task: startRuntimeEnv, node: [2,3,4]}
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
@@ -114,6 +116,7 @@ experiments:
       ]]}
       - {task: retEndOfStream, node: [3], arguments: [2000]}
       - {task: stopRuntimeEnv, node: [2,3,4]}
+      - {task: traceTuple, node: [2,3,4], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
       - {task: loopTasks, node: [1],
          arguments: [1, [
@@ -750,6 +753,11 @@ Consuming A; "  # Auction is consumed because they will only be matched once
                  WHERE P.id = A.seller;"
 
 stream-definitions:
+  - id: 0
+    stream-id: 0
+    name: StopStream
+    tuple-format: [{name: streamList, type: string}, {name: node, type: int}]
+
   - id: 1
     stream-id: 1
     name: Person
