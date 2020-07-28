@@ -227,6 +227,7 @@ public class Expose {
 				}
 				case "setIntervalBetweenTuples": {
 					task_args.add(args.get(0));
+					break;
 				}
 				case "wait": {
 					task_args.add(args.get(0));
@@ -384,6 +385,13 @@ public class Expose {
 				}
 				case "stopStream": {
 					List<Integer> stream_id_list = (List<Integer>) args.get(0);
+					task_args.add(stream_id_list);
+					break;
+				}
+				case "waitForStoppedStreams": {
+					int stopping_node_id = (int) args.get(0);
+					List<Integer> stream_id_list = (List<Integer>) args.get(1);
+					task_args.add(stopping_node_id);
 					task_args.add(stream_id_list);
 					break;
 				}

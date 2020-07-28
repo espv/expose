@@ -33,6 +33,7 @@ public class SpeComm extends Comm {
 	private Map<Integer, PrintWriter> outToSpeCoordinatorsPW = new HashMap<>();
 	private Socket coordinatorSocket;
 	private Map<Integer, Socket> speCoordinatorSockets = new HashMap<>();
+	private int node_id_current_coordinator = -1;
 
 	public SpeComm(String[] args, ExperimentAPI experimentAPI, SpeSpecificAPI speSpecificAPI) {
 		Options options = new Options();
@@ -120,6 +121,10 @@ public class SpeComm extends Comm {
 		this.outToCoordinator.flush();
 	}
 
+	public int GetNodeIdOfCurrentCoordinator() {
+		return node_id_current_coordinator;
+	}
+
 	public void ConnectToSpeCoordinator(int spe_coordinator_node_id, String coordinator_ip, int coordinator_port) throws Exception {
 		System.out.println("Connecting to SPE coordinator at ip " + coordinator_ip + ":" + coordinator_port);
 		/*this.speCoordinatorSockets.put(node_id, new Socket(coordinator_ip, coordinator_port));
@@ -156,6 +161,8 @@ public class SpeComm extends Comm {
 					ShutDown();
 					return;
 				}
+				// SPE coordinator
+				node_id_current_coordinator = spe_coordinator_node_id;
 				String response = this.HandleEvent(cmd);
 				try {
 					this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(response);
@@ -191,6 +198,8 @@ public class SpeComm extends Comm {
 				ShutDown();
 				return;
 			}
+			// Main coordinator is Node 0
+			node_id_current_coordinator = 0;
 			String response = this.HandleEvent(cmd);
 			try {
 				this.outToCoordinator.writeBytes(response);
@@ -380,6 +389,12 @@ public class SpeComm extends Comm {
 				case "stopStream": {
 					List<Integer> stream_id_list = (List<Integer>) args.get(0);
 					experimentAPI.StopStream(stream_id_list);
+					break;
+				}
+				case "waitForStoppedStreams": {
+					int stopping_node_id = (int) args.get(0);
+					List<Integer> stream_id_list = (List<Integer>) args.get(1);
+					experimentAPI.WaitForStoppedStreams(stopping_node_id, stream_id_list);
 					break;
 				}
 				case "bufferStream": {
