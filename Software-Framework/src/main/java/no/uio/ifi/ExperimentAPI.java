@@ -37,5 +37,5 @@ public interface ExperimentAPI {
 	String RemoveNextHop(List<Integer> stream_id_list, List<Integer> host_list);
 	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
 	String SetAsPotentialHost(List<Integer> stream_id_list);
-	String WaitForStoppedStreams(int node_id, List<Integer> stream_id_list);
+	String WaitForStoppedStreams(List<Integer> node_id_list, List<Integer> stream_id_list);
 }

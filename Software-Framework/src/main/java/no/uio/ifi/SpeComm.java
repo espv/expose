@@ -4,10 +4,7 @@ import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class SpeComm extends Comm {
@@ -150,25 +147,28 @@ public class SpeComm extends Comm {
 				this.spe_coordinator_port + "\n");
 		this.outToSpeCoordinators.get(spe_coordinator_node_id).flush();
 
-		// TODO: Add listener for this SPE node, on the same port as well
 		new Thread(() -> {
 			while (this.isRunning) {
 				Map<String, Object> cmd;
 				try {
 					cmd = receiveMap(bufferedFromSpeCoordinators.get(spe_coordinator_node_id), yaml);
 				} catch (Exception e) {
-					e.printStackTrace();
-					ShutDown();
+					//e.printStackTrace();
+					System.out.println("Connection with SPE coordinator with node ID " + spe_coordinator_node_id + " dropped (1)");
+					//ShutDown();
 					return;
 				}
+				System.out.println("Received task from Node " + spe_coordinator_node_id + ": " + cmd);
 				// SPE coordinator
 				node_id_current_coordinator = spe_coordinator_node_id;
+				// This response will contain the responses of all the nodes
 				String response = this.HandleEvent(cmd);
 				try {
 					this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(response);
 				} catch (Exception e) {
-					e.printStackTrace();
-					ShutDown();
+					//e.printStackTrace();
+					System.out.println("Connection with SPE coordinator with node ID " + spe_coordinator_node_id + " dropped (2)");
+					//ShutDown();
 					return;
 				}
 			}
@@ -198,6 +198,7 @@ public class SpeComm extends Comm {
 				ShutDown();
 				return;
 			}
+			System.out.println("Received task from the main coordinator: " + cmd);
 			// Main coordinator is Node 0
 			node_id_current_coordinator = 0;
 			String response = this.HandleEvent(cmd);
@@ -219,10 +220,14 @@ public class SpeComm extends Comm {
 		// TODO: Send task to node_id_to_execute
 		// TODO: For that, we must have a connection to the other nodes
 		System.out.println("Issuing task " + task  + " to Node " + node_id_to_execute);
-		if ((boolean) task.getOrDefault("parallel", true)) {
-			speCoordinatorComm.SendToSpe(task);
-		} else {
-			new Thread(() -> speCoordinatorComm.SendToSpe(task));
+		List<Integer> node_id_list = (List<Integer>) task.get("node");
+		for (int node_id : node_id_list) {
+			task.put("node", Arrays.asList(node_id));
+			if ((boolean) task.getOrDefault("parallel", true)) {
+				new Thread(() -> speCoordinatorComm.SendToSpe(task)).start();
+			} else {
+				speCoordinatorComm.SendToSpe(task);
+			}
 		}
 		/*try {
 			SendMap(cmd.event, this.outToSpeCoordinatorsPW.get(node_id_to_execute));
@@ -249,7 +254,7 @@ public class SpeComm extends Comm {
 		StringBuilder ret = new StringBuilder();
 		for (int node_id_to_execute : node_ids_to_execute) {
 			if (node_id_to_execute != node_id) {
-				ret.append(IssueTask(cmd, node_id_to_execute)).append("\n");
+				ret.append(IssueTask(cmd, node_id_to_execute)).append(", ");
 				break;
 			}
 			if ((boolean) cmd.getOrDefault("lock-spe", false)) {
@@ -327,12 +332,12 @@ public class SpeComm extends Comm {
 				}
 				case "retEndOfStream": {
 					String msSinceLastReceivedTuple = experimentAPI.RetEndOfStream((int) args.get(0));
-					ret.append(msSinceLastReceivedTuple).append("\n");
+					ret.append(msSinceLastReceivedTuple).append(", ");
 					break;
 				}
 				case "retReceivedXTuples": {
 					String number_tuples = experimentAPI.RetReceivedXTuples((int) args.get(0));
-					ret.append(number_tuples).append("\n");
+					ret.append(number_tuples).append(", ");
 					break;
 				}
 				case "wait": {
@@ -392,9 +397,9 @@ public class SpeComm extends Comm {
 					break;
 				}
 				case "waitForStoppedStreams": {
-					int stopping_node_id = (int) args.get(0);
+					List<Integer> stopping_node_id_list = (List<Integer>) args.get(0);
 					List<Integer> stream_id_list = (List<Integer>) args.get(1);
-					experimentAPI.WaitForStoppedStreams(stopping_node_id, stream_id_list);
+					experimentAPI.WaitForStoppedStreams(stopping_node_id_list, stream_id_list);
 					break;
 				}
 				case "bufferStream": {

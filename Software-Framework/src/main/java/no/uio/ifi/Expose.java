@@ -136,11 +136,14 @@ public class Expose {
 		++cmd_number;
 		List<Integer> node_id_list = (List<Integer>) task.get("node");
 		System.out.println("Line " + cmd_number + ": Node " + node_id_list + " executes " + task);
-		TaskHandler taskHandler = new TaskHandler(task);
-		if ((boolean) task.getOrDefault("parallel", false)) {
-			new Thread(taskHandler).start();
-		} else {
-			taskHandler.doHandleEvent();
+		for (int node_id : node_id_list) {
+			task.put("node", Arrays.asList(node_id));
+			TaskHandler taskHandler = new TaskHandler(task);
+			if ((boolean) task.getOrDefault("parallel", false)) {
+				new Thread(taskHandler).start();
+			} else {
+				taskHandler.doHandleEvent();
+			}
 		}
 	}
 
@@ -389,9 +392,9 @@ public class Expose {
 					break;
 				}
 				case "waitForStoppedStreams": {
-					int stopping_node_id = (int) args.get(0);
+					List<Integer> stopping_node_id_list = (List<Integer>) args.get(0);
 					List<Integer> stream_id_list = (List<Integer>) args.get(1);
-					task_args.add(stopping_node_id);
+					task_args.add(stopping_node_id_list);
 					task_args.add(stream_id_list);
 					break;
 				}

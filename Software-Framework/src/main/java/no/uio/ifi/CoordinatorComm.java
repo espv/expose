@@ -49,6 +49,7 @@ public class CoordinatorComm extends Comm implements Runnable {
 				return e.toString();
 			}
 		}
+		System.out.println("Return value: " + ret.toString());
 		return ret.toString();
 	}
 
