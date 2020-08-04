@@ -634,7 +634,6 @@ Consuming M;
 
               insert into OutQuery6
               select cast(avg(final), long) as final, seller
-              select avg(final) as final, seller
               from MidQuery6_2#win:time(999 years)
               group by seller;"
       template_sql: "SELECT Istream(AVG(Q.final), Q.seller)
