@@ -45,7 +45,7 @@ experiments:
           {task: traceTuple, node: [2], arguments: [3, []]},
            # Old host tells the source node to buffer all the tuples
           {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
-          {task: waitForStoppedStreams, node: [2], arguments: [1, [1, 2, 3, 4]]},
+          {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
           #{task: wait, node: [2], arguments: [1]},
           # Old host moves the query state to the new host
           {task: moveQueryState, node: [2], arguments: [0, 4]},
