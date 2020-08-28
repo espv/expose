@@ -26,7 +26,7 @@ experiments:
 
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
-      - {task: loopTasks, node: [1],
+      - {task: loopTasks,
          arguments: [1, [
           {task: startRuntimeEnv, node: [2, 3, 4]},
           {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
@@ -38,7 +38,7 @@ experiments:
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
-      - {task: retReceivedXTuples, node: [3], arguments: [100000]}
+      - {task: retReceivedXTuples, node: [3], arguments: [20000]}
       # Old host (Node 2) starts operator migration
       - {task: batchTasks, node: [2], arguments:
         [[  # Trace start of migration
@@ -58,11 +58,11 @@ experiments:
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
       - {task: traceTuple, node: [2,3], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
-      - {task: loopTasks, node: [1],
+      - {task: loopTasks,
          arguments: [1, [
          {task: startRuntimeEnv, node: [2, 3, 4]},
          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
-         {task: retEndOfStream, node: [3], arguments: [2000]},
+         {task: retEndOfStream, node: [3,4], arguments: [2000]},
          {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
 
@@ -244,46 +244,39 @@ experiments:
          ]]}
 
   - name: experiment 2 --- NexMark
-    id: 12
+    id: 14
     flow:
       - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: [3]}
+      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/6"], node: [4]}
 
-      - {task: addNextHop, arguments: [1, 2], node: [1]}
-      - {task: addNextHop, arguments: [2, 2], node: [1]}
-      - {task: addNextHop, arguments: [3, 2], node: [1]}
-      - {task: addNextHop, arguments: [4, 2], node: [1]}
+      - {task: addNextHop, arguments: [[1,2,3,4], [2]], node: [1]}
 
-      - {task: addNextHop, arguments: [5, 3], node: [2]}
+      - {task: addNextHop, arguments: [[5], [3]], node: [2]}
 
       - {task: deployQueries, arguments: [2, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks,
-         arguments: [5, [
-         {task: startRuntimeEnv, node: [2]},
-         {task: startRuntimeEnv, node: [3]},
+         arguments: [1, [
+         {task: startRuntimeEnv, node: [2,3,4]},
          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
-         {task: retEndOfStream, node: [3], arguments: [2000]},
-         {task: retEndOfStream, node: [2], arguments: [2000]},
+         {task: retEndOfStream, node: [3,2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
-         {task: stopRuntimeEnv, node: [2]},
-         {task: stopRuntimeEnv, node: [3]}
+         {task: stopRuntimeEnv, node: [2,3,4]}
          ]]}
+      - {task: relayStream, node: [2], parallel: true, lock-spe: true, arguments: [[5], [3], [4]]}
       - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       # Runs that count: send dataset as stream 5 times
       - {task: loopTasks,
          arguments: [5, [
-         {task: startRuntimeEnv, node: [2]},
-         {task: startRuntimeEnv, node: [3]},
+         {task: startRuntimeEnv, node: [2,3,4]},
          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
-         {task: retEndOfStream, node: [3], arguments: [2000]},
-         {task: retEndOfStream, node: [2], arguments: [2000]},
+         {task: retEndOfStream, node: [4,2], arguments: [2000]},
          {task: traceTuple, node: [2], arguments: [200, []]},
-         {task: stopRuntimeEnv, node: [2]},
-         {task: stopRuntimeEnv, node: [3]}
+         {task: stopRuntimeEnv, node: [2,3,4]}
          ]]}
 
   - name: experiment 3 --- NexMark
-    id: 13
+    id: 15
     flow:
       - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: [3]}
 
@@ -322,7 +315,7 @@ experiments:
          ]]}
 
   - name: experiment 4 --- NexMark
-    id: 14
+    id: 16
     flow:
       - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: [3]}
 
@@ -361,7 +354,7 @@ experiments:
          ]]}
 
   - name: experiment 5 --- NexMark
-    id: 15
+    id: 17
     flow:
       - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: [3]}
 
@@ -400,7 +393,7 @@ experiments:
          ]]}
 
   - name: experiment 6 --- NexMark
-    id: 16
+    id: 18
     flow:
       - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: [3]}
 
@@ -439,7 +432,7 @@ experiments:
          ]]}
 
   - name: experiment 7 --- NexMark
-    id: 17
+    id: 19
     flow:
       - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: [3]}
 
@@ -479,7 +472,7 @@ experiments:
          ]]}
 
   - name: experiment 8 --- NexMark
-    id: 18
+    id: 20
     flow:
       #      - {task: writeStreamToCsv, arguments: [15, "scripts/Experiments/sink-output/15"], node: [3]}
 
