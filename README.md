@@ -5,15 +5,16 @@ Tested on Ubuntu 19.04,
 Required software packages:
 - maven
 - ant
+- python
 - python-pip
 - Java version 8 (must be used when installing the Stream Processing Engines (SPEs))
-Install on Ubuntu with `apt-get install maven ant python-pip openjdk-8-jdk`
+  - Use update-alternatives to change java and javac to use Java 8
+- Install these on Ubuntu with `apt-get install maven ant python python3-pip openjdk-8-jdk automake libtool cmake libboost1.67-all-dev  # Boost is for T-Rex, and you might need to use a different version`
 
 Python pip packages required for analysis:
 - numpy
 - pyyaml
-Use a virtual environment, and run `pip install numpy pyyaml`
-
+Use a virtual environment, and run `pip3 install numpy pyyaml`
 
 To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator, the data source node and the data sink node. The second as the "intel_xeon" server, and the third is the "RPI," both of which run the system under test (SUT).
 
@@ -35,7 +36,7 @@ Make sure to place the public ssh key of the coordinator in the acknowledged_hos
 Install the software framework in Software-Framework by running `mvn install && ./add-to-local-maven-repo.sh`
 
 Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
-- T-Rex specific: T-Rex requires several build tools and the boost library. The best is to build T-Rex separately if it is desired to include T-Rex.
+- T-Rex specific: T-Rex requires yaml-cpp, which you can install from https://github.com/jbeder/yaml-cpp.
 
 By using the isolcpus kernel parameter, isolate one of the CPU cores in the Intel Xeon server and the RPI. We isolated the 19th CPU core of the Intel Xeon server and the 3rd CPU core of the RPI 4. Hyperthreading is also off in the Intel Xeon server.
 
