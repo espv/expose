@@ -1,7 +1,7 @@
 # expose
 EXPOSE: Experimental Performance Evaluation of Stream Processing Systems Made Easy
 
-Tested on Ubuntu 19.04
+Tested on Ubuntu 19.04, 
 Required software packages:
 - maven
 - ant
@@ -15,7 +15,7 @@ Python pip packages required for analysis:
 Use a virtual environment, and run `pip install numpy pyyaml`
 
 
-To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator. The second as the "intel_xeon" server, and the third is the "RPI".
+To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator, the data source node and the data sink node. The second as the "intel_xeon" server, and the third is the "RPI," both of which run the system under test (SUT).
 
 Install Ansible on the coordinator machine, and add the following lines to /etc/ansible/hosts:
 [intel_xeon]
@@ -35,14 +35,12 @@ Make sure to place the public ssh key of the coordinator in the acknowledged_hos
 Install the software framework in Software-Framework by running `mvn install && ./add-to-local-maven-repo.sh`
 
 Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
+- T-Rex specific: T-Rex requires several build tools and the boost library. The best is to build T-Rex separately if it is desired to include T-Rex.
 
 By using the isolcpus kernel parameter, isolate one of the CPU cores in the Intel Xeon server and the RPI. We isolated the 19th CPU core of the Intel Xeon server and the 3rd CPU core of the RPI 4. Hyperthreading is also off in the Intel Xeon server.
 
-Apache Flink and Beam specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -cp <isolated core> <zookeeper PID> && taskset -cp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
+Apache Flink and Beam specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -acp <isolated core> <zookeeper PID> && taskset -acp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
 
 Run experiments:
 In the scripts folder, the RUN script contains the lines to run, in order to execute the experiments:
 nohup ./nexmark ~/expose/scripts/Experiments ../experiment-configurations/intel-xeon-nexmark.yaml ../experiment-configurations/rpi-nexmark.yaml 19 3 &
-
-nohup just ensures that all the output gets written to nohup.out and that it runs even though the user exits the terminal.
-
