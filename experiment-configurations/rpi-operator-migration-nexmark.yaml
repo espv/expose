@@ -23,6 +23,7 @@ experiments:
       - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
 
       - {task: addNextHop, arguments: [[17], [3]], node: [2, 4]}
+      - {task: bufferAndStopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
 
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
@@ -38,13 +39,15 @@ experiments:
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
-      - {task: retReceivedXTuples, node: [3], arguments: [20000]}
+      #- {task: retReceivedXTuples, node: [3], arguments: [1]}
       # Old host (Node 2) starts operator migration
       - {task: batchTasks, node: [2], arguments:
         [[  # Trace start of migration
+          #{task: wait, node: [2], arguments: [1000]},
           {task: traceTuple, node: [2], arguments: [3, []]},
            # Old host tells the source node to buffer all the tuples
           {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
+          #{task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true},
           {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
           #{task: wait, node: [2], arguments: [1]},
           # Old host moves the query state to the new host
@@ -54,7 +57,8 @@ experiments:
           # Trace end of migration
           {task: traceTuple, node: [2], arguments: [4, []]}
       ]]}
-      - {task: retEndOfStream, node: [3], arguments: [2000]}
+      # We ensure here that all nodes receive tuples, which means that the migration occurred within a stream
+      - {task: retEndOfStream, node: [2,4,3], arguments: [2000]}
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
       - {task: traceTuple, node: [2,3], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
@@ -66,8 +70,73 @@ experiments:
          {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
 
-  - name: experiment 1 --- NexMark with good operator migration V1 (one source node)
+  - name: experiment 1 --- NexMark with naïve operator migration V1 (one source node)
     id: 11
+    flow:
+      - {task: setIntervalBetweenTuples, node: [1], arguments: [40]}
+      - {task: setTupleBatchSize, node: [1], arguments: [100]}
+      - {task: writeStreamToCsv, arguments: [17, "scripts/Experiments/sink-output/1/17"], node: [3]}
+      #- {task: writeStreamToCsv, arguments: [3, "scripts/Experiments/sink-output/1/3"], node: [2]}
+
+      - {task: addSourceNodes, arguments: [11, [1, 2, 3, 4], [1]], node: [2]}
+      - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
+
+      - {task: addNextHop, arguments: [[15], [3]], node: [2, 4]}
+      - {task: bufferAndStopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
+
+      - {task: deployQueries, arguments: [11, 1], node: [2]}
+      # Warmup: send dataset as stream 5 times
+      - {task: loopTasks,
+         arguments: [1, [
+           {task: startRuntimeEnv, node: [2, 3, 4]},
+           {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
+           {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+           {task: retEndOfStream, node: [3], arguments: [2000]},
+           {task: stopRuntimeEnv, node: [2, 3, 4]},
+         ]]}
+      - {task: startRuntimeEnv, node: [2, 3, 4]}
+      - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
+      # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
+      - {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true}
+      #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
+      # Sink node (Node 3) returns from this task when it has received 100,000 tuples
+      #- {task: retReceivedXTuples, node: [3], arguments: [1]}
+      # Old host (Node 2) starts operator migration
+      - {task: batchTasks, node: [2], arguments:
+        [[  # Trace start of migration
+          #{task: wait, node: [2], arguments: [1000]},
+          {task: traceTuple, node: [2], arguments: [3, []]},
+          # Old host tells the source node to buffer all the tuples
+          #{task: bufferAndStopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
+          #{task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true},
+          {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
+          #{task: wait, node: [2], arguments: [1]},
+          # Old host moves the query state to the new host
+          {task: moveQueryState, node: [2], arguments: [11, 4]},
+          # Old host tells the source node to resume sending the tuples
+          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
+          #{task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
+          {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+          # Trace end of migration
+          {task: traceTuple, node: [2], arguments: [4, []]}
+        ]]}
+      # We ensure here that all nodes receive tuples, which means that the migration occurred within a stream
+      - {task: retEndOfStream, node: [3], arguments: [2000]}
+      - {task: stopRuntimeEnv, node: [2, 3, 4]}
+      - {task: traceTuple, node: [2,3], arguments: [200, []]}
+      # Runs that count: send dataset as stream 5 times
+      - {task: loopTasks,
+         arguments: [1, [
+           {task: startRuntimeEnv, node: [2, 3, 4]},
+           {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
+           {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+           {task: retEndOfStream, node: [3,4], arguments: [2000]},
+           {task: stopRuntimeEnv, node: [2, 3, 4]},
+         ]]}
+
+  - name: experiment 2 --- NexMark with good operator migration V1 (one source node)
+    id: 12
     flow:
       - {task: setIntervalBetweenTuples, node: [1], arguments: [40]}
         # Old host tells the new host (Node 4) to buffer all tuples from the source node
@@ -83,7 +152,7 @@ experiments:
 
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
-      - {task: loopTasks, node: [1],
+      - {task: loopTasks,
          arguments: [1, [
          {task: startRuntimeEnv, node: [2,3,4]},
          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
@@ -96,7 +165,7 @@ experiments:
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
-      - {task: retReceivedXTuples, node: [3], arguments: [100000]}
+      #- {task: retReceivedXTuples, node: [3], arguments: [100000]}
       # Old host (Node 2) starts operator migration
       - {task: batchTasks, node: [2], arguments:
          [[  # Trace start of migration
@@ -118,7 +187,7 @@ experiments:
       - {task: stopRuntimeEnv, node: [2,3,4]}
       - {task: traceTuple, node: [2,3,4], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
-      - {task: loopTasks, node: [1],
+      - {task: loopTasks,
          arguments: [1, [
          {task: startRuntimeEnv, node: [2,3,4]},
          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
@@ -126,9 +195,9 @@ experiments:
          {task: traceTuple, node: [2], arguments: [200, []]},
          {task: stopRuntimeEnv, node: [2,3,4]},
       ]]}
-      -
+
   - name: experiment 0 --- NexMark with naïve operator migration V1 (three source nodes)
-    id: 12
+    id: 13
     flow:
       - {task: setIntervalBetweenTuples, node: [1,5,6], arguments: [40]}
       - {task: setTupleBatchSize, node: [1,5,6], arguments: [100]}
@@ -183,7 +252,7 @@ experiments:
          ]]}
 
   - name: experiment 1 --- NexMark with good operator migration V1 (three source nodes)
-    id: 13
+    id: 14
     flow:
       - {task: setIntervalBetweenTuples, node: [1,5,6], arguments: [40]}
         # Old host tells the new host (Node 4) to buffer all tuples from the source node
@@ -244,7 +313,7 @@ experiments:
          ]]}
 
   - name: experiment 2 --- NexMark
-    id: 14
+    id: 15
     flow:
       - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: [3]}
       - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/6"], node: [4]}
@@ -276,7 +345,7 @@ experiments:
          ]]}
 
   - name: experiment 3 --- NexMark
-    id: 15
+    id: 16
     flow:
       - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: [3]}
 
@@ -315,7 +384,7 @@ experiments:
          ]]}
 
   - name: experiment 4 --- NexMark
-    id: 16
+    id: 17
     flow:
       - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: [3]}
 
@@ -354,7 +423,7 @@ experiments:
          ]]}
 
   - name: experiment 5 --- NexMark
-    id: 17
+    id: 18
     flow:
       - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: [3]}
 
@@ -393,7 +462,7 @@ experiments:
          ]]}
 
   - name: experiment 6 --- NexMark
-    id: 18
+    id: 19
     flow:
       - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: [3]}
 
@@ -432,7 +501,7 @@ experiments:
          ]]}
 
   - name: experiment 7 --- NexMark
-    id: 19
+    id: 20
     flow:
       - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: [3]}
 
@@ -472,7 +541,7 @@ experiments:
          ]]}
 
   - name: experiment 8 --- NexMark
-    id: 20
+    id: 21
     flow:
       #      - {task: writeStreamToCsv, arguments: [15, "scripts/Experiments/sink-output/15"], node: [3]}
 
@@ -984,6 +1053,15 @@ datasets:
     type: yaml
     id: 8
     file: Datasets/NexMark/nexmark-dataset-100k.yaml
+  - name: NexMark 40,000 tuples (YAML)
+    type: yaml
+    id: 9
+    file: Datasets/NexMark/nexmark-dataset-auction.yaml
+  - name: NexMark 40,000 tuples (YAML)
+    type: yaml
+    id: 10
+    file: Datasets/NexMark/nexmark-dataset-person.yaml
+
 
 tracepoints:
   - id: 0
