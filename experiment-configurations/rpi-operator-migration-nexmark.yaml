@@ -98,6 +98,7 @@ experiments:
       - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true}
+      - {task: retEndOfStream, node: [2], arguments: [2000]}
       #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
       #- {task: retReceivedXTuples, node: [3], arguments: [1]}
