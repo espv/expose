@@ -51,8 +51,8 @@ public class TracingFramework implements Serializable {
 		if (!tracepoints.contains(tracepointID))
 			return;
 		TraceTuple t = new TraceTuple(System.nanoTime(), tracepointID, args);
-		synchronized (traceTuples) {
-			traceTuples.add(t);
+		synchronized(traceTuples) {
+		    traceTuples.add(t);
 		}
 	}
 
