@@ -1,0 +1,17 @@
+#!/bin/bash
+zookeeper_pid=$(ps -eo pid,command | grep "QuorumPeer" | grep -v grep | awk '{print $1}')
+echo "Zookeeper pid: $zookeeper_pid"
+if [[ ! -z $zookeeper_pid ]]
+then
+  kill -9 $zookeeper_pid
+fi
+
+
+PIDS=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $1}')
+
+if [ -z "$PIDS" ]; then
+  echo "No kafka server to stop"
+  exit 1
+else
+  kill -9 $PIDS
+fi
