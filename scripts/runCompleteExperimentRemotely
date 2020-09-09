@@ -38,6 +38,10 @@ echo "mkdir -p $local_trace_path"
 mkdir -p $local_trace_path
 ansible $node_to_run -a "mkdir -p $remote_trace_path"
 
+# Killing Kafka locally and remotely; they will start a new
+$local_scriptdir/kill_kafka
+ansible $node_to_run -a "$remote_scriptdir/kill_kafka"
+
 # USAGE: ./<script> <experiment_id> <number_nodes> <remote_number_threads> <stream_processing_system>
 # Example: ./<script> 2 3 1 Flink
 # Example: ./<script> 2 10 1 Siddhi
