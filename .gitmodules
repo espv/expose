@@ -13,9 +13,6 @@
 [submodule "SPE-dependencies/kafka"]
 	path = SPE-dependencies/kafka
 	url = https://github.com/confluentinc/kafka.git
-[submodule "SPE-dependencies/ksql"]
-	path = SPE-dependencies/ksql
-	url = https://github.com/confluentinc/ksql.git
 [submodule "SPEs-plus-wrappers/beam-plus-wrapper"]
 	path = SPEs-plus-wrappers/beam-plus-wrapper
 	url = https://github.com/espv/beam-plus-wrapper
