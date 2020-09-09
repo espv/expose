@@ -15,7 +15,7 @@ FLINK_PATH=$EXPOSE_PATH/SPEs-plus-wrappers/flink-plus-wrapper
 FLINK_BINARIES=$FLINK_PATH/flink-1.9.1
 KAFKA_PATH=$FLINK_PATH/kafka
 fka
-$KAFKA_PATH/start-kafka
+$KAFKA_PATH/bin/start-kafka
 
 if [[ -z $unused_cpu_core ]]
 then
