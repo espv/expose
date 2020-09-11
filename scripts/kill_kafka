@@ -5,7 +5,7 @@ if [[ ! -z $zookeeper_pid ]]
 then
   kill -9 $zookeeper_pid
 fi
-
+sleep 5
 
 PIDS=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $1}')
 
@@ -15,3 +15,4 @@ if [ -z "$PIDS" ]; then
 else
   kill -9 $PIDS
 fi
+sleep 5
