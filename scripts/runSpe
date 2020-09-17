@@ -17,7 +17,6 @@ scriptdir=$EXPOSE_PATH/scripts
 rootlogdir=$scriptdir/Experiments
 logdir=$rootlogdir/log/experiment-${experiment_id}/${spe}/${dt}-${uuid}
 trace_path=$logdir/traces
-$scriptdir/kill_kafka
 mkdir -p $trace_path
 mkdir -p $logdir/StreamProcessors
 
