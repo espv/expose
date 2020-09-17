@@ -1,0 +1,19 @@
+configuration:
+  experiments-to-run: [10,11,12,13,14,15,16,17,18]
+  coordinator: {
+    expose-path: "/home/espen/expose",
+    ssh-user: espen,
+    ssh-host: 127.0.0.1,
+    port: 50000
+  }
+  SPEs:
+    - Flink
+    - TRex
+    - Siddhi
+    - Esper
+    - Beam
+  nodes: [
+    {ssh-user: espen, ssh-host: 127.0.0.1, node-ids: [1,3], expose-path: "/home/espen/expose"},
+    {ssh-user: espen, ssh-host: 127.0.0.1, node-ids: [2], isolated-cpu-cores: [3], expose-path: "/home/espen/expose"}]
+  experiment-configuration:
+    "/home/espen/expose/configurations/experiment-configurations/rpi-nexmark.yaml"

@@ -1,0 +1,803 @@
+# This file describes stream processing experiments.
+
+# Each stream processing system must have a program that:
+# - parses this yaml file,
+# - interprets the necessary tasks, and
+# - inserts tracepoints to trace metrics such as execution time and throughput (optional).
+
+# The only system specific detail that must be placed in this file is SQL queries
+# that use a particular syntax for schemas.
+
+name: Experiment configuration
+
+experiments:
+  - name: experiment 1 --- NexMark
+    id: 1
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [17, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/17"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [17, 3], node: 2}
+
+      - {task: deployQueries, arguments: [1, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 2 --- NexMark
+    id: 2
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [5, 3], node: 2}
+
+      - {task: deployQueries, arguments: [2, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 3 --- NexMark
+    id: 3
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [6, "scripts/Experiments/sink-output/6"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [6, 3], node: 2}
+
+      - {task: deployQueries, arguments: [3, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 4 --- NexMark
+    id: 4
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [7, "scripts/Experiments/sink-output/7"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [7, 3], node: 2}
+
+      - {task: deployQueries, arguments: [4, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 5 --- NexMark
+    id: 5
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [8, "scripts/Experiments/sink-output/8"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [8, 3], node: 2}
+
+      - {task: deployQueries, arguments: [7, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 6 --- NexMark
+    id: 6
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [13, "scripts/Experiments/sink-output/13"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [13, 3], node: 2}
+
+      - {task: deployQueries, arguments: [8, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 7 --- NexMark
+    id: 7
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [14, "scripts/Experiments/sink-output/14"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [14, 3], node: 2}
+
+      - {task: deployQueries, arguments: [10, 10], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+  - name: experiment 8 --- NexMark
+    id: 8
+    flow:
+            #      - {task: writeStreamToCsv, arguments: [15, "scripts/Experiments/sink-output/15"], node: 3}
+
+      - {task: addNextHop, arguments: [1, 2], node: 1}
+      - {task: addNextHop, arguments: [2, 2], node: 1}
+      - {task: addNextHop, arguments: [3, 2], node: 1}
+      - {task: addNextHop, arguments: [4, 2], node: 1}
+
+      - {task: addNextHop, arguments: [15, 3], node: 2}
+
+      - {task: deployQueries, arguments: [11, 1], node: 2}
+
+      - {task: loopTasks, node: coordinator,
+         arguments: [5, [
+         {task: startRuntimeEnv, node: 2},
+         {task: startRuntimeEnv, node: 3},
+         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
+         {task: retEndOfStream, node: 3, arguments: [1000]},
+         {task: retEndOfStream, node: 2, arguments: [1000]},
+         {task: traceTuple, node: 2, arguments: [200, []]},
+         {task: stopRuntimeEnv, node: 2},
+         {task: stopRuntimeEnv, node: 3}
+         ]]}
+      - {task: traceTuple, node: 2, arguments: [0, []]}
+      - {task: startRuntimeEnv, node: 2}
+      - {task: startRuntimeEnv, node: 3}
+      - {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true}
+      - {task: retEndOfStream, node: 3, arguments: [1000]}
+      - {task: retEndOfStream, node: 2, arguments: [1000]}
+      - {task: traceTuple, node: 2, arguments: [200, []]}
+      - {task: stopRuntimeEnv, node: 2}
+      - {task: stopRuntimeEnv, node: 3}
+
+spequeries:
+  - name: "Passthrough (NexMark query 0)"
+    id: 1
+    output-stream-id: 17  # Bid
+    type: fetch-query
+    sql-query:
+      t-rex: "Assign 3 => Bid, 17 => OutBid
+              Define OutBid(auction: int, bidder: int, price: float, dateTime: int, dateTime2: int)
+              Bid() as B
+              Where auction := B.auction, bidder := B.seller, price := B.price, dateTime := B.dateTime, dateTime2 := B.dateTime2
+              Consuming B;"
+      siddhi: "from Bid
+               select *
+               insert into OutBid;"
+      flink: "select *
+              from Bid"
+      esper: "insert into OutBid
+              select *
+              from Bid;"
+      template: ""
+
+  - name: "Selection (NexMark query 2)"
+    id: 2
+    output-stream-id: 5
+    type: fetch-query
+    sql-query:
+      # T-Rex lacks the 'or' operator for attribute constraints
+      t-rex: ""
+      siddhi: "from Bid[auction == 1007 or auction == 1020 or auction == 2001 or auction == 2019 or auction == 2087]
+               select auction, price
+               insert into OutQuery2;"
+      flink: "select auction, price
+              from Bid
+              where auction = 1007 or auction = 1020 or auction = 2001 or auction = 2019 or auction = 2087"
+      esper: "insert into OutQuery2
+              select auction, price
+              from Bid
+              where auction = 1007 or auction = 1020 or auction = 2001 or auction = 2019 or auction = 2087;"
+      template: "SELECT Rstream(auction, price)
+                 FROM Bid [NOW]
+                 WHERE auction = 1007 OR auction = 1020 OR auction = 2001 OR auction = 2019 OR auction = 2087;"
+
+  - name: "Local Item Suggestion (NexMark query 3)"
+    id: 3
+    output-stream-id: 6
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: "from Auction[category == 10]#window.time(99999 years) as A
+               join Person[state == 'OR' or state == 'ID' or state == 'CA']#window.time(99999 years) as P on A.seller == P.id
+               select P.name, P.city, P.state, A.id
+               insert into OutQuery3;"
+      flink: "select P.name, P.city, P.state, A.id
+              from Auction A, Person P
+              where A.seller = P.id and (P.state = 'OR' or P.state = 'ID' or P.state = 'CA') and A.category = 10"
+      esper: "insert into OutQuery3
+              select P.name as name, P.city as city, P.state as state, A.id as id
+              from Auction#time(999 minutes) A, Person#time(999 minutes) P
+              where A.seller = P.id and (P.state = 'OR' or P.state = 'ID' or P.state = 'CA') and A.category = 10;"
+      template: "SELECT Istream(P.name, P.city, P.state, A.id)
+                 FROM Auction A [ROWS UNBOUNDED], Person P [ROWS UNBOUNDED]
+                 WHERE A.seller = P.id AND (P.state = `OR' OR P.state = `ID' OR P.state = `CA') AND A.category = 10;"
+
+  - name: "Average Price for a Category (NexMark query 4)"
+    id: 4
+    output-stream-id: 7
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: "from Bid#window.time(999 years) as B
+               join Auction#window.time(999 years) as A on A.id == B.auction
+               select B.dateTime, B.price, A.category, B.auction, A.expires
+               insert into MidQuery4_1;
+
+               from MidQuery4_1#window.externalTimeBatch(dateTime, 1 minute)[dateTime < expires]
+               select max(price) as final, category
+               group by auction, category
+               insert into MidQuery4_2;
+
+               from MidQuery4_2#window.time(999 years)
+               select avg(final) as price, category
+               group by category
+               insert into OutQuery4;"
+      flink: "select avg(final), category
+              from (SELECT MAX(B.price) AS final, A.category
+                    FROM Auction A, Bid B
+                    WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+                    GROUP BY A.id, A.category) Q
+              group by category"
+      esper: "insert into MidQuery4_2
+              select max(B.price) as final, A.category as category
+              from Auction#time(999 minutes) A, Bid#ext_timed_batch(dateTime, 1 minute) B
+              where A.id = B.auction and B.dateTime < A.expires
+              group by B.auction, A.category;
+
+              insert into OutQuery4
+              select avg(final) as price, category
+              from MidQuery4_2
+              group by category;"
+      template: "SELECT Istream(AVG(Q.final))
+                 FROM Category C, (SELECT Rstream(MAX(B.price) AS final, A.category)
+                                   FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
+                                   WHERE A.id=B.auction AND B.dateTime < A.expires AND A.expires < CURRENT_TIME
+                                   GROUP BY A.id, A.category) Q
+                 WHERE Q.category = C.id
+                 GROUP BY C.id;"
+
+  - name: "MidQuery5_1"
+    id: 5
+    output-stream-id: 9
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: ""
+      flink: "select auction, count(*) as num
+              from Bid
+              group by auction"
+      esper: ""
+
+  - name: "Hot Items (NexMark query 5) (Might not be possible)"
+    id: 7
+    output-stream-id: 8
+    type: fetch-query
+    sql-query:
+      t-rex: ""
+      siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
+               select auction, count(*) as num
+               group by auction
+               insert into MidQuery5_1;
+
+               from MidQuery5_1
+               select auction, num as maxnum
+               having maxnum == max(maxnum)
+               insert into OutQuery5;"
+      flink: "SELECT Q1.auction, Q2.maxnum
+              FROM (SELECT B1.auction, count(*) AS num
+                    FROM Bid B1
+                    GROUP BY B1.auction) Q1,
+                   (select max(num) as maxnum
+                    from (SELECT B1.auction, count(*) AS num
+                          FROM Bid B1
+                          GROUP BY B1.auction)) Q2
+              WHERE Q1.num = Q2.maxnum"
+        #"select M1.auction, M2.maxnum
+      # from MidQuery5_1 M1 join MidQuery5_2 M2 on M1.num = M2.maxnum"
+      esper: "insert into MidQuery5_1
+              select auction, count(*) as num
+              from Bid#ext_timed_batch(dateTime, 1 minute)
+              group by auction;
+
+              insert into OutQuery5
+              select auction, num as maxnum
+              from MidQuery5_1
+              where num >= all (select count(*)
+                                from Bid#ext_timed_batch(dateTime, 1 minute) B2
+                                group by B2.auction);"
+
+      template: "SELECT Rstream(auction)
+                 FROM (SELECT B1.auction, count(*) AS num
+                       FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B1
+                       GROUP BY B1.auction)
+                 WHERE num >= ALL (SELECT count(*)
+                                   FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B2
+                                   GROUP BY B2.auction);"
+
+  - name: "Average Selling Price by Seller (NexMark query 6)"
+    id: 8
+    output-stream-id: 13
+    sql-query:
+      t-rex: "
+Assign 2 => Auction, 3 => Bid, 11 => MidQuery6
+Define MidQuery6(auction: int, seller: int, final: int, dateTime: int)
+From Auction() as A and
+each Bid([int] auction=A.id, [int] dateTime < A.expires) as B within 500000000 from A
+Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime
+Consuming A, B;
+
+Assign 2 => Auction, 3 => Bid, 11 => MidQuery6
+Define MidQuery6(auction: int, seller: int, final: int, dateTime: int)
+From Bid() as B and
+each Auction([int] id=B.auction, [int] expires > B.dateTime) as A within 500000000 from A
+Where auction := A.id, seller := A.seller, final := B.price, dateTime := B.dateTime
+Consuming A, B;
+
+Assign 11 => MidQuery6, 13 => OutQuery6
+Define OutQuery6(auction: int, seller: int, final: int, dateTime: int)
+From MidQuery6() as M
+Where auction := M.auction, seller := M.seller, final := M.price, dateTime := M.dateTime
+Consuming M;
+"  # Bid and MidQuery6 get consumed because they will only be matched once
+      siddhi: "from Bid#window.time(999 years) as B
+                 join Auction#window.time(999 years) as A
+                 on A.id == B.auction
+               select price, seller, auction, dateTime, expires
+               insert into MidQuery6_1;
+
+               from MidQuery6_1#window.externalTimeBatch(dateTime, 1 minute)[dateTime < expires]
+               select max(price) as final, seller
+               group by auction, seller
+               insert into MidQuery6_2;
+
+               from MidQuery6_2
+               select avg(final) as final, seller
+               group by seller
+               insert into OutQuery6;"
+      flink: "SELECT AVG(Q.final), Q.seller
+              FROM (SELECT MAX(B.price) AS final, A.seller
+                    FROM Auction A, Bid B
+                    WHERE A.id=B.auction AND B.dateTime2 < A.expires2
+                    GROUP BY A.id, A.seller) Q
+              GROUP BY Q.seller"
+      esper: "insert into MidQuery6_1
+              select price, seller, auction, dateTime, expires
+              from Auction#win:time(999 years) as A, Bid#win:time(999 years) as B
+              where A.id = B.auction
+              group by A.id, A.seller;
+
+              insert into MidQuery6_2
+              select max(price) as final, seller
+              from MidQuery6_1#win:ext_timed_batch(dateTime, 1 minute)
+              where dateTime < expires
+              group by auction, seller;
+
+              insert into OutQuery6
+              select avg(final) as final, seller
+              from MidQuery6_2#win:time(999 years)
+              group by seller;"
+      template_sql: "SELECT Istream(AVG(Q.final), Q.seller)
+                     FROM (SELECT Rstream(MAX(B.price) AS final, A.seller)
+                           FROM Auction A [ROWS UNBOUNDED], Bid B [ROWS UNBOUNDED]
+                           WHERE A.id=B.auction AND B.dateTime < A.expires AND A.expires < CURRENT_TIME
+                           GROUP BY A.id, A.seller) [PARTITION BY A.seller ROWS 10] Q
+                     GROUP BY Q.seller;"
+
+  - name: "MidQuery7"
+    id: 9
+    output-stream-id: 16
+    sql-query:
+      flink: "select max(price) as price
+              from Bid
+              group by tumble(eventTime, interval '1' minute)"
+
+  - name: "Highest Bid (NexMark query 7) (Might not be possible)"
+    id: 10
+    output-stream-id: 14
+    #dependency-queries: [9]
+    sql-query:
+      t-rex: ""
+      siddhi: "from Bid#window.externalTimeBatch(dateTime, 1 minute)
+               select max(price) as price
+               insert into MidQuery7;
+
+               from MidQuery7#window.time(999 years) as M
+               join Bid#window.time(999 years) as B on B.price == M.price
+               select B.auction, M.price, B.bidder
+               insert into OutQuery7;"
+      flink: "SELECT B.auction, B.price, B.bidder
+              FROM Bid B
+              WHERE B.price = (SELECT MAX(B1.price)
+                               FROM Bid B1)"
+      esper: "insert into OutQuery7
+              select auction, price, bidder
+              from Bid#ext_timed_batch(dateTime, 1 minute) as B
+              where price = (select max(B1.price)
+                             from Bid#ext_timed_batch(dateTime, 1 minute) as B1);"
+      template: "SELECT Rstream(B.auction, B.price, B.bidder)
+                 FROM Bid [RANGE 1 MINUTE SLIDE 1 MINUTE] B
+                 WHERE B.price = (SELECT MAX(B1.price)
+                                  FROM BID [RANGE 1 MINUTE SLIDE 1 MINUTE] B1);"
+
+  - name: "Monitor New Users (NexMark query 8) (Might not be possible)"
+    comment: "We modify the template query by removing the window. That's
+              because the dataset only spans 10 seconds, and so a 12 hour window
+              will include all tuples anyway. Since T-Rex doesn't support external
+              time windows, T-Rex can then run this query."
+    id: 11
+    output-stream-id: 15
+    sql-query:
+      t-rex: "
+Assign 1 => Person, 2 => Auction, 15 => OutQuery8
+Define  OutQuery8(id: int, name: string, reserve: int)
+From   Person() as P and
+each   Auction([int] seller=P.id) as A within 5000 from P
+Where id := P.id, name := P.name, reserve := reserve
+Consuming A; "  # Auction is consumed because they will only be matched once
+      siddhi: "from Auction#window.time(999 years) as A
+               join Person#window.time(999 years) as P on P.id == A.seller
+               select P.id, P.name, A.reserve
+               insert into OutQuery8;"
+      flink: "select P.id, P.name, A.reserve
+              from Auction A
+              join Person P on P.id = A.seller"
+      esper: "insert into OutQuery8
+              select P.id as id, P.name as name, A.reserve as reserve
+              from Auction#time(999 years) as A, Person#time(999 years) as P
+              where P.id = A.seller;"
+      template: "SELECT Rstream(P.id, P.name, A.reserve)
+                 FROM Person [RANGE 12 HOUR] P, Auction [RANGE 12 HOUR] A
+                 WHERE P.id = A.seller;"
+
+stream-definitions:
+  - id: 1
+    stream-id: 1
+    name: Person
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: emailAddress, type: string},
+                   {name: creditCard, type: string}, {name: city, type: string}, {name: state, type: string}]
+
+  - id: 2
+    stream-id: 2
+    name: Auction
+    rowtime-column: {column: expires, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: id, type: int}, {name: itemName, type: string}, {name: description, type: string},
+                   {name: initialBid, type: double}, {name: reserve, type: int}, {name: expires, type: long-timestamp},
+                   {name: expires2, type: long}, {name: seller, type: int}, {name: category, type: int}]
+
+  - id: 3
+    stream-id: 3
+    name: Bid
+    rowtime-column: {column: dateTime, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: auction, type: int}, {name: bidder, type: int}, {name: price, type: double},
+                   {name: dateTime, type: long-timestamp}, {name: dateTime2, type: long}]
+
+  - id: 4
+    stream-id: 4
+    name: Category
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: description, type: string},
+                   {name: parentCategory, type: int}]
+
+  - id: 5
+    stream-id: 5
+    name: OutQuery2
+    tuple-format: [{name: auction, type: int}, {name: price, type: double}]
+
+  - id: 6
+    stream-id: 6
+    name: OutQuery3
+    tuple-format: [{name: name, type: string}, {name: city, type: string}, {name: state, type: string},
+                   {name: id, type: int}]
+
+  - id: 7
+    stream-id: 7
+    name: OutQuery4
+    tuple-format: [{name: price, type: double}, {name: category, type: int}]
+
+  - id: 53
+    stream-id: 53
+    name: MidQuery4_1
+    tuple-format: [{name: dateTime, type: long-timestamp}, {name: price, type: double}, {name: category, type: int}, {name: auction, type: int},
+                   {name: expires, type: long-timestamp}]
+
+  - id: 63
+    stream-id: 63
+    name: MidQuery4_2
+    tuple-format: [{name: final, type: double}, {name: category, type: int}]
+
+  - id: 8
+    stream-id: 8
+    name: OutQuery5
+    tuple-format: [{name: auction, type: int}, {name: maxnum, type: long}]
+
+  - id: 9
+    stream-id: 9
+    name: MidQuery5_1
+    intermediary-stream: true
+    tuple-format: [{name: auction, type: int}, {name: num, type: long}]
+
+  - id: 10
+    stream-id: 10
+    name: MidQuery5_2
+    intermediary-stream: true
+    tuple-format: [{name: maxnum, type: long}]
+
+  - id: 11
+    stream-id: 11
+    name: MidQuery6_1
+    intermediary-stream: true
+    tuple-format: [{name: price, type: double}, {name: seller, type: int}, {name: auction, type: int}, {name: dateTime, type: long-timestamp},
+                   {name: expires, type: long-timestamp}]
+
+  - id: 12
+    stream-id: 12
+    name: MidQuery6_2
+    intermediary-stream: true
+    tuple-format: [{name: final, type: double}, {name: seller, type: int}]
+
+  - id: 13
+    stream-id: 13
+    name: OutQuery6
+    tuple-format: [{name: final, type: double}, {name: seller, type: int}]
+
+  - id: 14
+    stream-id: 14
+    name: OutQuery7
+    tuple-format: [{name: auction, type: int}, {name: price, type: double}, {name: bidder, type: int}]
+
+  - id: 15
+    stream-id: 15
+    name: OutQuery8
+    tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: reserve, type: int}]
+
+  - id: 16
+    stream-id: 16
+    name: MidQuery7
+    intermediary-stream: true
+    tuple-format: [{name: price, type: double}]
+
+  - id: 17
+    stream-id: 17
+    name: OutBid
+    rowtime-column: {column: dateTime, nanoseconds-per-tick: 1000000000}
+    tuple-format: [{name: auction, type: int}, {name: bidder, type: int}, {name: price, type: double},
+                   {name: dateTime, type: long-timestamp}, {name: dateTime2, type: long}]
+
+
+datasets:
+  - name: NexMark 100,000 tuples (YAML)
+    type: yaml
+    id: 8
+    file: Datasets/NexMark/nexmark-dataset.yaml
+
+tracepoints:
+  - id: 0
+    name: Start experiment
+    active: true
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: false
+
+  - id: 1
+    name: Receive Event
+    active: true
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 6
+    name: Created Complex Event
+    active: false
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description: A complex event was created
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 100
+    name: Finished Processing Event
+    active: true
+    arguments:
+      - name: tid
+        type: int
+      - name: CurCepEvent
+        type: int
+    description:
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: true
+
+  - id: 221
+    name: Add Query
+    active: true
+    arguments:
+      - name: CepQuery
+        type: int
+    x_variable: numberQueries
+    description: Traced when deploying a query. This is a simulation and scaling event.
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 200
+    name: Finished one set
+    active: true
+    description: Traced when one set of streams have ended
+    category:
+      isScalingEvent: false
+      isMilestoneEvent: false
+
+  - id: 201
+    name: Increase number of subscribers
+    active: true
+    description: Traced when the number of subscribers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 202
+    name: Increase number of publishers
+    active: true
+    description: Traced when the number of publishers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false
+
+  - id: 203
+    name: Increase number of publishers and subscribers
+    active: true
+    description: Traced when the number of publishers and subscribers increases
+    category:
+      isScalingEvent: true
+      isMilestoneEvent: false

@@ -1,0 +1,19 @@
+configuration:
+  experiments-to-run: [10,11,12,13,14,15,16,17,18]
+  coordinator: {
+    expose-path: "/home/espenvol/expose",
+    ssh-user: espenvol,
+    ssh-host: dmms-lab108,
+    port: 50000
+  }
+  SPEs:
+    - Flink
+    - TRex
+    - Siddhi
+    - Esper
+    - Beam
+  nodes: [
+    {ssh-user: espenvol, ssh-host: dmms-lab108, node-ids: [1,3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: dmms-lab109, node-ids: [2], isolated-cpu-cores: [19], expose-path: "/home/espenvol/expose"}]
+  experiment-configuration:
+    "/home/espenvol/expose/configurations/experiment-configurations/intel-xeon-nexmark.yaml"
