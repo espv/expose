@@ -1,0 +1,50 @@
+#!/bin/bash
+echo "Expose path: $EXPOSE_PATH"
+spe=$1
+node_id=$2
+node_id=$(echo 0000$node_id | sed 's/^0*//')
+isolated_cpu_cores=$5
+coordinator_ip=$6
+coordinator_port=$7
+experiment_id=$8
+number_cpu_cores=4
+uuid=$9
+uuid=${uuid: -4}
+dt=`date +%s`
+dt=${dt: -10}
+
+scriptdir=$EXPOSE_PATH/scripts
+rootlogdir=$scriptdir/Experiments
+logdir=$rootlogdir/log/experiment-${experiment_id}/${spe}/${dt}-${uuid}
+trace_path=$logdir/traces
+$scriptdir/kill_kafka
+mkdir -p $trace_path
+mkdir -p $logdir/StreamProcessors
+
+echo "SPE to run: $spe"
+echo "node ID: $node_id"
+echo "isolated_cpu_cores: $isolated_cpu_cores"
+
+port_base=$RANDOM
+
+finished=
+while [ ! $finished ]
+do
+  client_port=$((port_base+node_id))
+  client_port=0000$client_port
+  client_port=${client_port: -4}
+  fuser -k 4$client_port/tcp
+  fuser -k 5$client_port/tcp
+  $scriptdir/wait_while_port_taken 5$client_port
+  $scriptdir/wait_while_port_taken 4$client_port
+
+  script_call="EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1"
+  echo "Running $script_call"
+  EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1
+  PID=$!
+  if [ -n "$(ps -p $PID -o pid=)" ];
+  then
+    finished=1
+  fi
+done
+sleep 100000

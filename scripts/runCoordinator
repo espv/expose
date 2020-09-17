@@ -2,4 +2,6 @@
 EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
 experiment_id=$1
 yaml_config=$2
-java -jar $EXPOSE_PATH/Software-Framework/target/StreamProcessingExperimentFramework-1.0.0-jar-with-dependencies.jar --yaml-config $yaml_config --coordinator-port 50000 --experiment-id $experiment_id
+coordinator_port=$3
+fuser -k $coordinator_port/tcp
+java -jar $EXPOSE_PATH/Software-Framework/target/StreamProcessingExperimentFramework-1.0.0-jar-with-dependencies.jar --yaml-config $yaml_config --coordinator-port $coordinator_port --experiment-id $experiment_id
