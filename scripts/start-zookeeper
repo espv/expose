@@ -1,0 +1,20 @@
+#!/bin/bash
+zookeeper_pid_is_alive=
+zookeeper_is_up=$(echo stat | nc localhost 2181)
+while [[ -z $zookeeper_is_up ]]
+do
+  while [[ -z $zookeeper_is_alive ]]
+  do
+    zookeeper_is_up=$(echo stat | nc localhost 2181)
+    if [[ $zookeeper_is_up ]]
+    then
+	    break
+    fi
+    KAFKA_OPTS="$KAFKA_OPTS -Dzookeeper.4lw.commands.whitelist=stat,dump" $KAFKA_PATH/bin/zookeeper-server-start.sh $KAFKA_PATH/config/zookeeper.properties &
+    zookeeper_pid=$!
+    sleep 1
+    zookeeper_is_alive=$(ps cax | grep $zookeeper_pid)
+  done
+  sleep 1
+  zookeeper_is_up=$(echo stat | nc localhost 2181)
+done

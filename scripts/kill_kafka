@@ -14,3 +14,4 @@ if [ -z "$PIDS" ]; then
 else
   kill -9 $PIDS
 fi
+sleep 5
