@@ -6,11 +6,11 @@ configuration:
     port: 50000
   }
   SPEs:
-    - {name: Flink, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
-    - {name: TRex, experiments-to-run: [10]}
-    - {name: Siddhi, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
-    - {name: Esper, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
-    - {name: Beam, experiments-to-run: [10,11,12,15,17]}
+    - {name: Flink, experiments-to-run: [0,1,2,3,4,5,6,7,8]}
+    - {name: TRex, experiments-to-run: [0]}
+    - {name: Siddhi, experiments-to-run: [0,1,2,3,4,5,6,7,8]}
+    - {name: Esper, experiments-to-run: [0,1,2,3,4,5,6,7,8]}
+    - {name: Beam, experiments-to-run: [0,1,2,5,7]}
   nodes: [
     {ssh-user: espenvol, ssh-host: dmms-lab108, node-ids: [1,3], expose-path: "/home/espenvol/expose"},
     {ssh-user: espenvol, ssh-host: dmms-lab109, node-ids: [2], isolated-cpu-cores: [19], expose-path: "/home/espenvol/expose"}]
