@@ -27,7 +27,7 @@ def exit_handler(signum, frame):
     for process in all_child_processes:
         group = os.getpgid(process.pid)
         print("Ending group", group)
-        os.killpg(group, signal.SIGTERM)  # kill all processes in my group
+        os.killpg(group, signal.SIGTERM)
         process.wait()
     os.killpg(os.getpgid(os.getpid()), signal.SIGKILL)
 
@@ -39,6 +39,7 @@ signal.signal(signal.SIGTERM, exit_handler)
 class TraceAnalysis(object):
     @staticmethod
     def analyze_trace(yaml_config, coordinator_script, spe_script):
+        print("Starting experiments")
         yaml_config = yaml.load(open(yaml_config))
         configuration = yaml_config["configuration"]
         SPEs = configuration["SPEs"]
@@ -49,16 +50,16 @@ class TraceAnalysis(object):
         coordinator_port = str(coordinator["port"])
         coordinator_expose_path = coordinator.get("expose-path")
         experiment_configuration = configuration["experiment-configuration"]
-        experiments_to_run = configuration["experiments-to-run"]
         coordinator_env = os.environ.copy()
         coordinator_env["EXPOSE_PATH"] = coordinator_expose_path
         for spe in SPEs:
+            experiments_to_run = spe["experiments-to-run"]
             for experiment_id in experiments_to_run:
                 all_child_processes = []
-                print("First start up the coordinator for", spe, "experiments to run")
+                print("First start up the coordinator for", spe["name"], "experiments to run")
                 script_call = "ssh -t -t " + coordinator_ssh_user + "@" + coordinator_ssh_host + " " + coordinator_script + " " + str(experiment_id) + " " + experiment_configuration + " " + coordinator_port
                 print("script call:", script_call)
-                coordinator_process = subprocess.Popen(script_call.split(), start_new_session=True, env=coordinator_env)
+                coordinator_process = subprocess.Popen(script_call.split(), env=coordinator_env)
                 all_child_processes.append(coordinator_process)
                 print("PID of coordinator script:", coordinator_process.pid)
                 print("")
@@ -75,12 +76,13 @@ class TraceAnalysis(object):
                     SPE_env["EXPOSE_PATH"] = expose_path
                     for node_id in node_ids:
                         script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " " + expose_path + "/scripts/kill_kafka"
-                        spe_process = subprocess.Popen(script_call.split(), start_new_session=True, env=SPE_env)
+                        spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
+                        spe_process.wait()
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
-                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe + " " + str(node_id) + " " + spe_ssh_user + " " + spe_ssh_host + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + uuid_str
+                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + spe_ssh_user + " " + spe_ssh_host + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + uuid_str
                         print("script call:", script_call)
-                        spe_process = subprocess.Popen(script_call.split(), start_new_session=True, env=SPE_env)
+                        spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
                 print()
