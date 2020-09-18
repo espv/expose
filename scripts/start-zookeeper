@@ -1,11 +1,17 @@
 #!/bin/bash
 zookeeper_pid_is_alive=
-zookeeper_is_up=$(echo stat | nc localhost 2181)
+#zookeeper_is_up=$(echo stat | nc localhost 2181)
+zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
+if [[ ! -z $zookeeper_is_up ]]
+then
+	echo "Zookeeper is already up!"
+fi
 while [[ -z $zookeeper_is_up ]]
 do
   while [[ -z $zookeeper_is_alive ]]
   do
-    zookeeper_is_up=$(echo stat | nc localhost 2181)
+#    zookeeper_is_up=$(echo stat | nc localhost 2181)
+    zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
     if [[ $zookeeper_is_up ]]
     then
 	    break
@@ -16,5 +22,6 @@ do
     zookeeper_is_alive=$(ps cax | grep $zookeeper_pid)
   done
   sleep 1
-  zookeeper_is_up=$(echo stat | nc localhost 2181)
+#  zookeeper_is_up=$(echo stat | nc localhost 2181)
+  zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
 done

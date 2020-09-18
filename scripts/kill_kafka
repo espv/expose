@@ -10,8 +10,7 @@ PIDS=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $
 
 if [ -z "$PIDS" ]; then
   echo "No kafka server to stop"
-  exit 1
+  exit 0
 else
   kill -9 $PIDS
 fi
-sleep 5
