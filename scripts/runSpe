@@ -8,14 +8,11 @@ coordinator_ip=$4
 coordinator_port=$5
 experiment_id=$6
 number_cpu_cores=4
-uuid=$7
-uuid=${uuid: -4}
-dt=`date +%s`
-dt=${dt: -10}
+run_id=$7
 
 scriptdir=$EXPOSE_PATH/scripts
 rootlogdir=$scriptdir/Experiments
-logdir=$rootlogdir/log/experiment-${experiment_id}/${spe}/${dt}-${uuid}
+logdir=$rootlogdir/log/experiment-${experiment_id}/${spe}/${run_id}
 trace_path=$logdir/traces
 mkdir -p $trace_path
 mkdir -p $logdir/StreamProcessors

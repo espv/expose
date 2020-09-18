@@ -2,6 +2,7 @@ import argparse
 import os
 import signal
 import uuid
+import time
 
 import yaml
 
@@ -65,7 +66,7 @@ class TraceAnalysis(object):
                 print("")
                 print("Then run all the nodes separately")
                 spe_instances = []
-                uuid_str = str(uuid.uuid4())
+                run_id = str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
                 for node in nodes:
                     spe_ssh_user = node.get("ssh-user")
                     spe_ssh_host = node.get("ssh-host")
@@ -80,7 +81,7 @@ class TraceAnalysis(object):
                         spe_process.wait()
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
-                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + uuid_str
+                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + run_id
                         print("script call:", script_call)
                         spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
                         spe_instances.append(spe_process)
