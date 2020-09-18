@@ -3,12 +3,12 @@ echo "Expose path: $EXPOSE_PATH"
 spe=$1
 node_id=$2
 node_id=$(echo 0000$node_id | sed 's/^0*//')
-isolated_cpu_cores=$5
-coordinator_ip=$6
-coordinator_port=$7
-experiment_id=$8
+isolated_cpu_cores=$3
+coordinator_ip=$4
+coordinator_port=$5
+experiment_id=$6
 number_cpu_cores=4
-uuid=$9
+uuid=$7
 uuid=${uuid: -4}
 dt=`date +%s`
 dt=${dt: -10}
@@ -46,4 +46,3 @@ do
     finished=1
   fi
 done
-sleep 100000

@@ -80,7 +80,7 @@ class TraceAnalysis(object):
                         spe_process.wait()
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
-                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + spe_ssh_user + " " + spe_ssh_host + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + uuid_str
+                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + uuid_str
                         print("script call:", script_call)
                         spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
                         spe_instances.append(spe_process)
