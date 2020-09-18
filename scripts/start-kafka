@@ -17,6 +17,11 @@ do
     echo "Checking if pid $kafka_pid is alive"
     kafka_is_alive=$(ps cax | grep $kafka_pid)
     echo "$kafka_pid is alive: $kafka_is_alive"
+    kafka_is_up=$(nc -vz localhost 9092 2>&1 | grep "succeeded")
+    if [[ ! -z $kafka_is_up ]]
+    then
+	    break
+    fi
   done
   kafka_is_alive=$(ps cax | grep $kafka_pid)
   sleep $(( ( RANDOM % 5 )  + 5 ))
