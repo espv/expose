@@ -371,7 +371,7 @@ spequeries:
     sql-query:
       t-rex: "Assign 3 => Bid, 17 => OutBid
               Define OutBid(auction: int, bidder: int, price: int, dateTime: int, dateTime2: int)
-              Bid() as B
+              From Bid() as B
               Where auction := B.auction, bidder := B.seller, price := B.price, dateTime := B.dateTime, dateTime2 := B.dateTime2
               Consuming B;"
       siddhi: "from Bid
