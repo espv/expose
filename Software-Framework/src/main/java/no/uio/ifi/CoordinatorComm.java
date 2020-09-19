@@ -3,6 +3,7 @@ package no.uio.ifi;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +110,12 @@ public class CoordinatorComm extends Comm implements Runnable {
 			address.put("ip", clientIp);
 			address.put("port", clientPort);
 			System.out.println("New client's node ID: " + nodeId + ", address: " + clientIp + ":" + clientPort);
+			try {
+				address.put("ip", java.net.InetAddress.getByName((String) address.get("ip")).getHostAddress());
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+				System.exit(30);
+			}
 			nodeIdsToClientInformation.put(nodeId, address);
 			nodeIdsToClients.put(nodeId, client);
 			nodeIdsToExperimentAPIs.put(nodeId, new CoordinatorExperimentAPI(this, nodeId));
