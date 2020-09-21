@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import sys
 import re
 import signal
 import subprocess
@@ -171,7 +172,7 @@ class RunExperiments(object):
                     spe_instance.wait()
                 print("Coordinator has finished")
 
-        path = os.path.join(os.getcwd(), "run-experiments-output")
+        path = "run-experiments-output"
         if not os.path.exists(path):
             os.mkdir(path)
         run_experiments_output_folder = path + "/run-experiments-" + RunExperiments.get_unique_id()
@@ -188,38 +189,41 @@ class RunExperiments(object):
             # Create archive folder if it doesn't exist
             cmd = "mkdir -p " + expose_path + "/scripts/Experiments/archive"
             script_call = ssh_call + " " + cmd
-            subprocess.Popen(script_call.split())
+            subprocess.Popen(script_call.split()).wait()
 
             # Move log folder to archive
             cmd = "mv " + expose_path + "/scripts/Experiments/log " + log_folder_path
             script_call = ssh_call + " " + cmd
-            subprocess.Popen(script_call.split())
+            subprocess.Popen(script_call.split()).wait()
             zip_file_name = log_name + ".tar.gz"
             zip_file_path = log_folder_path + ".tar.gz"
 
+            print("Creating zip file")
             # Create zip file
-            cmd = "tar -C  " + expose_path + "/scripts/Experiments/archive -cf " + zip_file_path + " " + log_folder_path
+            cmd = "tar -C  " + expose_path + "/scripts/Experiments/archive -cf " + zip_file_path + " " + log_name
             script_call = ssh_call + " " + cmd
-            subprocess.Popen(script_call.split())
+            subprocess.Popen(script_call.split()).wait()
 
+            print("Transferring zip file")
             # Transfer zip file
             script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + run_experiments_output_folder
-            subprocess.Popen(script_call.split())
-            script_call = "tar -C " + run_experiments_output_folder + " -xf " + zip_file_name
-            subprocess.Popen(script_call.split())
+            subprocess.Popen(script_call.split()).wait()
+            script_call = "tar -C " + run_experiments_output_folder + " -xf " + zip_file_path
+            subprocess.Popen(script_call.split()).wait()
 
+            print("Removing zip file in path", run_experiments_output_folder + "/" + zip_file_name, "- does file exist?", os.path.exists(run_experiments_output_folder + "/" + zip_file_name))
             # Remove zip file
-            script_call = "rm " + run_experiments_output_folder + "/" + zip_file_name
-            subprocess.Popen(script_call.split())
+            os.remove(run_experiments_output_folder + "/" + zip_file_nam)
 
+            print("Performing trace analysis")
             # Perform trace analysis on the traces and write all traces from a node to the same file
             # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
             local_log_folder = run_experiments_output_folder + "/" + log_name
             sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w+')
             for path, subdirs, files in os.walk(local_log_folder):
                 for name in files:
-                    TraceAnalysis().analyze_trace(
-                        expose_path + "$local_expose_path/configurations/experiment-configurations/intel-xeon-nexmark.yaml", path + "/" + name)
+                    TraceAnalysis().analyze_trace(experiment_configuration, path + "/" + name)
+            return
 
 
 if __name__ == '__main__':
