@@ -1,14 +1,15 @@
 import argparse
+import logging
 import os
+import re
 import signal
-import uuid
+import subprocess
 import time
+import uuid
 
+import numpy as np
 import yaml
 
-import logging
-
-import subprocess
 logging.getLogger().setLevel(logging.CRITICAL)
 
 parser = argparse.ArgumentParser(description='Get mean throughput and rsd over a set of runs')
@@ -38,8 +39,80 @@ signal.signal(signal.SIGTERM, exit_handler)
 
 
 class TraceAnalysis(object):
+
+    def get_std(self, numbers):
+        n = np.array(numbers)
+        return np.std(n)
+
+    def analyze_trace(self, yaml_config, trace_file):
+        yaml_config = yaml.load(open(yaml_config))
+        milestone_events = {}
+        first_received = 0.0
+        last_received = 0.0
+        number_tuples_received = 0.0
+        throughputs = []
+        run = 0
+        received_start_experiment = False
+        first_throughput = None
+
+        with open(trace_file) as infile:
+            i = -1
+            for l in infile:
+                i += 1
+                e = re.split('[\t\n]', l)
+                timestamp = int(e[1])
+                tracepointId = int(e[0])
+                tracepoint = None
+                for t in yaml_config.get("tracepoints"):
+                    if t.get("id") == tracepointId:
+                        tracepoint = t
+                        break
+
+                if received_start_experiment is False:
+                    if tracepoint.get("name") == "Start experiment":
+                        received_start_experiment = True
+
+                if tracepoint["name"] == "Finished one set":
+                    throughput = number_tuples_received / ((last_received-first_received) / 1000000000.0)
+                    if first_throughput is None:
+                        first_throughput = throughput
+                    if received_start_experiment is True:
+                        throughputs.append(throughput)
+                        run += 1
+                    number_tuples_received = 0.0
+                    last_received = 0.0
+                    first_received = 0.0
+                    pass
+
+                if tracepoint["name"] == "Receive Event":
+                    number_tuples_received += 1
+                    if first_received == 0:
+                        first_received = timestamp
+                    last_received = timestamp
+                elif tracepoint["name"] == "Passed Constraints":
+                    pass
+                elif tracepoint["name"] == "Created Complex Event":
+                    pass
+                elif tracepoint["name"] == "Finished Processing Event":
+                    last_received = timestamp
+                    pass
+
+        print("Statistics for trace:", trace_file)
+        print("Iteration 1 of warmup:", first_throughput, "tuples per second")
+        for i, throughput in enumerate(throughputs):
+            print("Run", i+1, ":", throughput, "tuples per second")
+        mean = np.mean(np.array(throughputs))
+        print("Average throughput over", run, "runs:", mean)
+        print("The average throughput is", int((mean/first_throughput)*100), "% higher than the throughput for the first iteration")
+        sd = np.std(np.array(throughputs), ddof=1)
+        print("Sample SD over", run, "runs:", sd)
+        rsd = 100.0 * (sd / mean)
+        print("RSD% over", run, "runs:", rsd)
+
+
+class RunExperiments(object):
     @staticmethod
-    def analyze_trace(yaml_config, coordinator_script, spe_script):
+    def run_experiments(yaml_config, coordinator_script, spe_script):
         print("Starting experiments")
         yaml_config = yaml.load(open(yaml_config))
         configuration = yaml_config["configuration"]
@@ -94,6 +167,48 @@ class TraceAnalysis(object):
                     spe_instance.wait()
                 print("Coordinator has finished")
 
+        log_name = "log_" + str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+        for node in nodes:
+            spe_ssh_user = node.get("ssh-user")
+            spe_ssh_host = node.get("ssh-host")
+            expose_path = node.get("expose-path")
+            log_folder_path = expose_path + "/scripts/Experiments/archive/root_" + log_name
+            ssh_call = "ssh " + spe_ssh_user + "@" + spe_ssh_host
+
+            # Create archive folder if it doesn't exist
+            cmd = "mkdir -p " + expose_path + "/scripts/Experiments/archive"
+            script_call = ssh_call + " " + cmd
+            subprocess.Popen(script_call.split())
+
+            # Move log folder to archive
+            cmd = "mv " + expose_path + "/scripts/Experiments/log " + log_folder_path
+            script_call = ssh_call + " " + cmd
+            subprocess.Popen(script_call.split())
+            zip_file_path = log_folder_path + ".tar.gz"
+
+            # Create zip file
+            cmd = "tar -C  " + expose_path + "/scripts/Experiments/archive -cf " + zip_file_path + " " + log_folder_path
+            script_call = ssh_call + " " + cmd
+            subprocess.Popen(script_call.split())
+
+            # Transfer zip file
+            script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + zip_file_path
+            subprocess.Popen(script_call.split())
+            script_call = "tar -C " + log_folder_path + " -xf " + zip_file_path
+            subprocess.Popen(script_call.split())
+
+            # Remove zip file
+            script_call = "rm " + zip_file_path
+            subprocess.Popen(script_call.split())
+
+            # Perform trace analysis on the traces and write all traces from a node to the same file
+            # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
+            sys.stdout = open(log_folder_path + "/trace_analysis.txt", 'w')
+            for path, subdirs, files in os.walk(log_folder_path):
+                for name in files:
+                    TraceAnalysis().analyze_trace(
+                        expose_path + "$local_expose_path/configurations/experiment-configurations/intel-xeon-nexmark.yaml", path + "/" + name)
+
 
 if __name__ == '__main__':
-    TraceAnalysis.analyze_trace(args.yaml_config, args.coordinator_script, args.spe_script)
+    RunExperiments.run_experiments(args.yaml_config, args.coordinator_script, args.spe_script)
