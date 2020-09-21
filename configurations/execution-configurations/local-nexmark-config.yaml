@@ -11,7 +11,7 @@ configuration:
     - {name: Siddhi, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
     - {name: Esper, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
     - {name: Beam, experiments-to-run: [10,11,12,15,17]}
-  nodes: [
+  hosts: [
     {ssh-user: espen, ssh-host: 127.0.0.1, node-ids: [1,3], expose-path: "/home/espen/expose"},
     {ssh-user: espen, ssh-host: 127.0.0.1, node-ids: [2], isolated-cpu-cores: [3], expose-path: "/home/espen/expose"}]
   experiment-configuration:

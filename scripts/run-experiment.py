@@ -121,7 +121,7 @@ class RunExperiments(object):
         yaml_config = yaml.load(open(yaml_config))
         configuration = yaml_config["configuration"]
         SPEs = configuration["SPEs"]
-        nodes = configuration["nodes"]
+        hosts = configuration["hosts"]
         coordinator = configuration["coordinator"]
         coordinator_ssh_user = coordinator["ssh-user"]
         coordinator_ssh_host = coordinator["ssh-host"]
@@ -144,12 +144,12 @@ class RunExperiments(object):
                 print("Then run all the nodes separately")
                 spe_instances = []
                 run_id = RunExperiments.get_unique_id()
-                for node in nodes:
-                    spe_ssh_user = node.get("ssh-user")
-                    spe_ssh_host = node.get("ssh-host")
-                    isolated_cpu_cores = ",".join([str(node_id) for node_id in node.get("isolated-cpu-cores", [])])
-                    node_ids = node.get("node-ids")
-                    expose_path = node.get("expose-path")
+                for host in hosts:
+                    spe_ssh_user = host.get("ssh-user")
+                    spe_ssh_host = host.get("ssh-host")
+                    isolated_cpu_cores = ",".join([str(cpu_core) for cpu_core in host.get("isolated-cpu-cores", [])])
+                    node_ids = host.get("node-ids")
+                    expose_path = host.get("expose-path")
                     SPE_env = os.environ.copy()
                     SPE_env["EXPOSE_PATH"] = expose_path
                     for node_id in node_ids:
@@ -177,11 +177,11 @@ class RunExperiments(object):
         run_experiments_output_folder = path + "/run-experiments-" + RunExperiments.get_unique_id()
         os.mkdir(run_experiments_output_folder)
 
-        for node in nodes:
+        for host in hosts:
             log_name = "root_log_" + RunExperiments.get_unique_id()
-            spe_ssh_user = node.get("ssh-user")
-            spe_ssh_host = node.get("ssh-host")
-            expose_path = node.get("expose-path")
+            spe_ssh_user = host.get("ssh-user")
+            spe_ssh_host = host.get("ssh-host")
+            expose_path = host.get("expose-path")
             log_folder_path = expose_path + "/scripts/Experiments/archive/" + log_name
             ssh_call = "ssh " + spe_ssh_user + "@" + spe_ssh_host
 
