@@ -215,7 +215,7 @@ class RunExperiments(object):
             # Perform trace analysis on the traces and write all traces from a node to the same file
             # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
             local_log_folder = run_experiments_output_folder + "/" + log_name
-            sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w')
+            sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w+')
             for path, subdirs, files in os.walk(local_log_folder):
                 for name in files:
                     TraceAnalysis().analyze_trace(
