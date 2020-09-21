@@ -143,7 +143,7 @@ class RunExperiments(object):
                 print("")
                 print("Then run all the nodes separately")
                 spe_instances = []
-                run_id = get_unique_id()
+                run_id = RunExperiments.get_unique_id()
                 for node in nodes:
                     spe_ssh_user = node.get("ssh-user")
                     spe_ssh_host = node.get("ssh-host")
@@ -174,11 +174,11 @@ class RunExperiments(object):
         path = os.path.join(os.getcwd(), "run-experiments-output")
         if not os.path.exists(path):
             os.mkdir(path)
-        run_experiments_output_folder = path + "/run-experiments-" + get_unique_id()
+        run_experiments_output_folder = path + "/run-experiments-" + RunExperiments.get_unique_id()
         os.mkdir(run_experiments_output_folder)
 
         for node in nodes:
-            log_name = "root_log_" + get_unique_id()
+            log_name = "root_log_" + RunExperiments.get_unique_id()
             spe_ssh_user = node.get("ssh-user")
             spe_ssh_host = node.get("ssh-host")
             expose_path = node.get("expose-path")
