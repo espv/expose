@@ -209,7 +209,7 @@ class RunExperiments(object):
             subprocess.Popen(script_call.split())
 
             # Remove zip file
-            script_call = "rm " + zip_file_path
+            script_call = "rm " + run_experiments_output_folder + "/" + zip_file_name
             subprocess.Popen(script_call.split())
 
             # Perform trace analysis on the traces and write all traces from a node to the same file
