@@ -112,6 +112,10 @@ class TraceAnalysis(object):
 
 class RunExperiments(object):
     @staticmethod
+    def get_unique_id():
+        return str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+
+    @staticmethod
     def run_experiments(yaml_config, coordinator_script, spe_script):
         print("Starting experiments")
         yaml_config = yaml.load(open(yaml_config))
@@ -139,7 +143,7 @@ class RunExperiments(object):
                 print("")
                 print("Then run all the nodes separately")
                 spe_instances = []
-                run_id = str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+                run_id = get_unique_id()
                 for node in nodes:
                     spe_ssh_user = node.get("ssh-user")
                     spe_ssh_host = node.get("ssh-host")
@@ -167,12 +171,18 @@ class RunExperiments(object):
                     spe_instance.wait()
                 print("Coordinator has finished")
 
-        log_name = "log_" + str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+        path = os.path.join(os.getcwd(), "run-experiments-output")
+        if not os.path.exists(path):
+            os.mkdir(path)
+        run_experiments_output_folder = path + "/run-experiments-" + get_unique_id()
+        os.mkdir(run_experiments_output_folder)
+
         for node in nodes:
+            log_name = "root_log_" + get_unique_id()
             spe_ssh_user = node.get("ssh-user")
             spe_ssh_host = node.get("ssh-host")
             expose_path = node.get("expose-path")
-            log_folder_path = expose_path + "/scripts/Experiments/archive/root_" + log_name
+            log_folder_path = expose_path + "/scripts/Experiments/archive/" + log_name
             ssh_call = "ssh " + spe_ssh_user + "@" + spe_ssh_host
 
             # Create archive folder if it doesn't exist
@@ -184,6 +194,7 @@ class RunExperiments(object):
             cmd = "mv " + expose_path + "/scripts/Experiments/log " + log_folder_path
             script_call = ssh_call + " " + cmd
             subprocess.Popen(script_call.split())
+            zip_file_name = log_name + ".tar.gz"
             zip_file_path = log_folder_path + ".tar.gz"
 
             # Create zip file
@@ -192,9 +203,9 @@ class RunExperiments(object):
             subprocess.Popen(script_call.split())
 
             # Transfer zip file
-            script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + zip_file_path
+            script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + run_experiments_output_folder
             subprocess.Popen(script_call.split())
-            script_call = "tar -C " + log_folder_path + " -xf " + zip_file_path
+            script_call = "tar -C " + run_experiments_output_folder + " -xf " + zip_file_name
             subprocess.Popen(script_call.split())
 
             # Remove zip file
@@ -203,8 +214,9 @@ class RunExperiments(object):
 
             # Perform trace analysis on the traces and write all traces from a node to the same file
             # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
-            sys.stdout = open(log_folder_path + "/trace_analysis.txt", 'w')
-            for path, subdirs, files in os.walk(log_folder_path):
+            local_log_folder = run_experiments_output_folder + "/" + log_name
+            sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w')
+            for path, subdirs, files in os.walk(local_log_folder):
                 for name in files:
                     TraceAnalysis().analyze_trace(
                         expose_path + "$local_expose_path/configurations/experiment-configurations/intel-xeon-nexmark.yaml", path + "/" + name)
