@@ -1,10 +1,13 @@
 #!/bin/bash
 zookeeper_pid_is_alive=
+zookeeper_log=$1
 #zookeeper_is_up=$(echo stat | nc localhost 2181)
 zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
 if [[ ! -z $zookeeper_is_up ]]
 then
 	echo "Zookeeper is already up!"
+else
+	rm -r $zookeeper_log
 fi
 while [[ -z $zookeeper_is_up ]]
 do
