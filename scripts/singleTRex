@@ -2,7 +2,7 @@
 EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
 # Number of threads is maximum 6. If it is lower than 6, the first argument specifies it.
 number_threads=$(( 2 > $1 ? $1 : 2 ))
-client_ip=$(curl https://ipinfo.io/ip)
+client_ip=$(hostname -I | cut -d' ' -f1)
 client_port=$2
 coordinator_ip=$3
 coordinator_port=$4

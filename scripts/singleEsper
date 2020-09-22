@@ -1,7 +1,7 @@
 #!/bin/bash
 EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
 number_threads=$1
-client_ip=$(curl https://ipinfo.io/ip)
+client_ip=$(hostname -I | cut -d' ' -f1)
 client_port=$2
 coordinator_ip=$3
 coordinator_port=$4

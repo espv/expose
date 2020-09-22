@@ -1,7 +1,7 @@
 #!/bin/bash
 EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
 number_threads=$1
-client_ip=$(curl https://ipinfo.io/ip)
+client_ip=$(hostname -I | cut -d' ' -f1)
 client_port=$2
 coordinator_ip=$3
 coordinator_port=$4
@@ -9,6 +9,9 @@ node_id=$5
 trace_path=$6/node-$node_id
 unused_cpu_core=$7
 BEAM_JAR=$EXPOSE_PATH/SPEs-plus-wrappers/beam-plus-wrapper/expose-wrapper/build/libs/beam-expose-wrapper-2.22.0-SNAPSHOT.jar
+KAFKA_PATH=$EXPOSE_PATH/SPEs-plus-wrappers/beam-plus-wrapper/kafka
+KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-zookeeper
+KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-kafka
 
 mkdir -p $trace_path
 
