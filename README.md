@@ -16,23 +16,11 @@ Python pip packages required for analysis:
 - pyyaml
 Use a virtual environment, and run `pip3 install numpy pyyaml`
 
-To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator, the data source node and the data sink node. The second as the "intel_xeon" server, and the third is the "RPI," both of which run the system under test (SUT).
+To execute the experiments from the paper, please clone this repository in the home directory, e.g., ~/, on three devices. The first device serves as the coordinator, the data source node and the data sink node. The second as the powerful server, and the third is the resource-constrained server, both of which run the system under test (SUT).
 
-Install Ansible on the coordinator machine, and add the following lines to /etc/ansible/hosts:
-[intel_xeon]
-<IP address of Intel Xeon server>
+The devices that participate in the same experiments must have each other's public SSH keys in the authorized keys file \href{https://www.ssh.com/ssh/authorized_keys/}.
 
-[raspberrypi_4]
-<IP address of RPI>
-
-Add the following line to /etc/ansible/ancible.cfg:
-[ssh_connection]
-ssh_args = -o ConnectTimeout=30 -o ConnectionAttempts=30
-
-If `[ssh_connection]` and/or `ssh_args =` already exist, just add what's missing.
-
-Make sure to place the public ssh key of the coordinator in the acknowledged_hosts file of both the Intel Xeon server and the RPI
-
+# SPE installation
 Install the software framework in Software-Framework by running `mvn install && ./add-to-local-maven-repo.sh`
 
 Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
@@ -42,6 +30,16 @@ By using the isolcpus kernel parameter, isolate one of the CPU cores in the Inte
 
 Apache Flink and Beam specific: make sure to run Kafka on both servers, i.e., Zookeeper and the Kafka server. Run `taskset -acp <isolated core> <zookeeper PID> && taskset -acp <isolated core> <kafka-server PID>` on the servers to isolate Kafka as well.
 
-Run experiments:
-In the scripts folder, the RUN script contains the lines to run, in order to execute the experiments:
-nohup ./nexmark ~/expose/scripts/Experiments ../experiment-configurations/intel-xeon-nexmark.yaml ../experiment-configurations/rpi-nexmark.yaml 19 3 &
+# Setting up experiments
+Edit the IP addresses of the coordinator and the hosts for the SPEs in $EXPOSE_PATH/execution-configurations/intel-xeon-nexmark-config.yaml and $EXPOSE_PATH/execution-configurations/rpi-nexmark-config.yaml.
+
+# Running experiments
+In the scripts folder, the RUN script contains the lines to run, in order to execute the experimets:
+Intel xeon experiments:
+nohup python3 -u run-experiment.py ~/expose/configurations/execution-configurations/intel-xeon-nexmark-config.yaml ~/expose/scripts/runCoordinator ~/expose/scripts/runSpe &disown
+
+RPI experiments:
+nohup python3 -u run-experiment.py ~/expose/configurations/execution-configurations/rpi-nexmark-config.yaml ~/expose/scripts/runCoordinator ~/expose/scripts/runSpe &disown
+
+# Results
+Results from the most recent set of experiments is stored in a file called trace_analysis.txt within the most recently created folder in $EXPOSE_PATH/scripts/run-experiments-output/. It is in the form of run-experiments-$TIMESTAMP-$UUID.

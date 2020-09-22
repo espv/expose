@@ -62,7 +62,6 @@ class TraceAnalysis(object):
             for l in infile:
                 i += 1
                 e = re.split('[\t\n]', l)
-                print("Length of e:", len(e))
                 if len(e) < 2:
                     break
                 timestamp = int(e[1])
@@ -227,13 +226,13 @@ class RunExperiments(object):
             print("Performing trace analysis")
             # Perform trace analysis on the traces and write all traces from a node to the same file
             # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
-            print("Redirecting standard output to", local_log_folder + "/trace_analysis.txt")
-            sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w+')
-            for path, subdirs, files in os.walk(local_log_folder):
-                for name in files:
-                    if name.endswith(".trace"):
-                        TraceAnalysis().analyze_trace(experiment_configuration, path + "/" + name)
-            sys.stdout = sys.__stdout__
+        print("Redirecting standard output to", run_experiments_output_folder + "/trace_analysis.txt")
+        sys.stdout = open(run_experiments_output_folder + "/trace_analysis.txt", 'w+')
+        for path, subdirs, files in os.walk(local_log_folder):
+            for name in files:
+                if name.endswith(".trace"):
+                    TraceAnalysis().analyze_trace(experiment_configuration, path + "/" + name)
+        sys.stdout = sys.__stdout__
 
 
 if __name__ == '__main__':
