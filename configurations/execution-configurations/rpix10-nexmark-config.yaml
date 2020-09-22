@@ -12,15 +12,16 @@ configuration:
     - {name: Esper, experiments-to-run: [10,11,12,13,14,15,16,17,18]}
     - {name: Beam, experiments-to-run: [10,11,12,15,17]}
   hosts: [
-    {ssh-user: espenvol, ssh-host: dmms-lab108, node-ids: [1,11], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: dmms-lab108, node-ids: [1,12], expose-path: "/home/espenvol/expose"},
     {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [2], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [3], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [4], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [5], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [6], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [7], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [8], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [9], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
-    {ssh-user: espenvol, ssh-host: testbed-rpi-1.local, node-ids: [10], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"}]
+    {ssh-user: espenvol, ssh-host: testbed-rpi-2.local, node-ids: [3], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-3.local, node-ids: [4], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-4.local, node-ids: [5], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-5.local, node-ids: [6], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-6.local, node-ids: [7], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-7.local, node-ids: [8], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-8.local, node-ids: [9], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-9.local, node-ids: [10], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"},
+    {ssh-user: espenvol, ssh-host: testbed-rpi-10.local, node-ids: [11], isolated-cpu-cores: [3], expose-path: "/home/espenvol/expose"}]
   experiment-configuration:
     "/home/espenvol/expose/configurations/experiment-configurations/rpix10-nexmark.yaml"
