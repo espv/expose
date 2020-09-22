@@ -57,10 +57,14 @@ class TraceAnalysis(object):
         first_throughput = None
 
         with open(trace_file) as infile:
+            print("Parsing through", trace_file)
             i = -1
             for l in infile:
                 i += 1
                 e = re.split('[\t\n]', l)
+                print("Length of e:", len(e))
+                if len(e) < 2:
+                    break
                 timestamp = int(e[1])
                 tracepointId = int(e[0])
                 tracepoint = None
@@ -98,6 +102,8 @@ class TraceAnalysis(object):
                     last_received = timestamp
                     pass
 
+        if first_throughput is None:
+            return
         print("Statistics for trace:", trace_file)
         print("Iteration 1 of warmup:", first_throughput, "tuples per second")
         for i, throughput in enumerate(throughputs):
@@ -114,7 +120,8 @@ class TraceAnalysis(object):
 class RunExperiments(object):
     @staticmethod
     def get_unique_id():
-        return str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+        ret = str(time.time() * 1000)[:10] + "-" + str(uuid.uuid4())[:4]
+        return ret
 
     @staticmethod
     def run_experiments(yaml_config, coordinator_script, spe_script):
@@ -160,7 +167,6 @@ class RunExperiments(object):
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
                         script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + run_id
-                        print("script call:", script_call)
                         spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
                         spe_instances.append(spe_process)
                         all_child_processes.append(spe_process)
@@ -184,6 +190,7 @@ class RunExperiments(object):
             spe_ssh_host = host.get("ssh-host")
             expose_path = host.get("expose-path")
             log_folder_path = expose_path + "/scripts/Experiments/archive/" + log_name
+
             ssh_call = "ssh " + spe_ssh_user + "@" + spe_ssh_host
 
             # Create archive folder if it doesn't exist
@@ -198,32 +205,35 @@ class RunExperiments(object):
             zip_file_name = log_name + ".tar.gz"
             zip_file_path = log_folder_path + ".tar.gz"
 
-            print("Creating zip file")
             # Create zip file
             cmd = "tar -C  " + expose_path + "/scripts/Experiments/archive -cf " + zip_file_path + " " + log_name
             script_call = ssh_call + " " + cmd
             subprocess.Popen(script_call.split()).wait()
 
-            print("Transferring zip file")
             # Transfer zip file
-            script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + run_experiments_output_folder
+            local_log_folder = run_experiments_output_folder + "/" + log_name
+            script_call = "scp " + spe_ssh_user + "@" + spe_ssh_host + ":" + zip_file_path + " " + local_log_folder + ".tar.gz"
+            print(script_call)
             subprocess.Popen(script_call.split()).wait()
-            script_call = "tar -C " + run_experiments_output_folder + " -xf " + zip_file_path
+            print("ls zip:")
+            subprocess.Popen(["ls", local_log_folder + ".tar.gz"]).wait()
+            script_call = "tar -C " + run_experiments_output_folder + " -xf " + local_log_folder + ".tar.gz"
+            print("Extracting zip with", script_call)
             subprocess.Popen(script_call.split()).wait()
 
-            print("Removing zip file in path", run_experiments_output_folder + "/" + zip_file_name, "- does file exist?", os.path.exists(run_experiments_output_folder + "/" + zip_file_name))
             # Remove zip file
-            os.remove(run_experiments_output_folder + "/" + zip_file_nam)
+            os.remove(local_log_folder + ".tar.gz")
 
             print("Performing trace analysis")
             # Perform trace analysis on the traces and write all traces from a node to the same file
             # analyze_trace will print to std out, and we redirect it to a file in the log_folder_path
-            local_log_folder = run_experiments_output_folder + "/" + log_name
+            print("Redirecting standard output to", local_log_folder + "/trace_analysis.txt")
             sys.stdout = open(local_log_folder + "/trace_analysis.txt", 'w+')
             for path, subdirs, files in os.walk(local_log_folder):
                 for name in files:
-                    TraceAnalysis().analyze_trace(experiment_configuration, path + "/" + name)
-            return
+                    if name.endswith(".trace"):
+                        TraceAnalysis().analyze_trace(experiment_configuration, path + "/" + name)
+            sys.stdout = sys.__stdout__
 
 
 if __name__ == '__main__':
