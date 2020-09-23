@@ -38,6 +38,7 @@ do
   echo "Running $script_call"
   EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1
   PID=$!
+  echo "PID of single${spe}: $PID"
   if [ -n "$(ps -p $PID -o pid=)" ];
   then
     finished=1
