@@ -280,6 +280,7 @@ public class Expose {
 			}
 			int node_id = (int) event.get("node");
 			while (!this.mc.nodeIdReady.getOrDefault(node_id, false)) {
+				System.out.println("Waiting for Node " + node_id + " to connect");
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
