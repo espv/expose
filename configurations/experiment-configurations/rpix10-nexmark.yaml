@@ -102,7 +102,7 @@ experiments:
   - name: experiment 2 --- NexMark
     id: 12
     flow:
-      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: [3]}
+      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: [12]}
       # Node 1 sets all RPI's as next hops for the tuples in the dataset
       - {task: addNextHop, arguments: [[1,2,3,4], [2,3,4,5,6,7,8,9,10,11]], node: [1]}
       # The RPI's set Node 11 as next hop for the output tuples from the query
