@@ -197,6 +197,7 @@ public class Expose {
 			List<Integer> node_id_list = (List<Integer>) event.get("node");
 			for (int node_id : node_id_list) {
 				while (!this.mc.nodeIdReady.getOrDefault(node_id, false)) {
+                                        System.out.println("Waiting for Node " + node_id + " to connect");
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
