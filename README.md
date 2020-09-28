@@ -25,6 +25,7 @@ Install the software framework in Software-Framework by running `mvn install && 
 
 Install the SPEs in SPEs-plus-wrappers/ by running `./init_all && ./build_all`
 - T-Rex specific: T-Rex requires yaml-cpp, which you can install from https://github.com/jbeder/yaml-cpp.
+- Apache Flink and Beam specific: edit the $SPE_FOLDER/kafka/config/server.properties and change the broker.id to a unique ID and insert the correct IP address in the advertised.listeners parameter.
 
 By using the isolcpus kernel parameter, isolate one of the CPU cores in the Intel Xeon server and the RPI. We isolated the 19th CPU core of the Intel Xeon server and the 3rd CPU core of the RPI 4. Hyperthreading is also off in the Intel Xeon server.
 
