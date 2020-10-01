@@ -23,23 +23,15 @@ echo "isolated_cpu_cores: $isolated_cpu_cores"
 
 port_base=$RANDOM
 
-finished=
-while [ ! $finished ]
-do
-  client_port=$((port_base+node_id))
-  client_port=0000$client_port
-  client_port=${client_port: -4}
-  fuser -k 4$client_port/tcp
-  fuser -k 5$client_port/tcp
-  $scriptdir/wait_while_port_taken 5$client_port
-  $scriptdir/wait_while_port_taken 4$client_port
+client_port=$((port_base+node_id))
+client_port=0000$client_port
+client_port=${client_port: -4}
+fuser -k 4$client_port/tcp
+fuser -k 5$client_port/tcp
+$scriptdir/wait_while_port_taken 5$client_port
+$scriptdir/wait_while_port_taken 4$client_port
 
-  script_call="EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1"
-  echo "Running $script_call"
-  EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1
-  PID=$!
-  if [ -n "$(ps -p $PID -o pid=)" ];
-  then
-    finished=1
-  fi
-done
+script_call="EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1"
+echo "Running $script_call"
+EXPOSE_PATH=$EXPOSE_PATH $EXPOSE_PATH/scripts/single${spe} $number_cpu_cores $client_port $coordinator_ip $coordinator_port $node_id $trace_path $isolated_cpu_cores 1>$logdir/StreamProcessors/node-${node_id}.log 2>&1
+
