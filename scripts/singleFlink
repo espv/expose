@@ -15,12 +15,12 @@ classpath=$EXPOSE_PATH/SPEs-plus-wrappers/flink-plus-wrapper/flink-experiments/t
 FLINK_PATH=$EXPOSE_PATH/SPEs-plus-wrappers/flink-plus-wrapper
 FLINK_BINARIES=$FLINK_PATH/flink-1.9.1
 KAFKA_PATH=$FLINK_PATH/kafka
-KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-zookeeper /tmp/expose-flink-zookeeper
-KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-kafka /tmp/expose-flink-kafka-logs
+KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-zookeeper /tmp/expose-flink-zookeeper > $EXPOSE_PATH/scripts/.zookeeper_log 2>&1
+KAFKA_PATH=$KAFKA_PATH $EXPOSE_PATH/scripts/start-kafka /tmp/expose-flink-kafka-logs > $EXPOSE_PATH/scripts/.kafka_log 2>&1
 
 if [[ -z $unused_cpu_core ]]
 then
-	FLINK_BINARIES=$FLINK_BINARIES EXPOSE_PATH=$EXPOSE_PATH java -Xms2g -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --spe-coordinator-port $spe_coordinator_port --node-id $node_id --trace-output-folder $trace_path
+	FLINK_BINARIES=$FLINK_BINARIES EXPOSE_PATH=$EXPOSE_PATH java -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --spe-coordinator-port $spe_coordinator_port --node-id $node_id --trace-output-folder $trace_path
 else
-	FLINK_BINARIES=$FLINK_BINARIES EXPOSE_PATH=$EXPOSE_PATH taskset -c $unused_cpu_core java -Xms2g -Dthread.pool.size=$number_threads -XX:ActiveProcessorCount=$number_threads -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --spe-coordinator-port $spe_coordinator_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
+	FLINK_BINARIES=$FLINK_BINARIES EXPOSE_PATH=$EXPOSE_PATH taskset -c $unused_cpu_core java -Dthread.pool.size=$number_threads -XX:ActiveProcessorCount=$number_threads -Dakka.client.timeout:600s -Dakka.ask.timeout:600s -classpath $classpath org.apache.flink.experiments.FlinkExperimentFramework --client-ip $client_ip --client-port 9092 --spe-coordinator-port $spe_coordinator_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
 fi

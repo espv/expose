@@ -3,6 +3,12 @@
 kafka_is_up=$(nc -vz localhost 9092 2>&1 | grep "succeeded")
 kafka_is_alive=
 echo "Start of start-kafka script"
+
+if [ -f .start-kafka-running ] && kill -0 `cat .start-kafka-running` 2>/dev/null; then
+    exit 1
+fi
+echo $$ > .start-kafka-running
+
 if [[ ! -z $kafka_is_up ]]
 then
 	echo "Kafka is already up!"
@@ -12,12 +18,14 @@ do
   while [[ -z $kafka_is_alive ]]
   do
     $KAFKA_PATH/bin/kafka-server-start.sh $KAFKA_PATH/config/server.properties &
+    disown
     kafka_pid=$!
     sleep $(( ( RANDOM % 5 )  + 5 ))
     echo "Checking if pid $kafka_pid is alive"
     kafka_is_alive=$(ps cax | grep $kafka_pid)
     echo "$kafka_pid is alive: $kafka_is_alive"
     kafka_is_up=$(nc -vz localhost 9092 2>&1 | grep "succeeded")
+    sleep 2
     if [[ ! -z $kafka_is_up ]]
     then
 	    break
@@ -26,7 +34,9 @@ do
   kafka_is_alive=$(ps cax | grep $kafka_pid)
   sleep $(( ( RANDOM % 5 )  + 5 ))
 #  kafka_is_up=$(echo dump | nc localhost 2181 | grep brokers)
+ # sleep 20
   kafka_is_up=$(nc -vz localhost 9092 2>&1 | grep "succeeded")
   echo "Kafka is alive: $kafka_is_alive, Kafka is up: $kafka_is_up"
 done
 echo "End of start-kafka script"
+rm .start-kafka-running
