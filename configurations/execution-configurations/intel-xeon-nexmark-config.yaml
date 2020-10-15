@@ -2,7 +2,7 @@ configuration:
   coordinator: {
     expose-path: "/home/espenvol/expose",
     ssh-user: espenvol,
-    ssh-host: 129.240.67.108,
+    ssh-host: dmms-lab108,
     port: 50000
   }
   SPEs:
