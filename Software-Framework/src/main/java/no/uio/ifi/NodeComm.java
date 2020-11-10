@@ -58,14 +58,11 @@ public class NodeComm extends Comm implements Runnable {
 		for (int node_id : node_id_list) {
 			task.put("node", Collections.singletonList(node_id));
 			NodeClient mc = nodeIdsToClients.get(node_id);
-			System.out.println("Before SendMap");
 			synchronized (mc) {
 				SendMap(task, mc.out);
 			}
-			System.out.println("After SendMap");
 			boolean expectAck = (boolean) task.getOrDefault("ack", true);
 			if (expectAck) {
-				System.out.println("Before ack for sequence id " + sequence_id);
 				while (!mc.received_replies.containsKey(sequence_id)) {
 					try {
 						Thread.sleep(1000);
@@ -73,13 +70,11 @@ public class NodeComm extends Comm implements Runnable {
 						e.printStackTrace();
 					}
 				}
-				System.out.println("After ack");
 				Map<String, Object> reply = mc.received_replies.remove(sequence_id);
 				String response = (String) reply.get("response");
 				ret.append(response);
 			}
 		}
-		System.out.println("Return value: " + ret.toString());
 		return ret.toString();
 	}
 
@@ -218,19 +213,15 @@ public class NodeComm extends Comm implements Runnable {
 			public void run() {
 				while (true) {
 					Map<String, Object> msg;
-					System.out.println("Waiting for messages from Node " + remote_node_id);
 					try {
-						System.out.println("in: " + in + " yaml: " + yaml);
 						msg = receiveMap(in, yaml);
 					} catch (Exception e) {
 						e.printStackTrace();
 						ShutDown();
 						return;
 					}
-					System.out.println("Received msg: " + msg);
 
 					if (msg.get("type").equals("response")) {
-						System.out.println("Received response with sequence id " + msg.get("sequence-id"));
 						received_replies.put((int) msg.get("sequence-id"), msg);
 					} else if (msg.get("type").equals("task")) {
 						received_tasks.add(msg);
@@ -256,20 +247,16 @@ public class NodeComm extends Comm implements Runnable {
 				cmd = received_tasks.remove(0);
 				int sequence_id = (int) cmd.get("sequence-id");
 				new Thread(() -> {
-					System.out.println("Handling task " + cmd);
 					String response = mainTaskHandler.HandleEvent(cmd);
 					boolean requireAck = (boolean) cmd.getOrDefault("ack", true);
-					System.out.println("Require ack for sequence ID " + sequence_id + ": " + requireAck);
 					try {
 						if (requireAck) {
-							System.out.println("Sending ack to Node " + remote_node_id);
 							Map<String, Object> reply = new HashMap<>();
 							reply.put("sequence-id", sequence_id);
 							reply.put("response", response);
 							reply.put("type", "response");
 							this.out.write(StringEscapeUtils.escapeJava(yaml.dump(reply)) + "\n");
 							this.out.flush();
-							System.out.println("Finished sending ack");
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
