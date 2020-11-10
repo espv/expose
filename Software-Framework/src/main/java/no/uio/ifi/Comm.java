@@ -18,7 +18,6 @@ public class Comm {
         synchronized (yaml) {
             map = yaml.load(yaml_event);
         }
-        System.out.println("After loading yaml");
         return map;
     }
 
