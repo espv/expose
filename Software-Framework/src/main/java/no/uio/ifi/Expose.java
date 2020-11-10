@@ -322,9 +322,7 @@ public class Expose {
 		map.put("task", "addTpIds");
 		map.put("arguments", activeTracepointIds);
 		map.put("node", Collections.singletonList(node_id));
-		System.out.println("Before addTpIds");
 		mc.SendToSpe(map);
-		System.out.println("After addTpIds");
 
 		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddTpIds(activeTracepointIds);
 
@@ -335,9 +333,7 @@ public class Expose {
 		map.put("task", "addSchemas");
 		map.put("arguments", streamDefinitions);
 		map.put("node", Collections.singletonList(node_id));
-		System.out.println("Before addSchemas");
 		mc.SendToSpe(map);
-		System.out.println("After addSchemas");
 		//this.mc.nodeIdsToExperimentAPIs.get(node_id).AddSchemas(streamDefinitions);
 		System.out.println("Node " + node_id + ": AddSchemas " + streamDefinitions);
 	}
