@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.*;
 
 
-public class SpeComm extends Comm {
+public class SpeTaskHandler extends Comm implements MainTaskHandler {
 	private String client_ip;
 	int client_port;
 	int node_id;
@@ -17,27 +17,12 @@ public class SpeComm extends Comm {
 	int spe_coordinator_port;
 	ExperimentAPI experimentAPI;
 	SpeSpecificAPI speSpecificAPI;
-	boolean isRunning = true;
 	String trace_folder;
-	public CoordinatorComm speCoordinatorComm;
+	public NodeComm speNodeComm;
 
-	private InputStreamReader fromCoordinator;
-	private InputStreamReader fromCoordinatorAdministrative;
-	private Map<Integer, InputStreamReader> fromSpeCoordinators = new HashMap<>();
-	private Map<Integer, BufferedReader> fromSpeCoordinatorsBR = new HashMap<>();
-	private BufferedReader bufferedFromCoordinator;
-	private BufferedReader bufferedFromCoordinatorAdministrative;
-	private Map<Integer, BufferedReader> bufferedFromSpeCoordinators = new HashMap<>();
-	private DataOutputStream outToCoordinator;
-	private DataOutputStream outToCoordinatorAdministrative;
-	private Map<Integer, DataOutputStream> outToSpeCoordinators = new HashMap<>();
-	private Map<Integer, PrintWriter> outToSpeCoordinatorsPW = new HashMap<>();
-	private Socket coordinatorSocket;
-	private Socket coordinatorSocketAdministrative;
-	private Map<Integer, Socket> speCoordinatorSockets = new HashMap<>();
-	private int node_id_current_coordinator = -1;
+	final int MAIN_COORDINATOR_NODE_ID = 0;
 
-	public SpeComm(String[] args, ExperimentAPI experimentAPI, SpeSpecificAPI speSpecificAPI) {
+	public SpeTaskHandler(String[] args, ExperimentAPI experimentAPI, SpeSpecificAPI speSpecificAPI) {
 		Options options = new Options();
 		Option cp = new Option("c", "client-port", true, "Client port");
 		cp.setRequired(true);
@@ -93,155 +78,31 @@ public class SpeComm extends Comm {
 		this.trace_folder = cmd.getOptionValue("trace-output-folder");
 		this.experimentAPI = experimentAPI;
 		this.speSpecificAPI = speSpecificAPI;
-		try {
-			ConnectToCoordinator(coordinator_ip, coordinator_port);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(10);
-		}
 
-		speCoordinatorComm = new CoordinatorComm(this.spe_coordinator_port, null, this.node_id);
-		//speCoordinatorComm.nodeIdsToExperimentAPIs.put(this.node_id, experimentAPI);
-		new Thread(speCoordinatorComm).start();
+		speNodeComm = new NodeComm(this.client_ip, this.spe_coordinator_port, this.client_port, null, this.node_id);
+		speNodeComm.mainTaskHandler = this;
+		new Thread(speNodeComm).start();
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void ConnectToCoordinator(String coordinator_ip, int coordinator_port) throws Exception {
-		System.out.println("Connecting to coordinator at ip " + coordinator_ip + ":" + coordinator_port);
-		this.coordinatorSocket = new Socket(coordinator_ip, coordinator_port);
-		System.out.println("Connecting to coordinator at ip " + coordinator_ip + ":" + (coordinator_port-1));
-		this.coordinatorSocketAdministrative = new Socket(coordinator_ip, coordinator_port-1);
-		this.fromCoordinator = new InputStreamReader(coordinatorSocket.getInputStream());
-		this.fromCoordinatorAdministrative = new InputStreamReader(coordinatorSocketAdministrative.getInputStream());
-		this.bufferedFromCoordinator = new BufferedReader(this.fromCoordinator);
-		this.bufferedFromCoordinatorAdministrative = new BufferedReader(this.fromCoordinatorAdministrative);
-		this.outToCoordinator = new DataOutputStream(coordinatorSocket.getOutputStream());
-		this.outToCoordinatorAdministrative = new DataOutputStream(coordinatorSocketAdministrative.getOutputStream());
-		this.outToCoordinator.writeBytes(this.node_id           + "\n" +
-				this.client_ip          + "\n" +
-				this.client_port + "\n" +
-				this.spe_coordinator_port + "\n");
-		this.outToCoordinatorAdministrative.writeBytes(this.node_id           + "\n" +
-				this.client_ip          + "\n" +
-				this.client_port + "\n" +
-				this.spe_coordinator_port + "\n");
-		this.outToCoordinator.flush();
-		this.outToCoordinatorAdministrative.flush();
-	}
-
-	public int GetNodeIdOfCurrentCoordinator() {
-		return node_id_current_coordinator;
+		try {
+			ConnectToSpeCoordinator(MAIN_COORDINATOR_NODE_ID, coordinator_ip, coordinator_port);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(10);
+		}
 	}
 
 	public void ConnectToSpeCoordinator(int spe_coordinator_node_id, String coordinator_ip, int coordinator_port) throws Exception {
-		System.out.println("Connecting to SPE coordinator at ip " + coordinator_ip + ":" + coordinator_port);
-		/*this.speCoordinatorSockets.put(node_id, new Socket(coordinator_ip, coordinator_port));
-		this.fromSpeCoordinators.put(node_id, new InputStreamReader(coordinatorSocket.getInputStream()));
-		//this.fromSpeCoordinatorsBR.put(node_id, new BufferedReader(new InputStreamReader(coordinatorSocket.getInputStream())));
-		this.bufferedFromSpeCoordinators.put(node_id, new BufferedReader(this.fromCoordinator));
-		this.outToSpeCoordinators.put(node_id, new DataOutputStream(coordinatorSocket.getOutputStream()));
-		//this.outToSpeCoordinatorsPW.put(node_id, new PrintWriter(coordinatorSocket.getOutputStream()));
-		outToSpeCoordinators.get(node_id).writeBytes(this.node_id           + "\n" +
-				this.client_ip          + "\n" +
-				this.client_port + "\n" +
-				this.spe_coordinator_port + "\n");
-		outToSpeCoordinators.get(node_id).flush();*/
-
-
-		this.speCoordinatorSockets.put(spe_coordinator_node_id, new Socket(coordinator_ip, coordinator_port));
-		this.fromSpeCoordinators.put(spe_coordinator_node_id, new InputStreamReader(this.speCoordinatorSockets.get(spe_coordinator_node_id).getInputStream()));
-		this.bufferedFromSpeCoordinators.put(spe_coordinator_node_id, new BufferedReader(this.fromSpeCoordinators.get(spe_coordinator_node_id)));
-		this.outToSpeCoordinators.put(spe_coordinator_node_id, new DataOutputStream(speCoordinatorSockets.get(spe_coordinator_node_id).getOutputStream()));
-		this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(this.node_id           + "\n" +
-				this.client_ip          + "\n" +
-				this.client_port + "\n" +
-				this.spe_coordinator_port + "\n");
-		this.outToSpeCoordinators.get(spe_coordinator_node_id).flush();
-
-		new Thread(() -> {
-			while (this.isRunning) {
-				Map<String, Object> cmd;
-				try {
-					cmd = receiveMap(bufferedFromSpeCoordinators.get(spe_coordinator_node_id), yaml);
-				} catch (Exception e) {
-					//e.printStackTrace();
-					System.out.println("Connection with SPE coordinator with node ID " + spe_coordinator_node_id + " dropped (1)");
-					//ShutDown();
-					return;
-				}
-				System.out.println("Received task from Node " + spe_coordinator_node_id + ": " + cmd);
-				// SPE coordinator
-				node_id_current_coordinator = spe_coordinator_node_id;
-				// This response will contain the responses of all the nodes
-				String response = this.HandleEvent(cmd);
-				try {
-					this.outToSpeCoordinators.get(spe_coordinator_node_id).writeBytes(response);
-				} catch (Exception e) {
-					//e.printStackTrace();
-					System.out.println("Connection with SPE coordinator with node ID " + spe_coordinator_node_id + " dropped (2)");
-					//ShutDown();
-					return;
-				}
-			}
-		}).start();
+		this.speNodeComm.ConnectToNode(spe_coordinator_node_id, coordinator_ip, coordinator_port);
 	}
 
 	public String GetTraceOutputFolder() {return this.trace_folder;}
 
 	public void ShutDown() {
-		try {
-			this.bufferedFromCoordinator.close();
-			this.fromCoordinator.close();
-			this.outToCoordinator.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		System.exit(0);
-	}
-
-	public void DoAcceptTasks(String type) {
-		while (this.isRunning) {
-			Map<String, Object> cmd = null;
-			try {
-				if (type.equals("regular")) {
-					cmd = receiveMap(bufferedFromCoordinator, yaml);
-				} else if (type.equals("administrative")) {
-					cmd = receiveMap(bufferedFromCoordinatorAdministrative, yaml);
-				} else {
-					System.exit(1000);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				ShutDown();
-				return;
-			}
-
-			Map<String, Object> finalCmd = cmd;
-			node_id_current_coordinator = 0;
-			String response = this.HandleEvent(finalCmd);
-			try {
-				if (type.equals("regular")) {
-					this.outToCoordinator.writeBytes(response);
-				} else if (type.equals("administrative")) {
-					this.outToCoordinatorAdministrative.writeBytes(response);
-				} else {
-					System.exit(1001);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				ShutDown();
-			}
-		}
-	}
-	public void AcceptTasks() {
-		new Thread(() -> {
-			DoAcceptTasks("regular");
-		}).start();
-		DoAcceptTasks("administrative");
 	}
 
 	public int GetNodeId() {return this.node_id;}
@@ -254,23 +115,11 @@ public class SpeComm extends Comm {
 		for (int node_id : node_id_list) {
 			task.put("node", Arrays.asList(node_id));
 			if ((boolean) task.getOrDefault("parallel", true)) {
-				new Thread(() -> speCoordinatorComm.SendToSpe(task)).start();
+				new Thread(() -> speNodeComm.SendToSpe(task)).start();
 			} else {
-				speCoordinatorComm.SendToSpe(task);
+				speNodeComm.SendToSpe(task);
 			}
 		}
-		/*try {
-			SendMap(cmd.event, this.outToSpeCoordinatorsPW.get(node_id_to_execute));
-			boolean expectAck = (boolean) cmd.event.getOrDefault("ack", true);
-			String ret = null;
-			if (expectAck) {
-				ret = fromSpeCoordinatorsBR.get(node_id_to_execute).readLine();
-			}
-			return ret;
-		} catch (IOException e) {
-			ShutDown();
-			return e.toString();
-		}*/
 		return "Success";
 	}
 
@@ -433,7 +282,8 @@ public class SpeComm extends Comm {
 				}
 				case "stopStream": {
 					List<Integer> stream_id_list = (List<Integer>) args.get(0);
-					//experimentAPI.StopStream(stream_id_list);
+					int migration_coordinator_node_id = (int) args.get(1);
+					experimentAPI.StopStream(stream_id_list, migration_coordinator_node_id);
 					break;
 				}
 				case "waitForStoppedStreams": {

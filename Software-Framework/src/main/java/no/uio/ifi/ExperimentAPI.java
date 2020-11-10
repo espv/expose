@@ -10,7 +10,9 @@ public interface ExperimentAPI {
 	String Configure();
 	String SetTupleBatchSize(int size);
 	String SetIntervalBetweenTuples(int interval);
+	String SetTuplesPerSecondLimit(int tuples_per_second, List<Integer> node_id_list);
 	String SendDsAsStream(Map<String, Object> ds, int iterations, boolean realism);
+	String SendDsAsVariableOnOffStream(Map<String, Object> ds, int desired_tuples_per_second, int downtime, int min, int max, int step);
 	String AddSchemas(List<Map<String, Object>> stream_schema);
 	String DeployQueries(Map<String, Object> query);
 	String AddNextHop(List<Integer> streamId_list, List<Integer> nodeId_list);
@@ -29,13 +31,14 @@ public interface ExperimentAPI {
 	String MoveStaticQueryState(int query_id, int new_host);
 	String MoveDynamicQueryState(int query_id, int new_host);
 	String ResumeStream(List<Integer> stream_id_list);
-	String StopStream(List<Integer> stream_id_list);
+	String StopStream(List<Integer> stream_id_list, int migration_coordinator_node_id);
 	String BufferStream(List<Integer> stream_id_list);
-	String BufferAndStopStream(List<Integer> stream_id_list);
-	String BufferStopAndRelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
+	//String BufferAndStopStream(List<Integer> stream_id_list);
+	//String BufferStopAndRelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
 	String RelayStream(List<Integer> stream_id_list, List<Integer> old_host_list, List<Integer> new_host_list);
 	String RemoveNextHop(List<Integer> stream_id_list, List<Integer> host_list);
 	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
 	String SetAsPotentialHost(List<Integer> stream_id_list);
 	String WaitForStoppedStreams(List<Integer> node_id_list, List<Integer> stream_id_list);
+	Map<String, Object> CollectMetrics();
 }

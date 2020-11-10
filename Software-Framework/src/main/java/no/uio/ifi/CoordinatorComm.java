@@ -17,7 +17,6 @@ public class CoordinatorComm extends Comm implements Runnable {
 	Map<Integer, CoordinatorClient> nodeIdsToClients = new HashMap<>();
 	Map<Integer, Boolean> nodeIdReady = new HashMap<>();
 	Map<Integer, Map<String, Object> > nodeIdsToClientInformation = new HashMap<>();
-	//Map<Integer, ExperimentAPI> nodeIdsToExperimentAPIs = new HashMap<>();
 	int local_node_id;
 	int port;
 
@@ -40,10 +39,14 @@ public class CoordinatorComm extends Comm implements Runnable {
 		for (int node_id : node_id_list) {
 			try {
 				CoordinatorClient mc = nodeIdsToClients.get(node_id);
-				SendMap(task, mc.out);
+				synchronized (mc) {
+					SendMap(task, mc.out);
+				}
 				boolean expectAck = (boolean) task.getOrDefault("ack", true);
 				if (expectAck) {
-					ret.append(mc.in.readLine()).append(", ");
+					synchronized (mc) {
+						ret.append(mc.in.readLine()).append(", ");
+					}
 				}
 			} catch (IOException e) {
 				ShutDown();
@@ -59,7 +62,9 @@ public class CoordinatorComm extends Comm implements Runnable {
 	public void PrintIncomingOfClient(int nodeId) {
 		CoordinatorClient client = nodeIdsToClients.get(nodeId);
 		try {
-			System.out.println(client.in.readLine());
+			synchronized (client) {
+				System.out.println(client.in.readLine());
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -74,19 +79,25 @@ public class CoordinatorComm extends Comm implements Runnable {
 		}
 	}
 
-	public void SendCoordinatorTask(Map<String, Object> cmd) {
+	public List<String> SendCoordinatorTask(Map<String, Object> cmd) {
+		List<String> res = new ArrayList<>();
 		cmd.put("administrative", true);
 		for (CoordinatorClient mc : nodeIdsToClients.values()) {
 			try {
-				SendMap(cmd, mc.out);
-				boolean expectAck = (boolean) cmd.getOrDefault("ack", true);
-				if (expectAck) {
-					mc.in.readLine();
+				synchronized (mc) {
+					SendMap(cmd, mc.out);
 				}
+					boolean expectAck = (boolean) cmd.getOrDefault("ack", true);
+					if (expectAck) {
+						synchronized (mc) {
+							res.add(mc.in.readLine());
+						}
+					}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		return res;
 	}
 
 	public void EndExperimentTask() {
@@ -118,7 +129,7 @@ public class CoordinatorComm extends Comm implements Runnable {
 			address.put("ip", speIp);
 			address.put("client-port", speClientPort);
 			address.put("spe-coordinator-port", speCoordinatorPort);
-			System.out.println("New client's node ID: " + nodeId + ", address: " + speIp + ":" + speClientPort);
+			System.out.println("New client's node ID: " + nodeId + ", address: " + speIp + ":" + speClientPort + ", coordinator port: " + port);
 			try {
 				address.put("ip", java.net.InetAddress.getByName((String) address.get("ip")).getHostAddress());
 			} catch (UnknownHostException e) {
@@ -145,8 +156,30 @@ public class CoordinatorComm extends Comm implements Runnable {
 
 		public CoordinatorClient(Socket socket) throws IOException {
 			this.socket = socket;
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream());
+			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			this.out = new PrintWriter(socket.getOutputStream());
+			//new Thread(this::AcceptTasks).start();
+		}
+
+		public void AcceptTasks() {
+			while (true) {
+				Map<String, Object> cmd;
+				try {
+					cmd = receiveMap(in, yaml);
+				} catch (Exception e) {
+					e.printStackTrace();
+					ShutDown();
+					return;
+				}
+
+				String response = "";//;expose.mainTaskHandler.HandleEvent(cmd);
+				try {
+					this.out.write(response);
+				} catch (Exception e) {
+					e.printStackTrace();
+					ShutDown();
+				}
+			}
 		}
 
 		public Socket getSocket() {

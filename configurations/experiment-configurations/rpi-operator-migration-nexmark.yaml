@@ -23,15 +23,23 @@ experiments:
       - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
 
       - {task: addNextHop, arguments: [[17], [3]], node: [2, 4]}
-      - {task: bufferAndStopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
+      #- {task: showNetworkTopology}
+      #- {task: relayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]}
+      #- {task: showNetworkTopology}
+      - {task: bufferStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
+      - {task: stopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4], 0]}
 
       - {task: deployQueries, arguments: [0, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks,
          arguments: [1, [
           {task: startRuntimeEnv, node: [2, 3, 4]},
-          {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
-          {task: retEndOfStream, node: [3], arguments: [2000]},
+          #{task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
+          #{task: wait, node: [1], arguments: [60000]},
+          {task: sendDsAsVariableOnOffStream, arguments: [8, 100, 5000, 100, 5000, 100], node: [1], realism: false, parallel: true},
+          #{task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
+          #{task: wait, node: [1], arguments: [2000]},
+          {task: retEndOfStream, node: [3], arguments: [10000]},
           {task: stopRuntimeEnv, node: [2, 3, 4]},
       ]]}
       - {task: startRuntimeEnv, node: [2, 3, 4]}
@@ -46,7 +54,9 @@ experiments:
           #{task: wait, node: [2], arguments: [1000]},
           {task: traceTuple, node: [2], arguments: [3, []]},
            # Old host tells the source node to buffer all the tuples
-          {task: bufferStopAndRelayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
+          {task: bufferStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          {task: stopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], 2]},
+          {task: relayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
           #{task: sendDsAsStream, arguments: [8, 10, false], node: [1], realism: false, parallel: true},
           {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
           #{task: wait, node: [2], arguments: [1]},
