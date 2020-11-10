@@ -100,12 +100,6 @@ public class NodeComm extends Comm implements Runnable {
 		}
 		cmd.put("node", node_id_list);
 		SendToSpe(cmd);
-		// TODO: Remove after finding out why things can fail here
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		return res;
 	}
 
@@ -124,7 +118,6 @@ public class NodeComm extends Comm implements Runnable {
 		nodeIdsToClients.put(nodeId, client);
 	}
 
-	// TODO: Merge parts of ConnectToNode and the run() method. Basically, extract the connection to nodes, which is identical in both methods
 	public void ConnectToNode(int nodeId, String nodeIp, int nodeCoordinatorPort) {
 		if (nodeIdsToClients.containsKey(nodeId)) {
 			System.out.println("We are already connected to Node " + nodeId);
