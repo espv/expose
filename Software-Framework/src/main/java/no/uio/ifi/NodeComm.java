@@ -65,7 +65,7 @@ public class NodeComm extends Comm implements Runnable {
 			if (expectAck) {
 				while (!mc.received_replies.containsKey(sequence_id)) {
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(1);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -94,12 +94,10 @@ public class NodeComm extends Comm implements Runnable {
 		cmd.put("sequence-id", sequence_id);
 		List<String> res = new ArrayList<>();
 		List<NodeClient> nodeClients = new ArrayList<>(nodeIdsToClients.values());
-		List<Integer> node_id_list = new ArrayList<>();
 		for (int i = 0; i < nodeClients.size(); i++) {
-			node_id_list.add(nodeClients.get(i).remote_node_id);
+			cmd.put("node", Collections.singletonList(nodeClients.get(i).remote_node_id));
+			res.add(SendToSpe(cmd));
 		}
-		cmd.put("node", node_id_list);
-		SendToSpe(cmd);
 		return res;
 	}
 

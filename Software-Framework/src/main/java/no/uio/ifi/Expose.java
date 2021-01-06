@@ -488,6 +488,22 @@ public class Expose {
 					task_args.add(realism);
 					break;
 				}
+				case "sendDsAsConstantStream": {
+					int dataset_id = (int) args.get(0);
+					List<Map<String, Object>>
+							datasets = (ArrayList<Map<String, Object>>) yaml_configuration.get("datasets");
+					for (Map<String, Object> ds : datasets) {
+						ds.put("file", ds.get("file"));
+						if ((int) ds.get("id") == dataset_id) {
+							task_args.add(ds);
+							break;
+						}
+					}
+
+					int desired_tuple_rate = (int) args.get(1);
+					task_args.add(desired_tuple_rate);
+					break;
+				}
 				case "sendDsAsVariableOnOffStream": {
 					int dataset_id = (int) args.get(0);
 					List<Map<String, Object>>
@@ -652,6 +668,9 @@ public class Expose {
 				case "setTuplesPerSecondLimit": {
 					int tuples_per_second = (int) args.get(0);
 					List<Integer> node_list = (List<Integer>) args.get(1);
+					task_args.add(tuples_per_second);
+					task_args.add(node_list);
+					break;
 				}
 				case "showNetworkTopology": {
 					break;
@@ -675,10 +694,11 @@ public class Expose {
 		}
 	}
 
-	public List<Map<String, Object>> CollectMetrics() {
+	public List<Map<String, Object>> CollectMetrics(long metrics_window) {
 		List<Map<String, Object>> metrics = new ArrayList<>();
 		Map<String, Object> cmd = new HashMap<>();
 		cmd.put("task", "collectMetrics");
+		cmd.put("arguments", Collections.singletonList(metrics_window));
 		List<String> yaml_metrics = this.mc.BroadcastTask(cmd);
 		Yaml yaml = new Yaml();
 		for (String yaml_metric : yaml_metrics) {

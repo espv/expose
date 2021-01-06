@@ -13,6 +13,7 @@ public interface ExperimentAPI {
 	String SetTuplesPerSecondLimit(int tuples_per_second, List<Integer> node_id_list);
 	String SendDsAsStream(Map<String, Object> ds, int iterations, boolean realism);
 	String SendDsAsVariableOnOffStream(Map<String, Object> ds, int desired_tuples_per_second, int downtime, int min, int max, int step);
+	String SendDsAsConstantStream(Map<String, Object> ds, int desired_tuples_per_second);
 	String AddSchemas(List<Map<String, Object>> stream_schema);
 	String DeployQueries(Map<String, Object> query);
 	String AddNextHop(List<Integer> streamId_list, List<Integer> nodeId_list);
@@ -40,5 +41,5 @@ public interface ExperimentAPI {
 	String AddSourceNodes(int query_id, List<Integer> stream_id_list, List<Integer> node_id_list);
 	String SetAsPotentialHost(List<Integer> stream_id_list);
 	String WaitForStoppedStreams(List<Integer> node_id_list, List<Integer> stream_id_list);
-	Map<String, Object> CollectMetrics();
+	Map<String, Object> CollectMetrics(long metrics_window);
 }

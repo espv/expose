@@ -335,9 +335,16 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 					break;
 				}
 				case "collectMetrics": {
-					ret.append(StringEscapeUtils.escapeJava(yaml.dump(experimentAPI.CollectMetrics())));
+					int metrics_window = (int) args.get(0);
+					ret.append(StringEscapeUtils.escapeJava(yaml.dump(experimentAPI.CollectMetrics(metrics_window))));
 					System.out.println("After handling " + cmd);
 					return ret.append("\n").toString();
+				}
+				case "setTuplesPerSecondLimit": {
+					int tuples_per_second = (int) args.get(0);
+					List<Integer> node_id_list = (List<Integer>) args.get(1);
+					experimentAPI.SetTuplesPerSecondLimit(tuples_per_second, node_id_list);
+					break;
 				}
 				default: {
 					this.speSpecificAPI.HandleSpeSpecificTask(cmd);
