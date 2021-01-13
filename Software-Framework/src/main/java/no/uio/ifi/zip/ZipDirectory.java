@@ -18,7 +18,7 @@ public class ZipDirectory {
     }
 
     public static void zipDirectory(String sourceFile, String destFileLocation) throws IOException {
-        System.out.println("Zipping directory " + sourceFile + " to " + destFileLocation);
+        //System.out.println("Zipping directory " + sourceFile + " to " + destFileLocation);
         File destFile = new File(destFileLocation);
         destFile.createNewFile();
         FileOutputStream fos = new FileOutputStream(destFile, false);
@@ -43,12 +43,12 @@ public class ZipDirectory {
                 zipOut.closeEntry();
             }
             File[] children = fileToZip.listFiles();
-            System.out.println("zipping directory");
+            //System.out.println("zipping directory");
             for (File childFile : children) {
-                System.out.println("zipping file within directory: " + fileName + "/" + childFile.getName());
+                //System.out.println("zipping file within directory: " + fileName + "/" + childFile.getName());
                 zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
             }
-            System.out.println("Finished zipping directory to " + zipOut);
+            //System.out.println("Finished zipping directory to " + zipOut);
             return;
         }
         FileInputStream fis = new FileInputStream(fileToZip);

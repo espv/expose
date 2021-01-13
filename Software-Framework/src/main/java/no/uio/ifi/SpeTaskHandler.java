@@ -15,6 +15,7 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 	String coordinator_ip;
 	int coordinator_port;
 	int spe_coordinator_port;
+	int state_transfer_port = -1;
 	ExperimentAPI experimentAPI;
 	SpeSpecificAPI speSpecificAPI;
 	String trace_folder;
@@ -52,9 +53,13 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 		t.setRequired(true);
 		options.addOption(t);
 
-		Option c = new Option("c", "connector", true, "which connector to use for communication between nodes");
+		Option c = new Option("o", "connector", true, "which connector to use for communication between nodes");
 		c.setRequired(false);
 		options.addOption(c);
+
+		Option st = new Option("s", "state-transfer-port", true, "TCP port used for for TCP server on new host receiving operator state");
+		st.setRequired(false);
+		options.addOption(st);
 
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
@@ -75,11 +80,14 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 		this.coordinator_ip = cmd.getOptionValue("coordinator-ip");
 		this.coordinator_port = Integer.parseInt(cmd.getOptionValue("coordinator-port"));
 		this.spe_coordinator_port = Integer.parseInt(cmd.getOptionValue("spe-coordinator-port"));
+		if (cmd.hasOption("state-transfer-port")) {
+			this.state_transfer_port = Integer.parseInt(cmd.getOptionValue("state-transfer-port"));
+		}
 		this.trace_folder = cmd.getOptionValue("trace-output-folder");
 		this.experimentAPI = experimentAPI;
 		this.speSpecificAPI = speSpecificAPI;
 
-		speNodeComm = new NodeComm(this.client_ip, this.spe_coordinator_port, this.client_port, null, this.node_id);
+		speNodeComm = new NodeComm(this.client_ip, this.spe_coordinator_port, this.client_port, this.state_transfer_port, null, this.node_id);
 		speNodeComm.mainTaskHandler = this;
 		new Thread(speNodeComm).start();
 		try {
@@ -97,6 +105,10 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 
 	public void ConnectToSpeCoordinator(int spe_coordinator_node_id, String coordinator_ip, int coordinator_port) throws Exception {
 		this.speNodeComm.ConnectToNode(spe_coordinator_node_id, coordinator_ip, coordinator_port);
+	}
+
+	public int GetStateTransferPort() {
+		return state_transfer_port;
 	}
 
 	public String GetTraceOutputFolder() {return this.trace_folder;}

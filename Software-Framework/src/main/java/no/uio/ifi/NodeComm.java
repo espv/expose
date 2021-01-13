@@ -2,10 +2,7 @@ package no.uio.ifi;
 
 import org.apache.commons.text.StringEscapeUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -23,12 +20,13 @@ public class NodeComm extends Comm implements Runnable {
 	String ip;
 	int client_port;
 	int local_coordinator_port;
+	int state_transfer_port;
 	int cur_sequence_id = 0;
 	MainTaskHandler mainTaskHandler;
 
 	int MAIN_COORDINATOR_NODE_ID = 0;
 
-	NodeComm(String ip, int local_coordinator_port, int client_port, Expose expose, int local_node_id) {
+	NodeComm(String ip, int local_coordinator_port, int client_port, int state_transfer_port, Expose expose, int local_node_id) {
 		this.ip = ip;
 		this.local_node_id = local_node_id;
 		try {
@@ -40,6 +38,20 @@ public class NodeComm extends Comm implements Runnable {
 		this.expose = expose;
 		this.local_coordinator_port = local_coordinator_port;
 		this.client_port = client_port;
+		this.state_transfer_port = state_transfer_port;
+	}
+
+	NodeComm(String ip, int local_coordinator_port, Expose expose, int local_node_id) {
+		this.ip = ip;
+		this.local_node_id = local_node_id;
+		try {
+			server = new ServerSocket(local_coordinator_port);
+		} catch (IOException e) {
+			e.printStackTrace();
+			ShutDown();
+		}
+		this.expose = expose;
+		this.local_coordinator_port = local_coordinator_port;
 	}
 
 	// Put this method in a different class
@@ -101,11 +113,12 @@ public class NodeComm extends Comm implements Runnable {
 		return res;
 	}
 
-	public void SetupClientMap(NodeClient client, int nodeId, String ip, int coordinator_port, int client_port) {
+	public void SetupClientMap(NodeClient client, int nodeId, String ip, int coordinator_port, int client_port, int state_transfer_port) {
 		Map<String, Object> address = new HashMap<>();
 		address.put("ip", ip);
 		address.put("client-port", client_port);
 		address.put("spe-coordinator-port", coordinator_port);
+		address.put("state-transfer-port", state_transfer_port);
 		try {
 			address.put("ip", java.net.InetAddress.getByName((String) address.get("ip")).getHostAddress());
 		} catch (UnknownHostException e) {
@@ -138,10 +151,11 @@ public class NodeComm extends Comm implements Runnable {
 		client.out.write(this.local_node_id           + "\n" +
 				this.ip          + "\n" +
 				this.client_port + "\n" +
-				this.local_coordinator_port + "\n");
+				this.local_coordinator_port + "\n" +
+				this.state_transfer_port + "\n");
 		client.out.flush();
 
-		SetupClientMap(client, nodeId, nodeIp, nodeCoordinatorPort, -1);
+		SetupClientMap(client, nodeId, nodeIp, nodeCoordinatorPort, -1, -1);
 
 		new Thread(client).start();
 	}
@@ -170,7 +184,8 @@ public class NodeComm extends Comm implements Runnable {
 			String nodeIp = client.getIp();
 			int nodeClientPort = client.getPort();
 			int nodeCoordinatorPort = client.getPort();
-			SetupClientMap(client, nodeId, nodeIp, nodeCoordinatorPort, nodeClientPort);
+			int nodeStateTransferPort = client.getPort();
+			SetupClientMap(client, nodeId, nodeIp, nodeCoordinatorPort, nodeClientPort, nodeStateTransferPort);
 			new Thread(client).start();
 
 			if (this.MAIN_COORDINATOR_NODE_ID == this.local_node_id) {
@@ -185,6 +200,7 @@ public class NodeComm extends Comm implements Runnable {
 	class NodeClient implements Runnable {
 		private Socket socket;
 		public PrintWriter out;
+		public OutputStream outputStream;
 		public BufferedReader in;
 		int remote_node_id;
 		List<Map<String, Object>> received_tasks = new ArrayList<>();
@@ -195,7 +211,8 @@ public class NodeComm extends Comm implements Runnable {
 		public NodeClient(Socket socket) throws IOException {
 			this.socket = socket;
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			this.out = new PrintWriter(socket.getOutputStream());
+			this.outputStream = socket.getOutputStream();
+			this.out = new PrintWriter(outputStream);
 		}
 
 		class MessageHandler implements Runnable {
@@ -230,7 +247,7 @@ public class NodeComm extends Comm implements Runnable {
 				Map<String, Object> cmd;
 				while (received_tasks.isEmpty()) {
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(1);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

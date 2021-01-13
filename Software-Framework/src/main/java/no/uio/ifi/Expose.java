@@ -886,8 +886,7 @@ public class Expose {
 			}
 		});
 
-		// -1 is the client-port
-		jspef.mc = new NodeComm(cmd.getOptionValue("coordinator-ip"), Integer.parseInt(cmd.getOptionValue("coordinator-port")), -1, jspef, 0);
+		jspef.mc = new NodeComm(cmd.getOptionValue("coordinator-ip"), Integer.parseInt(cmd.getOptionValue("coordinator-port")), jspef, 0);
 		// coordinator port here is -1 of above (TEMP) and Expose is null (TEMP)
 		// These are ongoing attempts to decouple and improve the communication
 		// TODO: Make the port for the admin mc a cmd line argument
