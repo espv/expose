@@ -366,7 +366,7 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 				experimentAPI.UnlockExecution();
 			}
 			System.out.println("After handling " + cmd);
-			ret.append("Spe node ").append(node_id).append(" completed task ").append(cmd.get("task")).append("\n");
+			ret.append("Spe node ").append(node_id).append(" completed task ").append(cmd.get("task"));
 		}
 		return ret.toString();
 	}

@@ -235,7 +235,7 @@ public class NodeComm extends Comm implements Runnable {
 					} else if (msg.get("type").equals("task")) {
 						received_tasks.add(msg);
 					} else {
-						System.err.println("Undefined message received: " + msg);
+						System.err.println("Undefined message type " + msg.get("type") + " in received message: " + msg);
 						System.exit(52);
 					}
 				}
@@ -264,8 +264,10 @@ public class NodeComm extends Comm implements Runnable {
 							reply.put("sequence-id", sequence_id);
 							reply.put("response", response);
 							reply.put("type", "response");
-							this.out.write(StringEscapeUtils.escapeJava(yaml.dump(reply)) + "\n");
-							this.out.flush();
+							synchronized (this.out) {
+								this.out.write(StringEscapeUtils.escapeJava(yaml.dump(reply)) + "\n");
+								this.out.flush();
+							}
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
