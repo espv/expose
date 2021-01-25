@@ -55,7 +55,8 @@ public class NodeComm extends Comm implements Runnable {
 	}
 
 	// Put this method in a different class
-	public String SendToSpe(Map<String, Object> task) {
+	public String SendToSpe(Map<String, Object> t) {
+		Map<String, Object> task = new HashMap<>(t);
 		int sequence_id;
 		if (task.containsKey("sequence-id")) {
 			sequence_id = (int) task.get("sequence-id");
