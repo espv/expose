@@ -270,9 +270,8 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 					break;
 				}
 				case "moveQueryState": {
-					int query_id = (int) args.get(0);
-					int new_host = (int) args.get(1);
-					experimentAPI.MoveQueryState(query_id, new_host);
+					int new_host = (int) args.get(0);
+					experimentAPI.MoveQueryState(new_host);
 					break;
 				}
 				case "moveStaticQueryState": {

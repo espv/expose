@@ -28,7 +28,7 @@ public interface ExperimentAPI {
 	String Wait(int milliseconds);
 	String WriteStreamToCsv(int stream_id, String csvFilename);
 	String TraceTuple(int tracepointId, List<String> arguments);
-	String MoveQueryState(int query_id, int new_host);
+	String MoveQueryState(int new_host);
 	String MoveStaticQueryState(int query_id, int new_host);
 	String MoveDynamicQueryState(int query_id, int new_host);
 	String ResumeStream(List<Integer> stream_id_list);

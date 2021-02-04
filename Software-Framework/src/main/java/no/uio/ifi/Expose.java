@@ -567,9 +567,7 @@ public class Expose {
 					break;
 				}
 				case "moveQueryState": {
-					int query_id = (int) args.get(0);
-					int new_host = (int) args.get(1);
-					task_args.add(query_id);
+					int new_host = (int) args.get(0);
 					task_args.add(new_host);
 					break;
 				}
