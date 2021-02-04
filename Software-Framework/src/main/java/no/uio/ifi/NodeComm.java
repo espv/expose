@@ -265,7 +265,9 @@ public class NodeComm extends Comm implements Runnable {
 							reply.put("response", response);
 							reply.put("type", "response");
 							synchronized (this.out) {
-								this.out.write(StringEscapeUtils.escapeJava(yaml.dump(reply)) + "\n");
+								synchronized (yaml) {
+									this.out.write(StringEscapeUtils.escapeJava(yaml.dump(reply)) + "\n");
+								}
 								this.out.flush();
 							}
 						}

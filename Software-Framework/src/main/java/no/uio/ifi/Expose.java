@@ -702,7 +702,9 @@ public class Expose {
 		List<String> yaml_metrics = this.mc.BroadcastTask(cmd);
 		Yaml yaml = new Yaml();
 		for (String yaml_metric : yaml_metrics) {
-			metrics.add(yaml.load(StringEscapeUtils.unescapeJava(yaml_metric)));
+			synchronized (yaml) {
+				metrics.add(yaml.load(StringEscapeUtils.unescapeJava(yaml_metric)));
+			}
 		}
 		return metrics;
 	}
@@ -778,7 +780,10 @@ public class Expose {
 			e.printStackTrace();
 			System.exit(22);
 		}
-		Map<String, Object> map = yaml.load(fis);
+		Map<String, Object> map;
+		synchronized (yaml) {
+			map = yaml.load(fis);
+		}
 
 		return map;
 	}
@@ -849,7 +854,9 @@ public class Expose {
 					Yaml yaml = new Yaml();
 					Map<String, Object> map;
 					try {
-						map = yaml.load(reader.readLine());
+						synchronized (yaml) {
+							map = yaml.load(reader.readLine());
+						}
 					} catch (ClassCastException e) {
 						e.printStackTrace();
 						System.err.println("Map<String, Object> must be formatted as a JSON object");

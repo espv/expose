@@ -348,7 +348,9 @@ public class SpeTaskHandler extends Comm implements MainTaskHandler {
 				}
 				case "collectMetrics": {
 					int metrics_window = (int) args.get(0);
-					ret.append(StringEscapeUtils.escapeJava(yaml.dump(experimentAPI.CollectMetrics(metrics_window))));
+					synchronized (yaml) {
+						ret.append(StringEscapeUtils.escapeJava(yaml.dump(experimentAPI.CollectMetrics(metrics_window))));
+					}
 					System.out.println("After handling " + cmd);
 					return ret.append("\n").toString();
 				}
