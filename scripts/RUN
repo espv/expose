@@ -1,2 +1,0 @@
-# Arguments are the YAML config file for Intel Xeon, the YAML config file for RPI 4, the isolated CPU number for Intel Xeon and the isolated CPU number for RPI 4
-nohup ./vldb ~/expose ~/expose ~/expose ../experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml ../experiment-configurations/experiment-configuration-movsim-rpi4-vldb.yaml 19 3 &
