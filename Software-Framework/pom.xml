@@ -7,9 +7,9 @@
 
     <groupId>no.uio.ifi</groupId>
 
-    <artifactId>StreamProcessingExperimentFramework</artifactId>
+    <artifactId>experimentframework</artifactId>
 
-    <version>1.0.0</version>
+    <version>1.0</version>
 
     <packaging>jar</packaging>
 
