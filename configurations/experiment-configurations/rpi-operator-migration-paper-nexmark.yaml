@@ -41,6 +41,7 @@ experiments:
       - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
       - {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true}
+      #- {task: wait, arguments: [10000], node: [2]}
       - {task: retEndOfStream, node: [2], arguments: [2000]}
       #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
@@ -52,6 +53,7 @@ experiments:
           {task: traceTuple, node: [2], arguments: [3, []]},
           # Old host tells the source node to buffer all the tuples
           #{task: bufferAndStopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          {task: moveStaticQueryState, node: [2], arguments: [11, 4]},
           {task: bufferStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
           {task: stopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], 2]},
           {task: relayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
@@ -59,7 +61,7 @@ experiments:
           {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
           #{task: wait, node: [2], arguments: [1]},
           # Old host moves the query state to the new host
-          {task: moveQueryState, node: [2], arguments: [11, 4]},
+          {task: moveDynamicQueryState, node: [2], arguments: [11, 4]},
           # Old host tells the source node to resume sending the tuples
           {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
           # Trace end of migration
@@ -75,8 +77,8 @@ experiments:
       - {task: loopTasks,
          arguments: [1, [
            {task: startRuntimeEnv, node: [2, 3, 4]},
-           {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
-           {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+           {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false},
+           {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false},
            {task: retEndOfStream, node: [3,4], arguments: [2000]},
            {task: stopRuntimeEnv, node: [2, 3, 4]},
          ]]}
@@ -908,9 +910,18 @@ Consuming A; "  # Auction is consumed because they will only be matched once
                join Person#window.time(999 years) as P on P.id == A.seller
                select P.id, P.name, A.reserve
                insert into OutQuery8;"
-      flink: "select P.id, P.name, A.reserve
+      flink: "select P.id, A.itemName, A.reserve
               from Auction A
               join Person P on P.id = A.seller"
+      flink2: "select A.initialBid, A.itemName, A.description, A.initialBid, A.reserve, A.expires2,
+                      A.seller, A.category, A.description, A.description, A.description, A.description
+                    from Auction A
+                    join Person P on P.id = A.seller"
+      flink3: "select SUM(A.initialBid), A.itemName, A.itemName, A.initialBid, A.reserve, A.expires2,
+                                 A.seller, A.category, A.itemName, A.itemName, A.itemName, A.itemName
+                          from Auction A
+                          group by A.itemName, A.initialBid, A.reserve, A.expires2,
+                                 A.seller, A.category"
       beam: "select P.id, P.name, A.reserve
              from Auction A
              join Person P on P.id = A.seller"
@@ -1026,6 +1037,15 @@ stream-definitions:
     stream-id: 15
     name: OutQuery8
     tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: reserve, type: int}]
+
+#  - id: 15
+#    stream-id: 15
+#    name: OutQuery8
+#    tuple-format: [ { name: id, type: long }, { name: name, type: string },
+#                    { name: itemName, type: string }, { name: initialBid, type: long }, { name: reserve, type: int },
+#                    { name: expires2, type: long }, { name: seller, type: int }, { name: category, type: int },
+#                    { name: emailAddress, type: string }, { name: creditCard, type: string }, { name: city, type: string },
+#                    { name: state, type: string } ]
 
   - id: 16
     stream-id: 16
