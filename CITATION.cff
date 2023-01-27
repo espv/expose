@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated paper as below."
+authors:
+- family-names: "Volnes"
+  given-names: "Espen"
+  orcid: "https://orcid.org/0000-0002-1388-981X"
+- family-names: "Plagemann"
+  given-names: "Thomas"
+  orcid: "https://orcid.org/0000-0002-2598-9228"
+- family-names: "Goebel"
+  given-names: "Vera"
+  orcid: "https://orcid.org/0000-0002-2850-066X"
+- family-names: "Kristiansen"
+  given-names: "Stein"
+  orcid: "https://orcid.org/0000-0002-1434-9524"
+title: "EXPOSE: Experimental Performance Evaluation of Stream Processing Engines Made Easy"
+doi: 10.1007/978-3-030-84924-5_2
+date-released: 2021-08-04
+url: "https://github.com/espv/expose"

@@ -1,0 +1,17 @@
+#!/bin/bash
+EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
+number_threads=$1
+client_ip=$(curl https://ipinfo.io/ip)
+client_port=$2
+coordinator_ip=$3
+coordinator_port=$4
+node_id=$5
+trace_path=$6/node-$node_id
+unused_cpu_core=$7
+
+cd $EXPOSE_PATH
+FLINK_PATH=$EXPOSE_PATH/SPEs-plus-wrappers/flink-plus-wrapper
+FLINK_BINARIES=$FLINK_PATH/flink-1.9.1
+JAR=$FLINK_PATH/flink-experiments/target/flink-experiments-1.9-SNAPSHOT.jar
+FLINK_BINARIES=$FLINK_BINARIES EXPOSE_PATH=$EXPOSE_PATH $FLINK_BINARIES/bin/flink run -p2 $JAR --client-ip $client_ip --client-port 9092 --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path
+

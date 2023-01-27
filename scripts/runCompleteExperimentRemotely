@@ -1,0 +1,121 @@
+#!/bin/bash
+experiment_id=$1
+number_nodes=$2
+host_number_threads=$(grep -c ^processor /proc/cpuinfo)
+remote_number_threads=$3
+stream_processing_system=$4
+node_to_run=$5
+rootlogdir=$6
+local_expose_path=$6
+remote_expose_path=$7
+yaml_config=$8
+isolated_cpu_core=$9
+if [[ -z "$isolated_cpu_core" ]]
+then
+	echo "Must provide an isolated CPU core"
+	echo "Hint: You may provide multiple cores in a list, as 0,1,2,3, or 0-3"
+	exit 1
+fi
+uuid=$(cat /proc/sys/kernel/random/uuid)
+uuid=${uuid: -4}
+dt=`date +%s`
+dt=${dt: -10}
+local_scriptdir=$local_expose_path/scripts
+remote_scriptdir=$remote_expose_path/scripts
+local_rootlogdir=$local_scriptdir/Experiments
+remote_rootlogdir=$remote_scriptdir/Experiments
+local_logdir=$local_rootlogdir/log/experiment-${experiment_id}/${stream_processing_system}/${dt}-${uuid}
+remote_logdir=$remote_rootlogdir/log/experiment-${experiment_id}/${stream_processing_system}/${dt}-${uuid}
+local_trace_path=$local_logdir/traces
+remote_trace_path=$remote_logdir/traces
+my_ip=$(hostname -I | cut -d' ' -f1)
+pids=()
+coordinator_ip=$(curl https://ipinfo.io/ip)
+coordinator_port=50000
+mkdir -p $local_logdir/StreamProcessors
+ansible $node_to_run -a "mkdir -p $remote_logdir/StreamProcessors"
+echo "mkdir -p $local_trace_path"
+mkdir -p $local_trace_path
+ansible $node_to_run -a "mkdir -p $remote_trace_path"
+
+# Killing Kafka locally and remotely; they will start a new
+$local_scriptdir/kill_kafka
+ansible $node_to_run -a "$remote_scriptdir/kill_kafka"
+
+# USAGE: ./<script> <experiment_id> <number_nodes> <remote_number_threads> <stream_processing_system>
+# Example: ./<script> 2 3 1 Flink
+# Example: ./<script> 2 10 1 Siddhi
+
+echo "$(date +%s): Starting coordinator"
+echo "$(date +%s): Running './runCoordinator $experiment_id $yaml_config 1>$local_logdir/Coordinator.log 2>&1'"
+./runCoordinator $experiment_id $yaml_config 1>$local_logdir/Coordinator.log 2>&1 &
+coordinator_pid=$!
+
+sleep 5
+
+# This must be random
+port_base=$RANDOM
+
+function add_spe() {
+	i=$1
+	finished=
+	while [ ! $finished ]
+	do
+		node_id=$(echo 0000$i | sed 's/^0*//')
+		client_port=$((port_base+i))
+		client_port=0000$client_port
+		client_port=${client_port: -4}
+		fuser -k 4$client_port/tcp
+		fuser -k 5$client_port/tcp
+		./wait_while_port_taken 5$client_port
+		./wait_while_port_taken 4$client_port
+		echo "Running ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip $coordinator_port $node_id $local_trace_path 1>$local_logdir/StreamProcessors/node-${node_id}.log 2>&1"
+		EXPERIMENT_ID=$experiment_id ./single$stream_processing_system $host_number_threads $client_port $coordinator_ip $coordinator_port $node_id $local_trace_path 1>$local_logdir/StreamProcessors/node-${node_id}.log 2>&1 &
+		PID=$!
+		sleep 2
+		if [ -n "$(ps -p $PID -o pid=)" ]; 
+		then
+			finished=1
+		fi
+	done
+}
+
+for i in $(seq "$number_nodes");
+do
+	if [ $i -eq 2 ]; then
+		continue
+	fi
+	add_spe $i
+	pids+=($PID)
+done
+
+remote_port=$((port_base+2))
+remote_port=0000$remote_port
+remote_port=${remote_port: -4}
+remote_node_id=2
+
+cmd="fuser -k 4$remote_port/tcp"
+ansible $node_to_run -a "$cmd"
+cmd="fuser -k 5$remote_port/tcp"
+ansible $node_to_run -a "$cmd"
+cmd="$remote_scriptdir/wait_while_port_taken 4$remote_port"
+ansible $node_to_run -a "$cmd"
+cmd="$remote_scriptdir/wait_while_port_taken 5$remote_port"
+ansible $node_to_run -a "$cmd"
+cmd="$remote_scriptdir/single$stream_processing_system $remote_number_threads $remote_port $coordinator_ip $coordinator_port $remote_node_id $remote_trace_path $isolated_cpu_core"
+echo "$(date +%s): running 'ansible $node_to_run -a $cmd"
+ansible $node_to_run -m shell -a "$cmd 1>$remote_logdir/StreamProcessors/node-${remote_node_id}.log 2>&1"&
+pids+=($!)
+echo "$(date +%s): Remote port $remote_port"
+
+echo "$(date +%s): Waiting for coordinator to finish"
+wait $coordinator_pid
+echo "$(date +%s): Finished experiment $experiment_id"
+
+for i in "${pids[@]}"
+do
+	pkill -TERM -P $i&
+done
+
+pkill ansible
+ansible $node_to_run -m shell -a "$remote_scriptdir/clean_processes"

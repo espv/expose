@@ -1,0 +1,27 @@
+#!/bin/bash
+EXPOSE_PATH=$(realpath "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )/..")
+# Number of threads is maximum 6. If it is lower than 6, the first argument specifies it.
+number_threads=$(( 2 > $1 ? $1 : 2 ))
+client_ip=$(hostname -I | cut -d' ' -f1)
+client_port=$2
+coordinator_ip=$3
+coordinator_port=$4
+node_id=$5
+trace_path=$6/node-$node_id
+unused_cpu_core=$7
+experiment_id=$EXPERIMENT_ID
+mkdir -p $trace_path
+cd $EXPOSE_PATH/SPEs-plus-wrappers/trex-plus-wrapper
+
+if [[ -z $unused_cpu_core ]]
+then
+	if [[ $experiment_id = 4 || $experiment_id = 14 ]];
+	then
+		EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --trace-output-folder $trace_path --number-threads $number_threads --node-id $node_id --vldb-tweak-for-experiment4
+	else
+		EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
+	fi
+else
+	EXPOSE_PATH=$EXPOSE_PATH LD_LIBRARY_PATH=/usr/local/lib taskset -c $unused_cpu_core ./TRex-Server/src/TRexServer --client-ip $client_ip --client-port 5$client_port --coordinator-ip $coordinator_ip --coordinator-port $coordinator_port --node-id $node_id --trace-output-folder $trace_path --number-threads $number_threads
+fi
+

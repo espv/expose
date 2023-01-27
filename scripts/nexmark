@@ -1,0 +1,100 @@
+#!/bin/bash
+# This script runs all experiments on all four SPE systems on both the RPI 4 and Intel Xeon server
+# Experiment 3 with T-Rex on the Intel Xeon is the only experiment that is treated differently,
+# and that's because T-Rex scales terribly with the average query. That experiment is therefore
+# slightly different in that it increases the number of queries by 3 per iteration instead of 10.
+# Otherwise, T-Rex never finishes.
+
+# The script also shows a big picture view of all the experiments and how they differ on the two platforms.
+# The RPI 4 can't handle as heavy load as the Intel Xeon server, and therefore it runs different
+# experiments, which only go to around 50 queries, instead of 200 on the Intel Xeon.
+
+ansible_target=intel_xeon
+local_expose_path=$1
+intel_expose_path=$2
+rpi_expose_path=$3
+yaml_config_intel=$4
+yaml_config_rpi=$5
+isolated_cpu_core_intel_xeon=$6
+isolated_cpu_core_rpi=$7
+
+stream_processing_systems=(Flink Beam Esper Siddhi TRex)
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	./runCompleteExperimentRemotely 0 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	# T-Rex can only do 0
+	if [[ "$stream_processing_system" = "TRex" ]];
+	then
+		continue
+	fi
+
+	./runCompleteExperimentRemotely 1 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 2 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	# Beam can only do 0, 1, 2, 5 and 7
+	if [[ "$stream_processing_system" = "Beam" ]];
+	then
+		./runCompleteExperimentRemotely 5 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+		./runCompleteExperimentRemotely 7 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+		continue
+	fi
+	./runCompleteExperimentRemotely 3 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 4 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 5 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 6 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 7 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+	./runCompleteExperimentRemotely 8 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_intel $isolated_cpu_core_intel_xeon
+done
+
+stream_processing_systems=(Flink Beam Esper Siddhi TRex)
+ansible_target=raspberrypi_4
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	./runCompleteExperimentRemotely 10 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	if [[ "$stream_processing_system" = "TRex" ]];
+	then
+		continue
+	fi
+	./runCompleteExperimentRemotely 11 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 12 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	# Beam can only do 0, 1, 2, 5 and 7
+	if [[ "$stream_processing_system" = "Beam" ]];
+	then
+		./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $intel_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+		continue
+	fi
+	./runCompleteExperimentRemotely 13 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 14 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 15 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 16 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 17 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+	./runCompleteExperimentRemotely 18 3 1 $stream_processing_system $ansible_target $local_expose_path $rpi_expose_path $yaml_config_rpi $isolated_cpu_core_rpi
+done
+
+uuid=$(cat /proc/sys/kernel/random/uuid)
+uuid=${uuid: -4}
+dt=$(date +%s)
+log_name=log_${dt}_${uuid}
+log_folder=$local_expose_path/scripts/Experiments/archive/root_${log_name}
+mkdir -p $log_folder
+ansible intel_xeon -a "mkdir -p $intel_expose_path/scripts/Experiments/archive"
+ansible raspberrypi_4 -a "mkdir -p $intel_expose_path/scripts/Experiments/archive"
+mv $local_expose_path/scripts/Experiments/log $log_folder/log_AMD
+ansible intel_xeon -a "mv $intel_expose_path/scripts/Experiments/log ${intel_expose_path}/scripts/Experiments/archive/${log_name}"
+ansible intel_xeon -a "tar -C  ${intel_expose_path}/scripts/Experiments/archive -cf ${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz ${log_name}"
+ansible raspberrypi_4 -a "mv $rpi_expose_path/scripts/Experiments/log $rpi_expose_path/scripts/Experiments/archive/${log_name}"
+ansible raspberrypi_4 -a "tar -C ${rpi_expose_path}/scripts/Experiments/archive/ -cf ${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz ${log_name}"
+cmd="src=${intel_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_intel_xeon.tar.gz flat=yes"
+ansible intel_xeon -m fetch -a "$cmd"
+cmd="src=${rpi_expose_path}/scripts/Experiments/archive/${log_name}.tar.gz dest=${log_folder}/log_raspberrypi_4.tar.gz flat=yes"
+ansible raspberrypi_4 -m fetch -a "$cmd"
+tar -C $log_folder -xf $log_folder/log_intel_xeon.tar.gz
+tar -C $log_folder -xf $log_folder/log_raspberrypi_4.tar.gz
+rm $log_folder/log_intel_xeon.tar.gz
+rm $log_folder/log_raspberrypi_4.tar.gz
+# Run analyze_all on the log folders
+workon analysis
+./analyze_all $log_folder/$log_name $yaml_config_intel $yaml_config_rpi
+find $log_folder/$log_name -name "*.trace" -exec python $local_expose_path/scripts/simple-trace-analysis.py $local_expose_path/experiment-configurations/intel-xeon-nexmark.yaml {} \; > $log_folder/$log_name/analysis_results
+
+echo "Finished all the experiments and results are written to $log_folder/$log_name/analysis_results"

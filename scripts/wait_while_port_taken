@@ -1,0 +1,29 @@
+#!/bin/bash
+function is_port_available() {
+        port=$1
+        used=$(ss -tulw | grep "LISTEN" | grep "$port")
+
+        if [ -z "$used" ];
+        then
+             	return 1
+        fi
+        return 0
+}
+
+function wait_while_port_taken() {
+        port=$1
+	echo "port: $port"
+
+	$(is_port_available $port)
+	res=$?
+		while [[ $res -eq 0 ]];
+        do
+		is_port_available $port
+		res=$?
+                echo "The port $port is taken, waiting two seconds"
+                sleep 2
+        done
+}
+
+port=$1
+wait_while_port_taken $port

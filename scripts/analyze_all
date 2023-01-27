@@ -1,0 +1,79 @@
+#!/bin/bash
+rootdir=$1
+intel_yaml=$2
+rpi_yaml=$3
+
+# RPI 4
+experiment_directory=$rootdir/experiment-11
+x_factor="Number sinks"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-1"
+experiment_directory=$rootdir/experiment-12
+x_factor="Number queries"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-2"
+experiment_directory=$rootdir/experiment-13
+x_factor="Number queries"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-3"
+experiment_directory=$rootdir/experiment-14
+x_factor="Number queries"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-4"
+experiment_directory=$rootdir/experiment-15
+x_factor="Number sources"
+./analyze "$rpi_yaml" "$experiment_directory" "$x_factor" "rpi4-experiment-5"
+
+
+# Intel Xeon
+yaml=/home/espen/Research/PhD/Private-WIP/stream-processing-benchmark-wip/Experiments/experiment-configurations/experiment-configuration-movsim-intel-xeon-vldb.yaml
+experiment_directory=$rootdir/experiment-1
+x_factor="Number sinks"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-1"
+experiment_directory=$rootdir/experiment-2
+x_factor="Number queries"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-2"
+experiment_directory=$rootdir/experiment-3
+x_factor="Number queries"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-3"
+experiment_directory=$rootdir/experiment-4
+x_factor="Number queries"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-4"
+experiment_directory=$rootdir/experiment-5
+x_factor="Number sources"
+./analyze "$intel_yaml" "$experiment_directory" "$x_factor" "intel-xeon-experiment-5"
+
+
+# Intra-SPE comparison of Experiments 2, 3 and 4
+stream_processing_systems=(Esper Siddhi Flink TRex)
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	mkdir -p $rootdir/$stream_processing_system-intel-xeon
+	mkdir -p $rootdir/$stream_processing_system-rpi
+	# We copy the Experiment 2, 3 and 4 trace files for the SPEs in folders grouped by the SPE
+	# We assume that each experiment only has one trace file for each SPE
+	# The resulting folder SPE-hardware will include three trace files then, called
+	# FilterExperimentFramework.trace, AggregationExperimentFramework and SequenceExperimentFramework.trace
+	find $rootdir/experiment-2/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/FilterExperimentFramework.trace
+	find $rootdir/experiment-3/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/AggregationExperimentFramework.trace
+	find $rootdir/experiment-4/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-intel-xeon
+	cp `cat $rootdir/.${stream_processing_system}-intel-xeon` $rootdir/$stream_processing_system-intel-xeon/SequenceExperimentFramework.trace
+	find $rootdir/experiment-12/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/FilterExperimentFramework.trace
+	find $rootdir/experiment-13/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/AggregationExperimentFramework.trace
+	find $rootdir/experiment-14/$stream_processing_system -name "*.trace" > $rootdir/.$stream_processing_system-rpi
+	cp `cat $rootdir/.${stream_processing_system}-rpi` $rootdir/$stream_processing_system-rpi/SequenceExperimentFramework.trace
+
+	rm $rootdir/.$stream_processing_system-intel-xeon
+	rm $rootdir/.$stream_processing_system-rpi
+done
+
+x_factor="Number queries"
+for stream_processing_system in "${stream_processing_systems[@]}"
+do
+	./analyze "$intel_yaml" "$rootdir/$stream_processing_system-intel-xeon" "$x_factor" "$stream_processing_system-2-3-4"
+	./analyze "$rpi_yaml" "$rootdir/$stream_processing_system-rpi" "$x_factor" "$stream_processing_system-12-13-14"
+done
+
+mkdir -p $rootdir/Result-Figures
+mv *.png $rootdir/Result-Figures
+

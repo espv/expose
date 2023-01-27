@@ -1,0 +1,36 @@
+#!/bin/bash
+zookeeper_pid_is_alive=
+#zookeeper_is_up=$(echo stat | nc localhost 2181)
+zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
+
+if [ -f .start-zookeeper-running ] && kill -0 `cat .start-zookeeper-running` 2>/dev/null; then
+    exit 1
+fi
+echo $$ > .start-zookeeper-running
+
+if [[ ! -z $zookeeper_is_up ]]
+then
+	echo "Zookeeper is already up!"
+fi
+while [[ -z $zookeeper_is_up ]]
+do
+  while [[ -z $zookeeper_is_alive ]]
+  do
+#    zookeeper_is_up=$(echo stat | nc localhost 2181)
+    zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
+    if [[ $zookeeper_is_up ]]
+    then
+	    break
+    fi
+    KAFKA_OPTS="$KAFKA_OPTS -Dzookeeper.4lw.commands.whitelist=stat,dump" $KAFKA_PATH/bin/zookeeper-server-start.sh $KAFKA_PATH/config/zookeeper.properties &
+    disown
+    zookeeper_pid=$!
+    sleep 1
+    zookeeper_is_alive=$(ps cax | grep $zookeeper_pid)
+  done
+  sleep 1
+ # sleep 10
+#  zookeeper_is_up=$(echo stat | nc localhost 2181)
+  zookeeper_is_up=$(nc -vz localhost 2181 2>&1 | grep "succeeded")
+done
+rm .start-zookeeper-running

@@ -1,0 +1,24 @@
+#!/bin/bash
+PIDS=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $1}')
+zookeeper_pid=$(ps -eo pid,command | grep "QuorumPeer" | grep -v grep | awk '{print $1}')
+
+# Apparently, kafka can't be shut down normally if zookeeper isn't up
+if [[ -z $zookeeper_pid && ! -z $PIDS ]]
+then
+  kill -9 $PIDS
+  exit 0
+fi
+
+while [[ ! -z $PIDS ]]
+do
+  kill -s TERM $PIDS
+  PIDS=$(ps ax | grep -i 'kafka\.Kafka' | grep java | grep -v grep | awk '{print $1}')
+done
+
+echo "Zookeeper pid: $zookeeper_pid"
+while [[ ! -z $zookeeper_pid ]]
+do
+  kill -s TERM $zookeeper_pid
+  zookeeper_pid=$(ps -eo pid,command | grep "QuorumPeer" | grep -v grep | awk '{print $1}')
+done
+
