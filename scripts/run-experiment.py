@@ -141,21 +141,6 @@ class RunExperiments(object):
             experiments_to_run = spe["experiments-to-run"]
             for experiment_id in experiments_to_run:
                 all_child_processes = []
-                spe_instances = []
-                for host in hosts:
-                    spe_ssh_user = host.get("ssh-user")
-                    spe_ssh_host = host.get("ssh-host")
-                    expose_path = host.get("expose-path")
-                    SPE_env = os.environ.copy()
-                    SPE_env["EXPOSE_PATH"] = expose_path
-                    script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " " + expose_path + "/scripts/kill_kafka"
-                    spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
-                    spe_process.wait()
-                    spe_instances.append(spe_process)
-                    script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " killall -9 java"
-                    spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
-                    spe_process.wait()
-                    all_child_processes.append(spe_process)
                 print("First start up the coordinator for", spe["name"], "experiments to run")
                 script_call = "ssh -t -t " + coordinator_ssh_user + "@" + coordinator_ssh_host + " " + coordinator_script + " " + str(experiment_id) + " " + experiment_configuration + " " + coordinator_port
                 print("script call:", script_call)
@@ -164,6 +149,7 @@ class RunExperiments(object):
                 print("PID of coordinator script:", coordinator_process.pid)
                 print("")
                 print("Then run all the nodes separately")
+                spe_instances = []
                 run_id = RunExperiments.get_unique_id()
                 for host in hosts:
                     spe_ssh_user = host.get("ssh-user")
@@ -174,6 +160,11 @@ class RunExperiments(object):
                     SPE_env = os.environ.copy()
                     SPE_env["EXPOSE_PATH"] = expose_path
                     for node_id in node_ids:
+                        script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " " + expose_path + "/scripts/kill_kafka"
+                        spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
+                        spe_process.wait()
+                        spe_instances.append(spe_process)
+                        all_child_processes.append(spe_process)
                         script_call = "ssh -t -t " + spe_ssh_user + "@" + spe_ssh_host + " EXPOSE_PATH=" + expose_path + " " + spe_script + " " + spe["name"] + " " + str(node_id) + " " + " \"" + isolated_cpu_cores + "\" " + coordinator_ssh_host + " " + coordinator_port + " " + str(experiment_id) + " " + run_id
                         spe_process = subprocess.Popen(script_call.split(), env=SPE_env)
                         spe_instances.append(spe_process)

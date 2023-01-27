@@ -7,9 +7,9 @@
 
     <groupId>no.uio.ifi</groupId>
 
-    <artifactId>StreamProcessingExperimentFramework</artifactId>
+    <artifactId>experimentframework</artifactId>
 
-    <version>1.0.0</version>
+    <version>1.0</version>
 
     <packaging>jar</packaging>
 
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.32</version>
+            <version>1.24</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -34,6 +34,26 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-io</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.vlsi.mxgraph</groupId>
+            <artifactId>jgraphx</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-ext</artifactId>
+            <version>1.4.0</version>
         </dependency>
     </dependencies>
 

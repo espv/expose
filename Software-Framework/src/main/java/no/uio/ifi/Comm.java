@@ -12,8 +12,13 @@ public class Comm {
     final Yaml yaml = new Yaml();
 
     static Map<String, Object> receiveMap(BufferedReader reader, Yaml yaml) throws IOException {
-        String yaml_event = StringEscapeUtils.unescapeJava(reader.readLine());
-        return yaml.load(yaml_event);
+        String received = reader.readLine();
+        String yaml_event = StringEscapeUtils.unescapeJava(received);
+        Map<String, Object> map;
+        synchronized (yaml) {
+            map = yaml.load(yaml_event);
+        }
+        return map;
     }
 
     public void SendMap(Map<String, Object> map, PrintWriter writer) {

@@ -102,41 +102,23 @@ experiments:
   - name: experiment 2 --- NexMark
     id: 12
     flow:
-      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: 3}
+      - {task: writeStreamToCsv, arguments: [5, "/home/espen/Research/PhD/Private-WIP/traces/expose/1/5"], node: [12]}
+      # Node 1 sets all RPI's as next hops for the tuples in the dataset
+      - {task: addNextHop, arguments: [[1,2,3,4], [2,3,4,5,6,7,8,9,10,11]], node: [1]}
+      # The RPI's set Node 11 as next hop for the output tuples from the query
+      - {task: addNextHop, arguments: [[5], [12]], node: [2,3,4,5,6,7,8,9,10,11]}
 
-      - {task: addNextHop, arguments: [1, 2], node: 1}
-      - {task: addNextHop, arguments: [2, 2], node: 1}
-      - {task: addNextHop, arguments: [3, 2], node: 1}
-      - {task: addNextHop, arguments: [4, 2], node: 1}
-
-      - {task: addNextHop, arguments: [5, 3], node: 2}
-
-      - {task: deployQueries, arguments: [2, 1], node: 2}
-      # Warmup: send dataset as stream 5 times
-      - {task: loopTasks, node: coordinator,
-         arguments: [5, [
-         {task: startRuntimeEnv, node: 2},
-         {task: startRuntimeEnv, node: 3},
-         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [2000]},
-         {task: retEndOfStream, node: 2, arguments: [2000]},
-         {task: traceTuple, node: 2, arguments: [200, []]},
-         {task: stopRuntimeEnv, node: 2},
-         {task: stopRuntimeEnv, node: 3}
-         ]]}
-      - {task: traceTuple, node: 2, arguments: [0, []]} # Trace that warmup is finished
+      - {task: deployQueries, arguments: [2, 1], node: [2]}
+      - {task: traceTuple, node: [2], arguments: [0, []]} # Trace that warmup is finished
       # Runs that count: send dataset as stream 5 times
-      - {task: loopTasks, node: coordinator,
+      - {task: loopTasks,
          arguments: [5, [
-         {task: startRuntimeEnv, node: 2},
-         {task: startRuntimeEnv, node: 3},
-         {task: sendDsAsStream, arguments: [8], node: 1, realism: false, parallel: true},
-         {task: retEndOfStream, node: 3, arguments: [2000]},
-         {task: retEndOfStream, node: 2, arguments: [2000]},
-         {task: traceTuple, node: 2, arguments: [200, []]},
-         {task: stopRuntimeEnv, node: 2},
-         {task: stopRuntimeEnv, node: 3}
-         ]]}
+         {task: startRuntimeEnv, node: [2,3,4,5,6,7,8,9,10,11,12]},
+         {task: sendDsAsStream, arguments: [8, 1, false], node: [1], realism: false, parallel: true},
+         {task: retEndOfStream, node: [2,3,4,5,6,7,8,9,10,11,12], arguments: [2000]},
+         {task: traceTuple, node: [2], arguments: [200, []]},
+         {task: stopRuntimeEnv, node: [2,3,4,5,6,7,8,9,10,11,12]}
+      ]]}
 
   - name: experiment 3 --- NexMark
     id: 13

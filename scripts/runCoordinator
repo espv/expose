@@ -4,4 +4,4 @@ experiment_id=$1
 yaml_config=$2
 coordinator_port=$3
 fuser -k $coordinator_port/tcp
-java -jar $EXPOSE_PATH/Software-Framework/target/StreamProcessingExperimentFramework-1.0.0-jar-with-dependencies.jar --yaml-config $yaml_config --coordinator-port $coordinator_port --experiment-id $experiment_id
+java -jar $EXPOSE_PATH/Software-Framework/target/experimentframework-1.0-jar-with-dependencies.jar --yaml-config $yaml_config --coordinator-port $coordinator_port --experiment-id $experiment_id

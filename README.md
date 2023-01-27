@@ -1,8 +1,6 @@
 # expose
 EXPOSE: Experimental Performance Evaluation of Stream Processing Systems Made Easy
 
-If you use this software, please cite the research paper found in https://link.springer.com/chapter/10.1007/978-3-030-84924-5_2.
-
 Tested on Ubuntu 19.04, 
 Required software packages:
 - maven
