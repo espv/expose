@@ -31,11 +31,101 @@ experiments:
       #- {task: loadSavepoint, arguments: ["/media/extra-drive1/espenvol/tmp/state/savepoints/received_savepoints/c822364360af6478db23d0e3b5b6b1b4/chk-152"], node: [4]}
       - {task: startRuntimeEnv, node: [2, 3, 4]}
       - {task: wait, node: [1], arguments: [10000]}
-      - { task: sendDsAsStream, arguments: [ 10, 1, false ], node: [1], realism: false}
+      - { task: sendDsAsStream, arguments: [ 10, 1, false ], node: [1], realism: false, parallel: true}
       # We ensure here that all nodes receive tuples, which means that the migration occurred within a stream
       - {task: retEndOfStream, node: [4], arguments: [1000]}
       - {task: retEndOfStream, node: [3], arguments: [10000]}
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
+
+  - name: experiment 1 --- A1, Small state, with naïve operator migration V1 (one source node)
+    id: 10
+    flow:
+      - {task: setTupleBatchSize, node: [1], arguments: [100]}
+      #- {task: writeStreamToCsv, arguments: [3, "scripts/Experiments/sink-output/1/3"], node: [2]}
+
+      - {task: addSourceNodes, arguments: [11, [1, 2, 3, 4], [1]], node: [2]}
+      - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
+
+      # 15 is the output from query 11
+      - {task: addNextHop, arguments: [[15], [3]], node: [2, 4]}
+      # 16 is the output from query 12
+      # We just forward both of them such that we can change between the queries
+      - {task: addNextHop, arguments: [[18], [3]], node: [2, 4]}
+      - {task: bufferStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
+      - {task: stopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4], 0]}
+
+      # Join query
+      #- {task: deployQueries, arguments: [11, 1], node: [2]}
+      # Aggregation query with groups
+      - {task: deployQueries, arguments: [12, 1], node: [2]}
+      # Warmup: send dataset as stream 5 times
+      - {task: loopTasks,
+         arguments: [0, [
+           {task: startRuntimeEnv, node: [2, 3, 4]},
+           {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
+           {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+           {task: retEndOfStream, node: [3], arguments: [2000]},
+           {task: stopRuntimeEnv, node: [2, 3, 4]},
+         ]]}
+      - {task: startRuntimeEnv, node: [2, 3, 4]}
+      - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
+      #      - {task: loadSavepoint, arguments: ["/media/extra-drive1/espenvol/tmp/state/runtime-state/node-2/checkpoints/30f0c28e49da491e3c008dc94bcd77c6"], node: [2]}
+      # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
+      - {task: sendDsAsStream, arguments: [9, 375000000, false], node: [1], realism: false, parallel: true}
+      #- {task: wait, arguments: [10000], node: [2]}
+      - {task: retEndOfStream, node: [3], arguments: [10000]}
+      - {task: retEndOfStream, node: [2], arguments: [120000]}
+      #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
+      # Sink node (Node 3) returns from this task when it has received 100,000 tuples
+      #- {task: retReceivedXTuples, node: [3], arguments: [1]}
+      # Old host (Node 2) starts operator migration
+      - {task: batchTasks, node: [2], arguments:
+        [[  # Trace start of migration
+          #{task: wait, node: [2], arguments: [1000]},
+          {task: traceTuple, node: [2], arguments: [3, []]},
+          # Old host tells the source node to buffer all the tuples
+          #{task: bufferAndStopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          # Query 11, commented out when using query 12
+          #{task: moveStaticQueryState, node: [2], arguments: [11, 4]},
+          # Query 12, commented out when using query 11
+          {task: moveStaticQueryState, node: [2], arguments: [12, 4]},
+          # This was added by Espen night to 21st of December, during an existing experiment
+          {task: sendDsAsStream, arguments: [9, 500000, false], node: [1], realism: false},
+          {task: retEndOfStream, node: [2], arguments: [10000]},
+          {task: retEndOfStream, node: [3], arguments: [10000]},
+          {task: bufferStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          {task: stopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], 2]},
+          {task: relayStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], [2], [4]]},
+          {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
+          #{task: wait, node: [2], arguments: [1]},
+          # Old host moves the query state to the new host
+          # Query 11, commented out when using query 12
+          #{task: moveDynamicQueryState, node: [2], arguments: [11, 4]},
+          # Query 12, commented out when using query 11
+          {task: moveDynamicQueryState, node: [2], arguments: [12, 4]},
+          # Old host tells the source node to resume sending the tuples
+          {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
+          # Trace end of migration
+          {task: traceTuple, node: [2], arguments: [4, []]},
+          {task: wait, node: [2], arguments: [120000]},
+          {task: sendDsAsStream, arguments: [9, 500000, false], node: [1], realism: false, parallel: true},
+          #{ task: sendDsAsStream, arguments: [ 10, 1, false ], node: [ 1 ], realism: false}
+        ]]}
+      # We ensure here that all nodes receive tuples, which means that the migration occurred within a stream
+      - {task: retEndOfStream, node: [4], arguments: [1000]}
+      - {task: retEndOfStream, node: [3], arguments: [20000]}
+      - {task: stopRuntimeEnv, node: [2, 3, 4]}
+        #      - {task: traceTuple, node: [2,3], arguments: [200, []]}
+      # Runs that count: send dataset as stream 5 times
+      #- {task: loopTasks,
+      #  arguments: [1, [
+      #    {task: startRuntimeEnv, node: [2, 3, 4]},
+      #    {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false},
+      #    {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false},
+      #    {task: retEndOfStream, node: [3,4], arguments: [2000]},
+      #    {task: stopRuntimeEnv, node: [2, 3, 4]},
+      #   ]]
+      #}
 
   - name: experiment 1 --- A1, Small state, with naïve operator migration V1 (one source node)
     id: 11
@@ -46,12 +136,18 @@ experiments:
       - {task: addSourceNodes, arguments: [11, [1, 2, 3, 4], [1]], node: [2]}
       - {task: addNextHop, arguments: [[1, 2, 3, 4], [2]], node: [1]}
 
+      # 15 is the output from query 11
       - {task: addNextHop, arguments: [[15], [3]], node: [2, 4]}
+      # 16 is the output from query 12
+      # We just forward both of them such that we can change between the queries
+      - {task: addNextHop, arguments: [[18], [3]], node: [2, 4]}
       - {task: bufferStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4]]}
       - {task: stopStream, node: [4], lock-spe: true, arguments: [[1, 2, 3, 4], 0]}
 
       # Join query
       - {task: deployQueries, arguments: [11, 1], node: [2]}
+      # Aggregation query with groups
+      #- {task: deployQueries, arguments: [12, 1], node: [2]}
       # Warmup: send dataset as stream 5 times
       - {task: loopTasks,
          arguments: [0, [
@@ -64,9 +160,9 @@ experiments:
       - {task: startRuntimeEnv, node: [2, 3, 4]}
       - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
-      - {task: sendDsAsStream, arguments: [9, 2000000, false], node: [1], realism: false}
+      - {task: sendDsAsStream, arguments: [9, 300000000, false], node: [1], realism: false, parallel: true}
       #- {task: wait, arguments: [10000], node: [2]}
-      - {task: retEndOfStream, node: [2], arguments: [20000]}
+      - {task: retEndOfStream, node: [2], arguments: [120000]}
       #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
       #- {task: retReceivedXTuples, node: [3], arguments: [1]}
@@ -77,9 +173,10 @@ experiments:
           {task: traceTuple, node: [2], arguments: [3, []]},
           # Old host tells the source node to buffer all the tuples
           #{task: bufferAndStopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
+          # Query 11, commented out when using query 12
           {task: moveStaticQueryState, node: [2], arguments: [11, 4]},
           # This was added by Espen night to 21st of December, during an existing experiment
-          {task: sendDsAsStream, arguments: [9, 100000, false], node: [1], realism: false},
+          {task: sendDsAsStream, arguments: [9, 100000, false], node: [1], realism: false, parallel: true},
           {task: retEndOfStream, node: [2], arguments: [10000]},
           {task: bufferStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4]]},
           {task: stopStream, node: [1], lock-spe: true, arguments: [[1, 2, 3, 4], 2]},
@@ -87,18 +184,19 @@ experiments:
           {task: waitForStoppedStreams, node: [2], arguments: [[1], [1, 2, 3, 4]]},
           #{task: wait, node: [2], arguments: [1]},
           # Old host moves the query state to the new host
+          # Query 11, commented out when using query 12
           {task: moveDynamicQueryState, node: [2], arguments: [11, 4]},
           # Old host tells the source node to resume sending the tuples
           {task: resumeStream, node: [1], arguments: [[1, 2, 3, 4]]},
           # Trace end of migration
           {task: traceTuple, node: [2], arguments: [4, []]},
           {task: wait, node: [2], arguments: [120000]},
-          #{task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true},
-          { task: sendDsAsStream, arguments: [ 10, 1, false ], node: [ 1 ], realism: false}
+          {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true},
+          #{ task: sendDsAsStream, arguments: [ 10, 1, false ], node: [ 1 ], realism: false}
         ]]}
       # We ensure here that all nodes receive tuples, which means that the migration occurred within a stream
       - {task: retEndOfStream, node: [4], arguments: [1000]}
-      - {task: retEndOfStream, node: [3], arguments: [20000]}
+      - {task: retEndOfStream, node: [3], arguments: [120000]}
       - {task: stopRuntimeEnv, node: [2, 3, 4]}
         #      - {task: traceTuple, node: [2,3], arguments: [200, []]}
       # Runs that count: send dataset as stream 5 times
@@ -436,7 +534,7 @@ experiments:
       - {task: startRuntimeEnv, node: [2, 3, 4]}
       - {task: traceTuple, node: [2,3], arguments: [0, []]} # Trace that warmup is finished
       # Source node (Node 1) sends dataset number 8 10 times with realism set to false (no wait for ack)
-      - {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: false}
+      - {task: sendDsAsStream, arguments: [9, 1, false], node: [1], realism: false, parallel: true}
       - {task: retEndOfStream, node: [2], arguments: [2000]}
       #- {task: sendDsAsStream, arguments: [10, 1, false], node: [1], realism: false, parallel: true}
       # Sink node (Node 3) returns from this task when it has received 100,000 tuples
@@ -939,7 +1037,7 @@ Consuming A; "  # Auction is consumed because they will only be matched once
                join Person#window.time(999 years) as P on P.id == A.seller
                select P.id, P.name, A.reserve
                insert into OutQuery8;"
-      flink: "select P.id, A.itemName, A.reserve
+      flink: "select P.id, A.description, A.reserve
               from Auction A
               join Person P on P.id = A.seller"
       flink2: "select A.initialBid, A.itemName, A.description, A.initialBid, A.reserve, A.expires2,
@@ -961,6 +1059,12 @@ Consuming A; "  # Auction is consumed because they will only be matched once
       template: "SELECT Rstream(P.id, P.name, A.reserve)
                  FROM Person [RANGE 12 HOUR] P, Auction [RANGE 12 HOUR] A
                  WHERE P.id = A.seller;"
+  - name: ""
+    id: 12
+    output-stream-id: 18
+    sql-query:
+      flink: "select description, sum(initialBid)
+              from Auction group by description"
 
 stream-definitions:
   - id: 0
@@ -1066,6 +1170,11 @@ stream-definitions:
     stream-id: 15
     name: OutQuery8
     tuple-format: [{name: id, type: int}, {name: name, type: string}, {name: reserve, type: int}]
+
+  - id: 18
+    stream-id: 18
+    name: OutQuery9
+    tuple-format: [{name: name, type: string}, {name: count, type: long}]
 
 #  - id: 15
 #    stream-id: 15
